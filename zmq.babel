@@ -1,0 +1,11 @@
+[Package]
+name          = "zmq"
+version       = "0.1.0"
+author        = "Andreas Rumpf"
+description   = "ZeroMQ wrapper"
+license       = "MIT"
+
+srcDir = "src"
+
+[Deps]
+Requires: "nimrod >= 0.9.4"
