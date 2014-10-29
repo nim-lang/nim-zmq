@@ -478,7 +478,7 @@ proc z85_decode*(dest: ptr uint8; string: cstring): ptr uint8 {.
 # Unofficial easier-for-Nimrod API
 
 type
-  EZmq* = object of ESynch ## exception that is raised if something fails
+  EZmq* = object of Exception ## exception that is raised if something fails
   TConnection* {.pure, final.} = object ## a connection
     c*: PContext  ## the embedded context
     s*: PSocket   ## the embedded socket
