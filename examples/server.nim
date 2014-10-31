@@ -2,7 +2,7 @@ import zmq
 
 var responder = listen("tcp://*:5555")
 
-while True:
+while true:
   var request = receive(responder)
   echo("Received: ", request)
   send(responder, "World")

@@ -478,7 +478,7 @@ proc z85_decode*(dest: ptr uint8; string: cstring): ptr uint8 {.
 # Unofficial easier-for-Nimrod API
 
 type
-  EZmq* = object of ESynch ## exception that is raised if something fails
+  EZmq* = object of Exception ## exception that is raised if something fails
   TConnection* {.pure, final.} = object ## a connection
     c*: PContext  ## the embedded context
     s*: PSocket   ## the embedded socket
@@ -491,11 +491,9 @@ proc zmqError*() {.noinline, noreturn.} =
   raise e
 
 
-proc connect*(address: string, mode: TSocketType = REQ): TConnection =
-    ## open a new connection and connects
-    result.c = ctx_new()
-    if result.c == nil:
-        zmqError()
+proc connect*(address: string, mode: TSocketType = REQ,
+              context: PContext): TConnection =
+    result.c = context
 
     result.s = socket(result.c, cint(mode))
     if result.s == nil:
@@ -504,11 +502,17 @@ proc connect*(address: string, mode: TSocketType = REQ): TConnection =
     if connect(result.s, address) != 0:
         zmqError()
 
-proc listen*(address: string, mode: TSocketType = REP): TConnection =
-    ## open a new connection and binds on the socket
-    result.c = ctx_new()
-    if result.c == nil:
+proc connect*(address: string, mode: TSocketType = REQ): TConnection =
+    ## open a new connection and connects
+    let ctx = ctx_new()
+    if ctx == nil:
         zmqError()
+
+    return connect(address, mode, ctx)
+
+proc listen*(address: string, mode: TSocketType = REP,
+             context: PContext): TConnection =
+    result.c = context
 
     result.s = socket(result.c, cint(mode))
     if result.s == nil:
@@ -516,6 +520,14 @@ proc listen*(address: string, mode: TSocketType = REP): TConnection =
 
     if bindAddr(result.s, address) != 0:
         zmqError()
+
+proc listen*(address: string, mode: TSocketType = REP): TConnection =
+    ## open a new connection and binds on the socket
+    let ctx = ctx_new()
+    if ctx == nil:
+        zmqError()
+
+    return listen(address, mode, ctx)
 
 proc close*(c: TConnection) =
     ## closes the connection.
