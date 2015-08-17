@@ -152,8 +152,8 @@ const
 type TContextOptions* = enum
   IO_THREADS = 1
   MAX_SOCKETS = 2
-  SOCKET_LIMIT = 3
-  THREAD_PRIORITY = 3
+  #SOCKET_LIMIT = 3
+  #THREAD_PRIORITY = 3
   ZMQ_IPV6 = 42
 
 #  Default for new contexts                                                  
@@ -315,9 +315,9 @@ const
   ZMQ_ZAP_DOMAIN* = 55
   ZMQ_ROUTER_HANDOVER* = 56
   ZMQ_TOS* = 57
-  ZMQ_IPC_FILTER_PID* = 58
-  ZMQ_IPC_FILTER_UID* = 59
-  ZMQ_IPC_FILTER_GID* = 60
+  #ZMQ_IPC_FILTER_PID* = 58
+  #ZMQ_IPC_FILTER_UID* = 59
+  #ZMQ_IPC_FILTER_GID* = 60
   ZMQ_CONNECT_RID* = 61
   ZMQ_GSSAPI_SERVER* = 62
   ZMQ_GSSAPI_PRINCIPAL* = 63
