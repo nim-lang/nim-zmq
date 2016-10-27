@@ -65,12 +65,12 @@ else:
   const 
     zmqdll* = "libzmq.so"
 
-
 #  Version macros for compile-time API version detection                     
 const 
   ZMQ_VERSION_MAJOR* = 4
   ZMQ_VERSION_MINOR* = 2
   ZMQ_VERSION_PATCH* = 0
+
 template ZMQ_MAKE_VERSION*(major, minor, patch: expr): expr =
   ((major) * 10000 + (minor) * 100 + (patch))
 
@@ -190,11 +190,54 @@ proc ctx_destroy*(context: PContext): cint {.cdecl, importc: "zmq_ctx_destroy",
 #****************************************************************************
 #  0MQ message definition.                                                   
 #****************************************************************************
-type 
-  TMsg* {.pure, final.} = object 
-    priv*: array[0..64 - 1, cuchar]
-  
+template make_dotted_version(major, minor, patch: expr): string =
+  $major & "." & $minor & "." & $patch
+
+proc zmq_msg_t_size(dotted_version: string): int =
+  # From the zeromq repository and versions,
+  # cos there isn't an ffi way to get it direct from libzmq,
+  # and anyway ffi doesn't work at compile time.
+  case dotted_version
+  of "4.2.0":
+    64
+  of "4.1.5","4.1.4","4.1.3","4.1.2","4.1.1":
+    64
+  of "4.1.0":
+    48
+  of "4.0.8","4.0.7","4.0.6","4.0.5","4.0.4","4.0.3","4.0.2","4.0.1","4.0.0":
+    32
+  of "3.2.5","3.2.4","3.2.3","3.2.2","3.2.1","3.1.0":
+    32
+  else:
+    # assuming this is for newer versions.
+    # It will probably stay at 64 for a while https://github.com/zeromq/libzmq/issues/1295
+    64
+
+type
+  TMsg* {.pure, final.} = object
+    priv*: array[zmq_msg_t_size(make_dotted_version(ZMQ_VERSION_MAJOR, ZMQ_VERSION_MINOR, ZMQ_VERSION_PATCH)), cuchar]
+
   TFreeFn = proc (data, hint: pointer) {.noconv.}
+
+# check that library version (from dynlib/dll/so) matches header version (from zmq.h)
+# and that sizeof(zmq_msg_t) matches TMsg
+proc sanity_check_libzmq(): void =
+  var actual_lib_major, actual_lib_minor, actual_lib_patch: cint
+  version(actual_lib_major, actual_lib_minor, actual_lib_patch)
+
+  let
+    expected_lib_version = make_dotted_version(ZMQ_VERSION_MAJOR, ZMQ_VERSION_MINOR, ZMQ_VERSION_PATCH)
+    actual_lib_version = make_dotted_version(actual_lib_major, actual_lib_minor, actual_lib_patch)
+
+  # This is possibly over-particular about versioning
+  # if not (ZMQ_VERSION_MAJOR == actual_lib_major and actual_lib_minor >= ZMQ_VERSION_MINOR):
+  #   raise newException( LibraryError, "expecting libzmq-" & expected_lib_version & " but found libzmq-" & actual_lib_version )
+
+  # This gives more flexibility wrt to versions, but set of API calls may differ
+  if zmq_msg_t_size(actual_lib_version) != sizeof(TMsg):
+    raise newException( LibraryError, "expecting TMsg size of " & $sizeof(TMsg) & " but found " & $zmq_msg_t_size(actual_lib_version) & " from libzmq-" & actual_lib_version)
+
+sanity_check_libzmq()
 
 proc msg_init*(msg: var TMsg): cint {.cdecl, importc: "zmq_msg_init",
   dynlib: zmqdll.}
@@ -550,7 +593,7 @@ proc z85_decode*(dest: ptr uint8; string: cstring): ptr uint8 {.
 
 
 
-# Unofficial easier-for-Nimrod API
+# Unofficial easier-for-Nim API
 
 type
   EZmq* = object of Exception ## exception that is raised if something fails
