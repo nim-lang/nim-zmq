@@ -63,7 +63,7 @@ elif defined(macosx):
     zmqdll* = "libzmq.dylib"
 else:
   const 
-    zmqdll* = "libzmq.so"
+    zmqdll* = "libzmq.so(.4|.5|)"
 
 #  Version macros for compile-time API version detection                     
 const 
