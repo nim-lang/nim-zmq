@@ -6,4 +6,4 @@ description   = "ZeroMQ wrapper"
 license       = "MIT"
 
 [Deps]
-Requires: "nimrod >= 0.9.6"
+Requires: "nim >= 0.18.0"
