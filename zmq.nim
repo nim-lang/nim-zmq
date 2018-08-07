@@ -71,7 +71,7 @@ const
   ZMQ_VERSION_MINOR* = 2
   ZMQ_VERSION_PATCH* = 0
 
-template ZMQ_MAKE_VERSION*(major, minor, patch: expr): expr =
+template ZMQ_MAKE_VERSION*(major, minor, patch: untyped): untyped =
   ((major) * 10000 + (minor) * 100 + (patch))
 
 const 
@@ -190,7 +190,7 @@ proc ctx_destroy*(context: PContext): cint {.cdecl, importc: "zmq_ctx_destroy",
 #****************************************************************************
 #  0MQ message definition.                                                   
 #****************************************************************************
-template make_dotted_version(major, minor, patch: expr): string =
+template make_dotted_version(major, minor, patch: untyped): string =
   $major & "." & $minor & "." & $patch
 
 proc zmq_msg_t_size(dotted_version: string): int =
