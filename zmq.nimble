@@ -1,6 +1,6 @@
 [Package]
 name          = "zmq"
-version       = "0.2.1"
+version       = "0.2.2"
 author        = "Andreas Rumpf"
 description   = "ZeroMQ wrapper"
 license       = "MIT"
