@@ -677,7 +677,8 @@ proc receive*(c: TConnection): string =
         zmqError()
 
     result = newString( msg_size(m) )
-    copyMem(addr(result[0]), msg_data(m), result.len)
+    if result.len > 0:
+        copyMem(addr(result[0]), msg_data(m), result.len)
 
     if msg_close(m) != 0:
         zmqError()
