@@ -608,8 +608,6 @@ proc zmqError*() {.noinline, noreturn.} =
   var e: ref EZmq
   new(e)
   e.msg = $strerror(errno())
-  # TODO REMOVE ME
-  echo e.msg
   raise e
 
 
