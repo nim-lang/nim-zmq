@@ -28,10 +28,10 @@
 ## recognizable because they are the only ones that have documentation.
 ##
 ## Example of a client:
-## 
+##
 ## .. code-block:: nimrod
 ##   import zmq
-##   
+##
 ##   var requester = zmq.connect("tcp://localhost:5555")
 ##   echo("Connecting...")
 ##   for i in 0..10:
@@ -44,7 +44,7 @@
 ## Example of a server:
 ##
 ## .. code-block:: nimrod
-##   
+##
 ##   import zmq
 ##   var responder = zmq.listen("tcp://*:5555")
 ##   while True:
@@ -56,17 +56,17 @@
 
 {.deadCodeElim: on.}
 when defined(windows):
-  const 
+  const
     zmqdll* = "zmq.dll"
 elif defined(macosx):
-  const 
+  const
     zmqdll* = "libzmq.dylib"
 else:
-  const 
+  const
     zmqdll* = "libzmq.so(.4|.5|)"
 
-#  Version macros for compile-time API version detection                     
-const 
+#  Version macros for compile-time API version detection
+const
   ZMQ_VERSION_MAJOR* = 4
   ZMQ_VERSION_MINOR* = 2
   ZMQ_VERSION_PATCH* = 0
@@ -74,20 +74,20 @@ const
 template ZMQ_MAKE_VERSION*(major, minor, patch: untyped): untyped =
   ((major) * 10000 + (minor) * 100 + (patch))
 
-const 
+const
   ZMQ_VERSION* = ZMQ_MAKE_VERSION(ZMQ_VERSION_MAJOR, ZMQ_VERSION_MINOR,
                                     ZMQ_VERSION_PATCH)
 
 #****************************************************************************
-#  0MQ errors.                                                               
+#  0MQ errors.
 #****************************************************************************
-#  A number random enough not to collide with different errno ranges on      
-#  different OSes. The assumption is that error_t is at least 32-bit type.   
-const 
+#  A number random enough not to collide with different errno ranges on
+#  different OSes. The assumption is that error_t is at least 32-bit type.
+const
   ZMQ_HAUSNUMERO = 156384712
-#  On Windows platform some of the standard POSIX errnos are not defined.    
+#  On Windows platform some of the standard POSIX errnos are not defined.
 when not(defined(ENOTSUP)):
-  const 
+  const
     ENOTSUP* = (ZMQ_HAUSNUMERO + 1)
     EPROTONOSUPPORT* = (ZMQ_HAUSNUMERO + 2)
     ENOBUFS* = (ZMQ_HAUSNUMERO + 3)
@@ -107,24 +107,24 @@ when not(defined(ENOTSUP)):
     EHOSTUNREACH* = (ZMQ_HAUSNUMERO + 17)
     ENETRESET* = (ZMQ_HAUSNUMERO + 18)
 
-#  Native 0MQ error codes.                                                   
-const 
+#  Native 0MQ error codes.
+const
   EFSM* = (ZMQ_HAUSNUMERO + 51)
   ENOCOMPATPROTO* = (ZMQ_HAUSNUMERO + 52)
   ETERM* = (ZMQ_HAUSNUMERO + 53)
   EMTHREAD* = (ZMQ_HAUSNUMERO + 54)
 
-#  Run-time API version detection                                            
+#  Run-time API version detection
 proc version*(major: var cint, minor: var cint, patch: var cint){.cdecl,
   importc: "zmq_version", dynlib: zmqdll.}
 
-#  This function retrieves the errno as it is known to 0MQ library. The goal 
-#  of this function is to make the code 100% portable, including where 0MQ   
-#  compiled with certain CRT library (on Windows) is linked to an            
-#  application that uses different CRT library.                              
+#  This function retrieves the errno as it is known to 0MQ library. The goal
+#  of this function is to make the code 100% portable, including where 0MQ
+#  compiled with certain CRT library (on Windows) is linked to an
+#  application that uses different CRT library.
 proc errno*(): cint{.cdecl, importc: "zmq_errno", dynlib: zmqdll.}
 
-#  Resolves system errors and 0MQ errors to human-readable string.           
+#  Resolves system errors and 0MQ errors to human-readable string.
 proc strerror*(errnum: cint): cstring {.cdecl, importc: "zmq_strerror",
   dynlib: zmqdll.}
 
@@ -134,14 +134,14 @@ type
   PSocket* = ptr TSocket
 
 #****************************************************************************
-#  0MQ infrastructure (a.k.a. context) initialisation & termination.         
+#  0MQ infrastructure (a.k.a. context) initialisation & termination.
 #****************************************************************************
-#  New API                                                                   
-#  Context options                                                           
+#  New API
+#  Context options
 type
   TContext {.final, pure.} = object
   PContext* = ptr TContext
-const 
+const
   ZMQ_IO_THREADS* = 1
   ZMQ_MAX_SOCKETS* = 2
   ZMQ_SOCKET_LIMIT* = 3
@@ -156,13 +156,13 @@ type TContextOptions* = enum
   #THREAD_PRIORITY = 3
   ZMQ_IPV6 = 42
 
-#  Default for new contexts                                                  
-const 
+#  Default for new contexts
+const
   ZMQ_IO_THREADS_DFLT* = 1
   ZMQ_MAX_SOCKETS_DFLT* = 1023
   ZMQ_THREAD_PRIORITY_DFLT* = - 1
   ZMQ_THREAD_SCHED_POLICY_DFLT* = - 1
-  
+
 
 proc ctx_new*(): PContext {.cdecl, importc: "zmq_ctx_new", dynlib: zmqdll.}
 proc ctx_term*(context: PContext): cint {.cdecl, importc: "zmq_ctx_term",
@@ -174,7 +174,7 @@ proc ctx_set*(context: PContext; option: cint; optval: cint): cint {.cdecl,
 proc ctx_get*(context: PContext; option: cint): cint {.cdecl,
   importc: "zmq_ctx_get", dynlib: zmqdll.}
 
-#  Old (legacy) API                                                          
+#  Old (legacy) API
 #proc zmq_init*(io_threads: cint): pointer
 #proc zmq_term*(context: pointer): cint
 #proc zmq_ctx_destroy*(context: pointer): cint
@@ -188,7 +188,7 @@ proc ctx_destroy*(context: PContext): cint {.cdecl, importc: "zmq_ctx_destroy",
 
 
 #****************************************************************************
-#  0MQ message definition.                                                   
+#  0MQ message definition.
 #****************************************************************************
 template make_dotted_version(major, minor, patch: untyped): string =
   $major & "." & $minor & "." & $patch
@@ -268,10 +268,10 @@ proc msg_set*(msg: var TMsg; option: cint; optval: cint): cint {.cdecl,
   importc: "zmq_msg_set", dynlib: zmqdll.}
 
 #****************************************************************************
-#  0MQ socket definition.                                                    
+#  0MQ socket definition.
 #****************************************************************************
-#  Socket types.                                                             
-const 
+#  Socket types.
+const
   ZMQ_PAIR* = 0
   ZMQ_PUB* = 1
   ZMQ_SUB* = 2
@@ -304,12 +304,12 @@ type
       SERVER = 12
       CLIENT = 13
 
-#  Deprecated aliases                                                        
-const 
+#  Deprecated aliases
+const
   ZMQ_XREQ* = ZMQ_DEALER
   ZMQ_XREP* = ZMQ_ROUTER
-#  Socket options.                                                           
-const 
+#  Socket options.
+const
   ZMQ_AFFINITY* = 4
   ZMQ_IDENTITY* = 5
   ZMQ_SUBSCRIBE* = 6
@@ -321,7 +321,7 @@ const
   ZMQ_RCVMORE* = 13
   ZMQ_FD* = 14
   ZMQ_EVENTS* = 15
-  #ZMQ_TYPE* = 16
+  ZMQ_TYPE* = 16
   ZMQ_LINGER* = 17
   ZMQ_RECONNECT_IVL* = 18
   ZMQ_BACKLOG* = 19
@@ -394,7 +394,7 @@ type TSockOptions* = enum
   RCVMORE = 13
   FD = 14
   EVENTS = 15
-  ZMQ_TYPE = 16
+  TYPE = 16
   LINGER = 17
   RECONNECT_IVL = 18
   BACKLOG = 19
@@ -452,8 +452,8 @@ type TSockOptions* = enum
   TCP_RETRANSMIT_TIMEOUT = 80
   THREAD_SAFE = 81
 
-#  Message options                                                           
-const 
+#  Message options
+const
   ZMQ_MORE* = 1
   ZMQ_SRCFD* = 2
   ZMQ_SHARED* = 3
@@ -462,22 +462,24 @@ type TMsgOptions = enum
     SRCFD = 2
     SHARED = 3
 
-#  Send/recv options.                                                        
-const 
+#  Send/recv options.
+#  Added NOFLAGS option for default argument in send / receive function
+const
   ZMQ_DONTWAIT* = 1
   ZMQ_SNDMORE* = 2
 type TSendRecvOptions* = enum
+  NOFLAGS = 0
   DONTWAIT = 1
   SNDMORE = 2
 
-#  Security mechanisms                                                       
-const 
+#  Security mechanisms
+const
   ZMQ_NULL* = 0
   ZMQ_PLAIN* = 1
   ZMQ_CURVE* = 2
   ZMQ_GSSAPI* = 3
-#  Deprecated options and aliases                                            
-const 
+#  Deprecated options and aliases
+const
   ZMQ_IPV4ONLY* = 31
   ZMQ_TCP_ACCEPT_FILTER* = 38
   ZMQ_IPC_FILTER_PID* = 58
@@ -489,10 +491,10 @@ const
   ZMQ_ROUTER_BEHAVIOR* = ZMQ_ROUTER_MANDATORY
 
 #****************************************************************************
-#  0MQ socket events and monitoring                                          
+#  0MQ socket events and monitoring
 #****************************************************************************
-#  Socket transport events (tcp and ipc only)                                
-const 
+#  Socket transport events (tcp and ipc only)
+const
   ZMQ_EVENT_CONNECTED* = 1
   ZMQ_EVENT_CONNECT_DELAYED* = 2
   ZMQ_EVENT_CONNECT_RETRIED* = 4
@@ -509,12 +511,12 @@ const
       ZMQ_EVENT_BIND_FAILED or ZMQ_EVENT_ACCEPTED or ZMQ_EVENT_ACCEPT_FAILED or
       ZMQ_EVENT_CLOSED or ZMQ_EVENT_CLOSE_FAILED or ZMQ_EVENT_DISCONNECTED or
       ZMQ_EVENT_MONITOR_STOPPED)
-#  Socket event data  
-type 
-  zmq_event_t* {.pure, final.} = object 
+#  Socket event data
+type
+  zmq_event_t* {.pure, final.} = object
     event*: uint16        # id of the event as bitfield
     value*: int32         # value is either error code, fd or reconnect interval
-  
+
 proc socket*(context: PContext, theType: cint): PSocket {.cdecl,
       importc: "zmq_socket", dynlib: zmqdll.}
 proc close*(s: PSocket): cint{.cdecl, importc: "zmq_close", dynlib: zmqdll.}
@@ -548,47 +550,47 @@ proc recvmsg*(s: PSocket, msg: var TMsg, flags: cint): cint{.cdecl,
 
 
 #****************************************************************************
-#  I/O multiplexing.                                                         
+#  I/O multiplexing.
 #****************************************************************************
-const 
+const
   ZMQ_POLLIN* = 1
   ZMQ_POLLOUT* = 2
   ZMQ_POLLERR* = 4
   ZMQ_POLLPRI* = 8
-type 
-  TPollItem*{.pure, final.} = object 
+type
+  TPollItem*{.pure, final.} = object
     socket*: PSocket
     fd*: cint
     events*: cshort
     revents*: cshort
-    poller*: pointer
 
-const 
+const
   ZMQ_POLLITEMS_DFLT* = 16
-proc poll*(items: ptr TPollItem, nitems: cint, timeout: clong): cint{.
+
+proc poll*(items: ptr UncheckedArray[TPollItem], nitems: cint, timeout: clong): cint{.
   cdecl, importc: "zmq_poll", dynlib: zmqdll.}
 
-#  Built-in message proxy (3-way) 
+#  Built-in message proxy (3-way)
 proc proxy*(frontend: PSocket; backend: PSocket; capture: PSocket): cint {.
   cdecl, importc: "zmq_proxy", dynlib: zmqdll.}
-proc proxy_steerable*(frontend: PSocket; backend: PSocket; capture: PSocket; 
+proc proxy_steerable*(frontend: PSocket; backend: PSocket; capture: PSocket;
             control: PSocket): cint {.cdecl, importc: "zmq_proxy_steerable",
     dynlib: zmqdll.}
 
-#  Encode a binary key as printable text using ZMQ RFC 32  
+#  Encode a binary key as printable text using ZMQ RFC 32
 proc z85_encode*(dest: cstring; data: ptr uint8; size: int): cstring {.
   cdecl, importc: "zmq_z85_encode", dynlib: zmqdll.}
 
-#  Encode a binary key from printable text per ZMQ RFC 32  
+#  Encode a binary key from printable text per ZMQ RFC 32
 proc z85_decode*(dest: ptr uint8; string: cstring): ptr uint8 {.
   cdecl, importc: "zmq_z85_decode", dynlib: zmqdll.}
 
-#  Deprecated aliases 
-#const 
+#  Deprecated aliases
+#const
 #  ZMQ_STREAMER* = 1
 #  ZMQ_FORWARDER* = 2
 #  ZMQ_QUEUE* = 3
-#  Deprecated method 
+#  Deprecated method
 #proc zmq_device*(type: cint; frontend: pointer; backend: pointer): cint
 
 
@@ -606,6 +608,8 @@ proc zmqError*() {.noinline, noreturn.} =
   var e: ref EZmq
   new(e)
   e.msg = $strerror(errno())
+  # TODO REMOVE ME
+  echo e.msg
   raise e
 
 
@@ -655,33 +659,101 @@ proc close*(c: TConnection) =
         zmqError()
 
 
-proc send*(c: TConnection, msg: string) =
-    ## sends a message over the connection.
-    var m: TMsg
-    if msg_init(m, msg.len) != 0:
-        zmqError()
+# Send with PSocket type
+proc send*(s: PSocket, msg: string, flags: TSendRecvOptions = NOFLAGS) =
+  ## sends a message over the connection.
+  var m: TMsg
+  if msg_init(m, msg.len) != 0:
+      zmqError()
 
-    copyMem(msg_data(m), cstring(msg), msg.len)
+  copyMem(msg_data(m), cstring(msg), msg.len)
 
-    if msg_send(m, c.s, 0) == -1:
-        zmqError()
-    # no close msg after a send
+  if msg_send(m, s, flags.cint) == -1:
+      zmqError()
+  # no close msg after a send
 
-proc receive*(c: TConnection): string =
-    ## receives a message from a connection.
-    var m: TMsg
-    if msg_init(m) != 0:
-        zmqError()
+# receive with PSocket type
+proc receive*(s: PSocket, flags: TSendRecvOptions = NOFLAGS): string =
+  ## receives a message from a connection.
+  var m: TMsg
+  if msg_init(m) != 0:
+      zmqError()
 
-    if msg_recv(m, c.s, 0) == -1:
-        zmqError()
+  if msg_recv(m, s, flags.cint) == -1:
+      zmqError()
 
-    result = newString( msg_size(m) )
-    if result.len > 0:
-        copyMem(addr(result[0]), msg_data(m), result.len)
+  result = newString( msg_size(m) )
+  if result.len > 0:
+      copyMem(addr(result[0]), msg_data(m), result.len)
 
-    if msg_close(m) != 0:
-        zmqError()
+  if msg_close(m) != 0:
+      zmqError()
 
-proc setsockopt*(c: TConnection, option: TSockOptions, optval: string): int =
-    return setsockopt(c.s, option, cstring(optval), optval.len)
+# send & receive with TConnection type
+proc send*(c: TConnection, msg: string, flags: TSendRecvOptions = NOFLAGS) =
+  send(c.s, msg, flags)
+
+proc receive*(c: TConnection, flags: TSendRecvOptions = NOFLAGS): string =
+  receive(c.s, flags)
+
+## Socket option for PSocket type
+# Setsocket option for integer
+# Some option take int64 or uint64 so a template is needed
+proc setsockopt*[T: SomeOrdinal](s: PSocket, option: TSockOptions, optval: T)=
+  var val: T = optval
+  if setsockopt(s, option, addr(val), sizeof(val)) != 0:
+    zmqError()
+
+proc setsockopt*(s: PSocket, option: TSockOptions, optval: string)=
+  var val: string = optval
+  if setsockopt(s, option, cstring(val), val.len) != 0:
+    zmqError()
+
+# some sockopt returns integer values
+proc getsockopt[T: SomeOrdinal](s: PSocket, option: TSockOptions,optval: var T)=
+  var optval_len: int = sizeof(optval)
+
+  if getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
+    zmqError()
+
+# Some sockopt returns a string
+proc getsockopt(s: PSocket, option: TSockOptions, optval: var string)=
+  var optval_len: int = optval.len
+
+  if getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
+    zmqError()
+
+# Export generic function with return value
+proc getsockopt*[T: SomeOrdinal|string](s: PSocket, option: TSockOptions): T=
+  var optval :T
+  getsockopt(s, option, optval)
+  optval
+
+
+
+##Socket option with TConnection type
+# socket option for connection
+proc setsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions, optval: T)=
+  setsockopt[T](c.s, option, optval)
+
+proc getsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions): T=
+  getsockopt[T](c.s, option)
+
+
+
+# High level poll function using array of TPollItem
+proc poll*(items: openArray[TPollItem], timeout: int64): int32=
+  poll(cast[ptr UncheckedArray[TPollItem]](unsafeAddr items[0]) , cint(items.len), clong(timeout))
+
+# Using a poller type
+type
+  Poller* = object
+    items*: seq[TPollItem]
+
+# Register function for ease of use
+proc register*(poller: var Poller, conn: TConnection, event: int)=
+  poller.items.add(TPollItem(socket:conn.s, events:event.cshort))
+
+# High level poll function using poller type
+proc poll*(poller: Poller, timeout: int64): int32=
+  poll(poller.items, timeout)
