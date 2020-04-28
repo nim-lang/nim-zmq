@@ -1,9 +1,9 @@
-[Package]
-name          = "zmq"
-version       = "0.2.2"
+# Package
+
+version       = "0.3.0"
 author        = "Andreas Rumpf"
 description   = "ZeroMQ wrapper"
 license       = "MIT"
 
-[Deps]
-Requires: "nim >= 0.18.0"
+# Dependencies
+requires "nim >= 0.18.0"
