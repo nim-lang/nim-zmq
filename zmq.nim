@@ -57,7 +57,7 @@
 {.deadCodeElim: on.}
 when defined(windows):
   const
-    zmqdll* = "zmq.dll"
+    zmqdll* = "(lib)zmq.dll"
 elif defined(macosx):
   const
     zmqdll* = "libzmq.dylib"
