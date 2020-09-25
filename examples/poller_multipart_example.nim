@@ -3,11 +3,33 @@ import zmq
 import os
 import system
 import bitops
+import options
+import strformat
 
 const address = "tcp://127.0.0.1:44445"
 const max_msg = 10
 
-## Example of low level poller
+proc receiveMultipart(socket: PSocket, flags: TSendRecvOptions): seq[string] =
+  var hasMore: int = 1
+  while hasMore > 0:
+    result.add(socket.receive())
+    hasMore = getsockopt[int](socket, RCVMORE)
+
+
+## Receive all available messages on the polling sockets
+## Example on how to receive multipart message on all poller
+proc receive(poller: Poller, flags: TSendRecvOptions = NOFLAGS): seq[Option[seq[string]]] =
+  for i in 0..<len(poller.items):
+    if bitand(poller.items[i].revents, ZMQ_POLLIN.cshort) > 0:
+      result.add(
+        some(
+          receiveMultipart(poller.items[i].socket, flags)
+        )
+      )
+    else:
+      result.add(
+        none(seq[string])
+      )
 
 proc client() =
   var d1 = connect(address, mode = DEALER)
@@ -17,26 +39,19 @@ proc client() =
   d1.send("dummy")
   d2.send("dummy")
 
-  var p: Poller
-  p.register(d1, ZMQ_POLLIN)
-  p.register(d2, ZMQ_POLLIN)
+  var poller: Poller
+  poller.register(d1, ZMQ_POLLIN)
+  poller.register(d2, ZMQ_POLLIN)
 
   while true:
-    let res: int = poll(p, 1_000)
-    let p1 = p.items[0]
-    let p2 = p.items[1]
-
+    let res: int = poll(poller, 1_000)
     if res > 0:
-      let res1 = bitand(p1.revents, ZMQ_POLLIN.cshort)
-      let res2 = bitand(p2.revents, ZMQ_POLLIN.cshort)
-
-      if res1 > 0:
-        var buf = p1.socket.receive()
-        echo "CLIENT> p1 received ", buf
-
-      if res2 > 0:
-        var buf = p2.socket.receive()
-        echo "CLIENT> p2 received ", buf
+      var buf = poller.receive()
+      for i, s in buf.pairs:
+        if s.isSome:
+          echo &"CLIENT> p{i+1} received ", s.get()
+        else:
+          echo &"CLIENT> p{i+1} received nothing"
 
     elif res == 0:
       echo "CLIENT> Timeout"
