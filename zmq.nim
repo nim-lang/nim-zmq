@@ -200,13 +200,13 @@ proc zmq_msg_t_size(dotted_version: string): int =
   case dotted_version
   of "4.2.0":
     64
-  of "4.1.5","4.1.4","4.1.3","4.1.2","4.1.1":
+  of "4.1.5", "4.1.4", "4.1.3", "4.1.2", "4.1.1":
     64
   of "4.1.0":
     48
-  of "4.0.8","4.0.7","4.0.6","4.0.5","4.0.4","4.0.3","4.0.2","4.0.1","4.0.0":
+  of "4.0.8", "4.0.7", "4.0.6", "4.0.5", "4.0.4", "4.0.3", "4.0.2", "4.0.1", "4.0.0":
     32
-  of "3.2.5","3.2.4","3.2.3","3.2.2","3.2.1","3.1.0":
+  of "3.2.5", "3.2.4", "3.2.3", "3.2.2", "3.2.1", "3.1.0":
     32
   else:
     # assuming this is for newer versions.
@@ -215,7 +215,8 @@ proc zmq_msg_t_size(dotted_version: string): int =
 
 type
   TMsg* {.pure, final.} = object
-    priv*: array[zmq_msg_t_size(make_dotted_version(ZMQ_VERSION_MAJOR, ZMQ_VERSION_MINOR, ZMQ_VERSION_PATCH)), cuchar]
+    priv*: array[zmq_msg_t_size(make_dotted_version(ZMQ_VERSION_MAJOR,
+        ZMQ_VERSION_MINOR, ZMQ_VERSION_PATCH)), cuchar]
 
   TFreeFn = proc (data, hint: pointer) {.noconv.}
 
@@ -226,7 +227,8 @@ proc sanity_check_libzmq(): void =
   version(actual_lib_major, actual_lib_minor, actual_lib_patch)
 
   let
-    expected_lib_version = make_dotted_version(ZMQ_VERSION_MAJOR, ZMQ_VERSION_MINOR, ZMQ_VERSION_PATCH)
+    expected_lib_version = make_dotted_version(ZMQ_VERSION_MAJOR,
+        ZMQ_VERSION_MINOR, ZMQ_VERSION_PATCH)
     actual_lib_version = make_dotted_version(actual_lib_major, actual_lib_minor, actual_lib_patch)
 
   # This is possibly over-particular about versioning
@@ -235,7 +237,8 @@ proc sanity_check_libzmq(): void =
 
   # This gives more flexibility wrt to versions, but set of API calls may differ
   if zmq_msg_t_size(actual_lib_version) != sizeof(TMsg):
-    raise newException( LibraryError, "expecting TMsg size of " & $sizeof(TMsg) & " but found " & $zmq_msg_t_size(actual_lib_version) & " from libzmq-" & actual_lib_version)
+    raise newException(LibraryError, "expecting TMsg size of " & $sizeof(TMsg) &
+        " but found " & $zmq_msg_t_size(actual_lib_version) & " from libzmq-" & actual_lib_version)
 
 sanity_check_libzmq()
 
@@ -262,7 +265,8 @@ proc msg_size*(msg: var TMsg): int {.cdecl, importc: "zmq_msg_size",
   dynlib: zmqdll.}
 proc msg_more*(msg: var TMsg): cint {.cdecl, importc: "zmq_msg_more",
   dynlib: zmqdll.}
-proc msg_get*(msg: var TMsg; option: cint): cint {.cdecl, importc: "zmq_msg_get",
+proc msg_get*(msg: var TMsg; option: cint): cint {.cdecl,
+    importc: "zmq_msg_get",
   dynlib: zmqdll.}
 proc msg_set*(msg: var TMsg; option: cint; optval: cint): cint {.cdecl,
   importc: "zmq_msg_set", dynlib: zmqdll.}
@@ -289,20 +293,20 @@ const
 
 type
   TSocketType* = enum
-      PAIR = 0,
-      PUB = 1,
-      SUB = 2,
-      REQ = 3,
-      REP = 4,
-      DEALER = 5,
-      ROUTER = 6,
-      PULL = 7,
-      PUSH = 8,
-      XPUB = 9,
-      XSUB = 10,
-      STREAM = 11
-      SERVER = 12
-      CLIENT = 13
+    PAIR = 0,
+    PUB = 1,
+    SUB = 2,
+    REQ = 3,
+    REP = 4,
+    DEALER = 5,
+    ROUTER = 6,
+    PULL = 7,
+    PUSH = 8,
+    XPUB = 9,
+    XSUB = 10,
+    STREAM = 11
+    SERVER = 12
+    CLIENT = 13
 
 #  Deprecated aliases
 const
@@ -458,9 +462,9 @@ const
   ZMQ_SRCFD* = 2
   ZMQ_SHARED* = 3
 type TMsgOptions = enum
-    MORE = 1
-    SRCFD = 2
-    SHARED = 3
+  MORE = 1
+  SRCFD = 2
+  SHARED = 3
 
 #  Send/recv options.
 #  Added NOFLAGS option for default argument in send / receive function
@@ -514,8 +518,8 @@ const
 #  Socket event data
 type
   zmq_event_t* {.pure, final.} = object
-    event*: uint16        # id of the event as bitfield
-    value*: int32         # value is either error code, fd or reconnect interval
+    event*: uint16 # id of the event as bitfield
+    value*: int32  # value is either error code, fd or reconnect interval
 
 proc socket*(context: PContext, theType: cint): PSocket {.cdecl,
       importc: "zmq_socket", dynlib: zmqdll.}
@@ -567,7 +571,8 @@ type
 const
   ZMQ_POLLITEMS_DFLT* = 16
 
-proc poll*(items: ptr UncheckedArray[TPollItem], nitems: cint, timeout: clong): cint{.
+proc poll*(items: ptr UncheckedArray[TPollItem], nitems: cint,
+    timeout: clong): cint{.
   cdecl, importc: "zmq_poll", dynlib: zmqdll.}
 
 #  Built-in message proxy (3-way)
@@ -600,8 +605,8 @@ proc z85_decode*(dest: ptr uint8; string: cstring): ptr uint8 {.
 type
   EZmq* = object of Exception ## exception that is raised if something fails
   TConnection* {.pure, final.} = object ## a connection
-    c*: PContext  ## the embedded context
-    s*: PSocket   ## the embedded socket
+    c*: PContext                        ## the embedded context
+    s*: PSocket                         ## the embedded socket
 
 proc zmqError*() {.noinline, noreturn.} =
   ## raises EZmq with error message from `zmq.strerror`.
@@ -613,48 +618,48 @@ proc zmqError*() {.noinline, noreturn.} =
 
 proc connect*(address: string, mode: TSocketType = REQ,
               context: PContext): TConnection =
-    result.c = context
+  result.c = context
 
-    result.s = socket(result.c, cint(mode))
-    if result.s == nil:
-        zmqError()
+  result.s = socket(result.c, cint(mode))
+  if result.s == nil:
+    zmqError()
 
-    if connect(result.s, address) != 0:
-        zmqError()
+  if connect(result.s, address) != 0:
+    zmqError()
 
 proc connect*(address: string, mode: TSocketType = REQ): TConnection =
-    ## open a new connection and connects
-    let ctx = ctx_new()
-    if ctx == nil:
-        zmqError()
+  ## open a new connection and connects
+  let ctx = ctx_new()
+  if ctx == nil:
+    zmqError()
 
-    return connect(address, mode, ctx)
+  return connect(address, mode, ctx)
 
 proc listen*(address: string, mode: TSocketType = REP,
              context: PContext): TConnection =
-    result.c = context
+  result.c = context
 
-    result.s = socket(result.c, cint(mode))
-    if result.s == nil:
-        zmqError()
+  result.s = socket(result.c, cint(mode))
+  if result.s == nil:
+    zmqError()
 
-    if bindAddr(result.s, address) != 0:
-        zmqError()
+  if bindAddr(result.s, address) != 0:
+    zmqError()
 
 proc listen*(address: string, mode: TSocketType = REP): TConnection =
-    ## open a new connection and binds on the socket
-    let ctx = ctx_new()
-    if ctx == nil:
-        zmqError()
+  ## open a new connection and binds on the socket
+  let ctx = ctx_new()
+  if ctx == nil:
+    zmqError()
 
-    return listen(address, mode, ctx)
+  return listen(address, mode, ctx)
 
 proc close*(c: TConnection) =
-    ## closes the connection.
-    if close(c.s) != 0:
-        zmqError()
-    if ctx_destroy(c.c) != 0:
-        zmqError()
+  ## closes the connection.
+  if close(c.s) != 0:
+    zmqError()
+  if ctx_destroy(c.c) != 0:
+    zmqError()
 
 
 # Send with PSocket type
@@ -662,12 +667,12 @@ proc send*(s: PSocket, msg: string, flags: TSendRecvOptions = NOFLAGS) =
   ## sends a message over the connection.
   var m: TMsg
   if msg_init(m, msg.len) != 0:
-      zmqError()
+    zmqError()
 
   copyMem(msg_data(m), cstring(msg), msg.len)
 
   if msg_send(m, s, flags.cint) == -1:
-      zmqError()
+    zmqError()
   # no close msg after a send
 
 # receive with PSocket type
@@ -675,17 +680,17 @@ proc receive*(s: PSocket, flags: TSendRecvOptions = NOFLAGS): string =
   ## receives a message from a connection.
   var m: TMsg
   if msg_init(m) != 0:
-      zmqError()
+    zmqError()
 
   if msg_recv(m, s, flags.cint) == -1:
-      zmqError()
+    zmqError()
 
-  result = newString( msg_size(m) )
+  result = newString(msg_size(m))
   if result.len > 0:
-      copyMem(addr(result[0]), msg_data(m), result.len)
+    copyMem(addr(result[0]), msg_data(m), result.len)
 
   if msg_close(m) != 0:
-      zmqError()
+    zmqError()
 
 # send & receive with TConnection type
 proc send*(c: TConnection, msg: string, flags: TSendRecvOptions = NOFLAGS) =
@@ -694,64 +699,71 @@ proc send*(c: TConnection, msg: string, flags: TSendRecvOptions = NOFLAGS) =
 proc receive*(c: TConnection, flags: TSendRecvOptions = NOFLAGS): string =
   receive(c.s, flags)
 
-## Socket option for PSocket type
+# Socket option for PSocket type
 # Setsocket option for integer
 # Some option take int64 or uint64 so a template is needed
-proc setsockopt*[T: SomeOrdinal](s: PSocket, option: TSockOptions, optval: T)=
+proc setsockopt*[T: SomeOrdinal](s: PSocket, option: TSockOptions, optval: T) =
   var val: T = optval
   if setsockopt(s, option, addr(val), sizeof(val)) != 0:
     zmqError()
 
-proc setsockopt*(s: PSocket, option: TSockOptions, optval: string)=
+proc setsockopt*(s: PSocket, option: TSockOptions, optval: string) =
   var val: string = optval
   if setsockopt(s, option, cstring(val), val.len) != 0:
     zmqError()
 
 # some sockopt returns integer values
-proc getsockopt[T: SomeOrdinal](s: PSocket, option: TSockOptions,optval: var T)=
+proc getsockopt[T: SomeOrdinal](s: PSocket, option: TSockOptions,
+    optval: var T) =
   var optval_len: int = sizeof(optval)
 
   if getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
     zmqError()
 
 # Some sockopt returns a string
-proc getsockopt(s: PSocket, option: TSockOptions, optval: var string)=
+proc getsockopt(s: PSocket, option: TSockOptions, optval: var string) =
   var optval_len: int = optval.len
 
   if getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
     zmqError()
 
 # Export generic function with return value
-proc getsockopt*[T: SomeOrdinal|string](s: PSocket, option: TSockOptions): T=
-  var optval :T
+proc getsockopt*[T: SomeOrdinal|string](s: PSocket, option: TSockOptions): T =
+  var optval: T
   getsockopt(s, option, optval)
   optval
 
-
-
 ##Socket option with TConnection type
 # socket option for connection
-proc setsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions, optval: T)=
+proc setsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions, optval: T) =
   setsockopt[T](c.s, option, optval)
 
-proc getsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions): T=
+proc getsockopt*[T: SomeOrdinal|string](c: TConnection,
+    option: TSockOptions): T =
   getsockopt[T](c.s, option)
 
 
-
+# Polling
 # High level poll function using array of TPollItem
-proc poll*(items: openArray[TPollItem], timeout: int64): int32=
-  poll(cast[ptr UncheckedArray[TPollItem]](unsafeAddr items[0]) , cint(items.len), clong(timeout))
+proc poll*(items: openArray[TPollItem], timeout: int64): int32 =
+  poll(cast[ptr UncheckedArray[TPollItem]](unsafeAddr items[0]), cint(
+      items.len), clong(timeout))
 
 # Using a poller type
 type
   Poller* = object
     items*: seq[TPollItem]
 
-# Register function for ease of use
-proc register*(poller: var Poller, conn: TConnection, event: int)=
-  poller.items.add(TPollItem(socket:conn.s, events:event.cshort))
+## Register socket function
+proc register*(poller: var Poller, sock: PSocket, event: int) =
+  poller.items.add(
+    TPollItem(socket: sock, events: event.cshort)
+  )
+
+# Register connection function for ease of use
+proc register*(poller: var Poller, conn: TConnection, event: int) =
+  poller.register(conn.s, event)
 
 # High level poll function using poller type
-proc poll*(poller: Poller, timeout: int64): int32=
+proc poll*(poller: Poller, timeout: int64): int32 =
   poll(poller.items, timeout)
