@@ -11,6 +11,8 @@ type
 proc `[]`*(poller: Poller, idx : int): TPollItem =
   poller.items[idx]
 
+proc len*(poller: Poller): int =
+  poller.items.len
 
 # Polling
 # High level poll function using array of TPollItem
