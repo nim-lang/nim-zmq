@@ -41,14 +41,14 @@ proc setsockopt_impl(s: PSocket, option: TSockOptions, optval: string) =
 proc getsockopt_impl[T: SomeOrdinal](s: PSocket, option: TSockOptions, optval: var T) =
   var optval_len: int = sizeof(optval)
 
-  if getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
+  if bindings.getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
     zmqError()
 
 # Some sockopt returns a string
 proc getsockopt_impl(s: PSocket, option: TSockOptions, optval: var string) =
   var optval_len: int = optval.len
 
-  if getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
+  if bindings.getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
     zmqError()
 
 #[
@@ -56,14 +56,17 @@ proc getsockopt_impl(s: PSocket, option: TSockOptions, optval: var string) =
 ]#
 proc setsockopt*[T: SomeOrdinal|string](s: PSocket, option: TSockOptions, optval: T) =
   setsockopt_impl[T](s, option, optval)
+
 proc setsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions, optval: T) =
-  setsockopt_impl[T](c.s, option, optval)
+  setsockopt[T](c.s, option, optval)
+
 proc getsockopt*[T: SomeOrdinal|string](s: PSocket, option: TSockOptions): T =
   var optval: T
   getsockopt_impl(s, option, optval)
   optval
+
 proc getsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions): T =
-  getsockopt_impl[T](c.s, option)
+  getsockopt[T](c.s, option)
 
 
 #[
