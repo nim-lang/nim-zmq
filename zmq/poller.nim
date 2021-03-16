@@ -1,15 +1,20 @@
 import bindings
 import connections
 
+# Unofficial easier-for-Nim API
 # Using a poller type
 type
   Poller* = object
     items*: seq[TPollItem]
 
-
-when defined(gcDestructors):
-  # TODO
-  proc `destroy=`(x: var Poller)
+# TODO
+# when defined(gcDestructors):
+#   proc `=destroy`(x: var TPollItem) =
+#     ` =destroy`(x.socket)
+#
+#   proc `=destroy`(x: var Poller) =
+#     for i in x.items:
+#       `=destroy`(i)
 
 # Polling
 # High level poll function using array of TPollItem

@@ -59,6 +59,4 @@ import zmq/connections
 export connections
 import zmq/poller
 export poller
-import zmq/sockopt
-export sockopt
 
