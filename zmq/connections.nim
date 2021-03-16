@@ -87,6 +87,19 @@ proc reconnect*(conn: TConnection) =
   if connect(conn.s, conn.sockaddr) != 0:
     zmqError()
 
+proc reconnect*(conn: var TConnection, address: string) =
+  if connect(conn.s, address) != 0:
+    zmqError()
+  conn.sockaddr = address
+
+proc disconnect*(conn: TConnection) =
+  if disconnect(conn.s, conn.sockaddr) != 0:
+    zmqError()
+
+proc unbind*(conn: TConnection) =
+  if unbind(conn.s, conn.sockaddr) != 0:
+    zmqError()
+
 proc connect*(address: string, mode: TSocketType = REQ, context: PContext): TConnection =
   result.c = context
   result.ownctx = false
