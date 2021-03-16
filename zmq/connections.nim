@@ -9,7 +9,8 @@ type
   TConnection* {.pure, final.} = object ## a connection
     c*: PContext                        ## the embedded context
     s*: PSocket                         ## the embedded socket
-    ownctx: bool                       ## Does the Connection own the context ?
+    ownctx: bool                        ## Does the Connection own the context ?
+    sockaddr: string                    ## Address of the underlying socket
 
 #[
   Error handler
@@ -68,24 +69,11 @@ proc getsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions): T
 #[
   Destructor
 ]#
-# TODO
+
 when defined(gcDestructors):
-  # Forward declaration for destructor
-  # proc `=destroy`(x: var PSocket) =
-  #   echo "destroy PSocket"
-  #   # Set linger to 0 to properly drop message
-  #   setsockopt(x, LINGER, 0.cint)
-  #   if close(x) != 0:
-  #     zmqError()
-
-  # proc `=destroy`(x: var PContext) =
-  #   echo "destroy PContext"
-  #   if term(x) != 0:
-  #     zmqError()
-
   proc close*(c: TConnection)
   proc `=destroy`(x: var TConnection) =
-    echo "destroy TConn> ", x.ownctx
+    echo "=destroy"
     # Set linger to 0 to properly drop message
     setsockopt(x, LINGER, 0.cint)
     close(x)
@@ -93,9 +81,16 @@ when defined(gcDestructors):
   #[
     Connect / Listen / Close
   ]#
+
+# Reconnect a previously binded/connected address
+proc reconnect*(conn: TConnection) =
+  if connect(conn.s, conn.sockaddr) != 0:
+    zmqError()
+
 proc connect*(address: string, mode: TSocketType = REQ, context: PContext): TConnection =
   result.c = context
   result.ownctx = false
+  result.sockaddr = address
 
   result.s = socket(result.c, cint(mode))
   if result.s == nil:
@@ -116,6 +111,7 @@ proc connect*(address: string, mode: TSocketType = REQ): TConnection =
 proc listen*(address: string, mode: TSocketType = REP, context: PContext): TConnection =
   result.c = context
   result.ownctx = false
+  result.sockaddr = address
 
   result.s = socket(result.c, cint(mode))
   if result.s == nil:
