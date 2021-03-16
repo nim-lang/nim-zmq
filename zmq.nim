@@ -259,7 +259,7 @@ proc msg_move*(dest, src: var TMsg): cint {.cdecl,
   importc: "zmq_msg_move", dynlib: zmqdll.}
 proc msg_copy*(dest, src: var TMsg): cint {.cdecl,
   importc: "zmq_msg_copy", dynlib: zmqdll.}
-proc msg_data*(msg: var TMsg): cstring {.cdecl, importc: "zmq_msg_data",
+proc msg_data*(msg: var TMsg): pointer {.cdecl, importc: "zmq_msg_data",
   dynlib: zmqdll.}
 proc msg_size*(msg: var TMsg): int {.cdecl, importc: "zmq_msg_size",
   dynlib: zmqdll.}
@@ -538,13 +538,13 @@ proc unbind*(s: PSocket; address: cstring): cint {.cdecl, importc: "zmq_unbind",
       dynlib: zmqdll.}
 proc disconnect*(s: Psocket; address: cstring): cint {.cdecl,
       importc: "zmq_disconnect", dynlib: zmqdll.}
-proc send*(s: PSocket; buf: cstring; len: int; flags: cint): cint {.cdecl,
+proc send*(s: PSocket; buf: pointer; len: int; flags: cint): cint {.cdecl,
       importc: "zmq_send", dynlib: zmqdll.}
-proc send_const*(s: PSocket; buf: cstring; len: int; flags: cint): cint {.cdecl,
+proc send_const*(s: PSocket; buf: pointer; len: int; flags: cint): cint {.cdecl,
       importc: "zmq_send_const", dynlib: zmqdll.}
-proc recv*(s: PSocket; buf: cstring; len: int; flags: cint): cint {.cdecl,
+proc recv*(s: PSocket; buf: pointer; len: int; flags: cint): cint {.cdecl,
       importc: "zmq_recv", dynlib: zmqdll.}
-proc socket_monitor*(s: PSocket; address: cstring; events: cint): cint {.cdecl,
+proc socket_monitor*(s: PSocket; address: pointer; events: cint): cint {.cdecl,
       importc: "zmq_socket_monitor", dynlib: zmqdll.}
 
 proc sendmsg*(s: PSocket, msg: var TMsg, flags: cint): cint{.cdecl,
@@ -669,7 +669,9 @@ proc send*(s: PSocket, msg: string, flags: TSendRecvOptions = NOFLAGS) =
   if msg_init(m, msg.len) != 0:
     zmqError()
 
-  copyMem(msg_data(m), cstring(msg), msg.len)
+  # Using cstring will cause issue with XPUB / XSUB socket that can send a payload containing `\x00`
+  # Copying the memory is safer
+  copyMem(msg_data(m), unsafeAddr(msg[0]), msg.len)
 
   if msg_send(m, s, flags.cint) == -1:
     zmqError()
@@ -701,7 +703,7 @@ proc receive*(c: TConnection, flags: TSendRecvOptions = NOFLAGS): string =
 
 # Socket option for PSocket type
 # Setsocket option for integer
-# Some option take int64 or uint64 so a template is needed
+# Some option take cint, int64 or uint64 so a template is needed
 proc setsockopt*[T: SomeOrdinal](s: PSocket, option: TSockOptions, optval: T) =
   var val: T = optval
   if setsockopt(s, option, addr(val), sizeof(val)) != 0:
@@ -738,8 +740,7 @@ proc getsockopt*[T: SomeOrdinal|string](s: PSocket, option: TSockOptions): T =
 proc setsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions, optval: T) =
   setsockopt[T](c.s, option, optval)
 
-proc getsockopt*[T: SomeOrdinal|string](c: TConnection,
-    option: TSockOptions): T =
+proc getsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions): T =
   getsockopt[T](c.s, option)
 
 
