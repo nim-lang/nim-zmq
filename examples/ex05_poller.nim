@@ -22,28 +22,18 @@ proc client() =
   p.register(d2, ZMQ_POLLIN)
 
   while true:
-    let res: int = poll(p, 1_000)
-    let p1 = p.items[0]
-    let p2 = p.items[1]
-
-    if res > 0:
-      let res1 = bitand(p1.revents, ZMQ_POLLIN.cshort)
-      let res2 = bitand(p2.revents, ZMQ_POLLIN.cshort)
-
-      if res1 > 0:
-        var buf = p1.socket.receive()
+    if poll(p, 1_000) > 0:
+      if events(p[0]):
+        var buf = p[0].socket.receive()
         echo "CLIENT> p1 received ", buf
 
-      if res2 > 0:
-        var buf = p2.socket.receive()
+      if events(p[1]):
+        var buf = p[1].socket.receive()
         echo "CLIENT> p2 received ", buf
 
-    elif res == 0:
+    else:
       echo "CLIENT> Timeout"
       break
-
-    else:
-      zmqError()
 
   echo "CLIENT -- END"
   d1.close()

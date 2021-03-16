@@ -1,5 +1,6 @@
 import bindings
 import connections
+import bitops
 
 # Unofficial easier-for-Nim API
 # Using a poller type
@@ -7,20 +8,14 @@ type
   Poller* = object
     items*: seq[TPollItem]
 
-# TODO
-# when defined(gcDestructors):
-#   proc `=destroy`(x: var TPollItem) =
-#     ` =destroy`(x.socket)
-#
-#   proc `=destroy`(x: var Poller) =
-#     for i in x.items:
-#       `=destroy`(i)
+proc `[]`*(poller: Poller, idx : int): TPollItem =
+  poller.items[idx]
+
 
 # Polling
 # High level poll function using array of TPollItem
 proc poll*(items: openArray[TPollItem], timeout: int64): int32 =
-  poll(cast[ptr UncheckedArray[TPollItem]](unsafeAddr items[0]), cint(
-      items.len), clong(timeout))
+  poll(cast[ptr UncheckedArray[TPollItem]](unsafeAddr items[0]), cint(items.len), clong(timeout))
 
 ## Register socket function
 proc register*(poller: var Poller, sock: PSocket, event: int) =
@@ -35,3 +30,16 @@ proc register*(poller: var Poller, conn: TConnection, event: int) =
 # High level poll function using poller type
 proc poll*(poller: Poller, timeout: int64): int32 =
   poll(poller.items, timeout)
+
+proc events*(p: TPollItem, events: int): bool =
+  if bitand(p.revents, events.cshort) > 0:
+    result = true
+  else:
+    result = false
+
+proc events*(p: TPollItem): bool =
+  if bitand(p.revents, p.events) > 0:
+    result = true
+  else:
+    result = false
+
