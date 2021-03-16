@@ -25,7 +25,7 @@ close(requester)
 ```
 
 ## Example client
-```
+```nim
 import zmq
 var responder = zmq.listen("tcp://*:5555")
 
