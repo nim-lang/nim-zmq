@@ -8,7 +8,7 @@ type
   Poller* = object
     items*: seq[TPollItem]
 
-proc `[]`*(poller: Poller, idx : int): lent TPollItem =
+proc `[]`*(poller: Poller, idx: int): lent TPollItem =
   poller.items[idx]
 
 proc len*(poller: Poller): int =
@@ -44,4 +44,3 @@ proc events*(p: TPollItem): bool =
     result = true
   else:
     result = false
-
