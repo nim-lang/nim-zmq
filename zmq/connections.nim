@@ -10,6 +10,7 @@ type
     c*: PContext                        ## the embedded context
     s*: PSocket                         ## the embedded socket
     ownctx: bool                        ## Does the Connection own the context ?
+    alive: bool                         ## Is the connection alive ?
     sockaddr: string                    ## Address of the underlying socket
 
 #[
@@ -72,19 +73,15 @@ proc getsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions): T
 #[
   Destructor
 ]#
-
 when defined(gcDestructors):
-  proc close*(c: TConnection)
+  proc close*(c: var TConnection)
   proc `=destroy`(x: var TConnection) =
-    echo "=destroy"
-    # Set linger to 0 to properly drop message
-    setsockopt(x, LINGER, 0.cint)
-    close(x)
+    if x.alive:
+      raise newException(EZmq, "Connection destroyed but not closed")
 
-  #[
-    Connect / Listen / Close
-  ]#
-
+#[
+  Connect / Listen / Close
+]#
 # Reconnect a previously binded/connected address
 proc reconnect*(conn: TConnection) =
   if connect(conn.s, conn.sockaddr) != 0:
@@ -107,6 +104,7 @@ proc connect*(address: string, mode: TSocketType = REQ, context: PContext): TCon
   result.c = context
   result.ownctx = false
   result.sockaddr = address
+  result.alive = true
 
   result.s = socket(result.c, cint(mode))
   if result.s == nil:
@@ -128,6 +126,7 @@ proc listen*(address: string, mode: TSocketType = REP, context: PContext): TConn
   result.c = context
   result.ownctx = false
   result.sockaddr = address
+  result.alive = true
 
   result.s = socket(result.c, cint(mode))
   if result.s == nil:
@@ -145,10 +144,13 @@ proc listen*(address: string, mode: TSocketType = REP): TConnection =
   result = listen(address, mode, ctx)
   result.ownctx = true
 
-proc close*(c: TConnection) =
+proc close*(c: var TConnection) =
   ## closes the connection.
+  # Set linger to 0 to properly drop buffered message otherwise closing socket can block indefinitly
+  setsockopt(c, LINGER, 0.cint)
   if close(c.s) != 0:
     zmqError()
+  c.alive = false
 
   # Do not destroy embedded socket if it does not own it
   if c.ownctx:

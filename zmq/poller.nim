@@ -8,7 +8,7 @@ type
   Poller* = object
     items*: seq[TPollItem]
 
-proc `[]`*(poller: Poller, idx : int): TPollItem =
+proc `[]`*(poller: Poller, idx : int): lent TPollItem =
   poller.items[idx]
 
 proc len*(poller: Poller): int =
