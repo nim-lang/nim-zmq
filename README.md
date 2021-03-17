@@ -3,6 +3,8 @@
 **Note:** This wrapper was written and tested with ZeroMQ version 4.2.0. Older
 versions may not work.
 
+ZeroMQ API Reference can be found here : http://api.zeromq.org/4-2:_start
+
 ## Installation
 
 ```
