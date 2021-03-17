@@ -9,7 +9,7 @@ import strformat
 const address = "tcp://127.0.0.1:44445"
 const max_msg = 10
 
-proc receiveMultipart(socket: PSocket, flags: TSendRecvOptions): seq[string] =
+proc receiveMultipart(socket: ZSocket, flags: ZSendRecvOptions): seq[string] =
   var hasMore: int = 1
   while hasMore > 0:
     result.add(socket.receive())
@@ -24,7 +24,7 @@ proc client() =
   d1.send("dummy")
   d2.send("dummy")
 
-  var poller: Poller
+  var poller: ZPoller
   poller.register(d1, ZMQ_POLLIN)
   poller.register(d2, ZMQ_POLLIN)
   while true:

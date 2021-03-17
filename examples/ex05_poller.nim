@@ -17,7 +17,7 @@ proc client() =
   d1.send("dummy")
   d2.send("dummy")
 
-  var p: Poller
+  var p: ZPoller
   p.register(d1, ZMQ_POLLIN)
   p.register(d2, ZMQ_POLLIN)
 
