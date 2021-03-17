@@ -5,41 +5,41 @@ import bitops
 # Unofficial easier-for-Nim API
 # Using a poller type
 type
-  Poller* = object
-    items*: seq[TPollItem]
+  ZPoller* = object
+    items*: seq[ZPollItem]
 
-proc `[]`*(poller: Poller, idx: int): lent TPollItem =
+proc `[]`*(poller: ZPoller, idx : int): lent ZPollItem =
   poller.items[idx]
 
-proc len*(poller: Poller): int =
+proc len*(poller: ZPoller): int =
   poller.items.len
 
 # Polling
-# High level poll function using array of TPollItem
-proc poll*(items: openArray[TPollItem], timeout: int64): int32 =
-  poll(cast[ptr UncheckedArray[TPollItem]](unsafeAddr items[0]), cint(items.len), clong(timeout))
+# High level poll function using array of ZPollItem
+proc poll*(items: openArray[ZPollItem], timeout: int64): int32 =
+  poll(cast[ptr UncheckedArray[ZPollItem]](unsafeAddr items[0]), cint(items.len), clong(timeout))
 
 ## Register socket function
-proc register*(poller: var Poller, sock: PSocket, event: int) =
+proc register*(poller: var ZPoller, sock: ZSocket, event: int) =
   poller.items.add(
-    TPollItem(socket: sock, events: event.cshort)
+    ZPollItem(socket: sock, events: event.cshort)
   )
 
 # Register connection function for ease of use
-proc register*(poller: var Poller, conn: TConnection, event: int) =
+proc register*(poller: var ZPoller, conn: ZConnection, event: int) =
   poller.register(conn.s, event)
 
 # High level poll function using poller type
-proc poll*(poller: Poller, timeout: int64): int32 =
+proc poll*(poller: ZPoller, timeout: int64): int32 =
   poll(poller.items, timeout)
 
-proc events*(p: TPollItem, events: int): bool =
+proc events*(p: ZPollItem, events: int): bool =
   if bitand(p.revents, events.cshort) > 0:
     result = true
   else:
     result = false
 
-proc events*(p: TPollItem): bool =
+proc events*(p: ZPollItem): bool =
   if bitand(p.revents, p.events) > 0:
     result = true
   else:

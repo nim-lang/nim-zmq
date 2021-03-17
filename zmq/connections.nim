@@ -6,9 +6,9 @@ import bindings
 ]#
 type
   EZmq* = object of IOError ## exception that is raised if something fails
-  TConnection* {.pure, final.} = object ## a connection
-    c*: PContext                        ## the embedded context
-    s*: PSocket                         ## the embedded socket
+  ZConnection* {.pure, final.} = object ## a connection
+    c*: ZContext                        ## the embedded context
+    s*: ZSocket                         ## the embedded socket
     ownctx: bool                        ## Does the Connection own the context ?
     alive: bool                         ## Is the connection alive ?
     sockaddr: string                    ## Address of the underlying socket
@@ -28,45 +28,45 @@ proc zmqError*() {.noinline, noreturn.} =
   Declare socket options first because it's used in =destroy hooks
 ]#
 # Some option take cint, int64 or uint64
-proc setsockopt_impl[T: SomeOrdinal](s: PSocket, option: TSockOptions, optval: T) =
+proc setsockopt_impl[T: SomeOrdinal](s: ZSocket, option: TSockOptions, optval: T) =
   var val: T = optval
   if setsockopt(s, option, addr(val), sizeof(val)) != 0:
     zmqError()
 # Some option take cstring
-proc setsockopt_impl(s: PSocket, option: TSockOptions, optval: string) =
+proc setsockopt_impl(s: ZSocket, option: TSockOptions, optval: string) =
   var val: string = optval
   if setsockopt(s, option, cstring(val), val.len) != 0:
     zmqError()
 
 # some sockopt returns integer values
-proc getsockopt_impl[T: SomeOrdinal](s: PSocket, option: TSockOptions, optval: var T) =
+proc getsockopt_impl[T: SomeOrdinal](s: ZSocket, option: TSockOptions, optval: var T) =
   var optval_len: int = sizeof(optval)
 
   if bindings.getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
     zmqError()
 
 # Some sockopt returns a string
-proc getsockopt_impl(s: PSocket, option: TSockOptions, optval: var string) =
+proc getsockopt_impl(s: ZSocket, option: TSockOptions, optval: var string) =
   var optval_len: int = optval.len
 
   if bindings.getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
     zmqError()
 
 #[
-  Public set/get sockopt function on PSocket / TConnection
+  Public set/get sockopt function on ZSocket / ZConnection
 ]#
-proc setsockopt*[T: SomeOrdinal|string](s: PSocket, option: TSockOptions, optval: T) =
+proc setsockopt*[T: SomeOrdinal|string](s: ZSocket, option: TSockOptions, optval: T) =
   setsockopt_impl[T](s, option, optval)
 
-proc setsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions, optval: T) =
+proc setsockopt*[T: SomeOrdinal|string](c: ZConnection, option: TSockOptions, optval: T) =
   setsockopt[T](c.s, option, optval)
 
-proc getsockopt*[T: SomeOrdinal|string](s: PSocket, option: TSockOptions): T =
+proc getsockopt*[T: SomeOrdinal|string](s: ZSocket, option: TSockOptions): T =
   var optval: T
   getsockopt_impl(s, option, optval)
   optval
 
-proc getsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions): T =
+proc getsockopt*[T: SomeOrdinal|string](c: ZConnection, option: TSockOptions): T =
   getsockopt[T](c.s, option)
 
 
@@ -74,8 +74,8 @@ proc getsockopt*[T: SomeOrdinal|string](c: TConnection, option: TSockOptions): T
   Destructor
 ]#
 when defined(gcDestructors):
-  proc close*(c: var TConnection)
-  proc `=destroy`(x: var TConnection) =
+  proc close*(c: var ZConnection)
+  proc `=destroy`(x: var ZConnection) =
     if x.alive:
       raise newException(EZmq, "Connection destroyed but not closed")
 
@@ -83,24 +83,24 @@ when defined(gcDestructors):
   Connect / Listen / Close
 ]#
 # Reconnect a previously binded/connected address
-proc reconnect*(conn: TConnection) =
+proc reconnect*(conn: ZConnection) =
   if connect(conn.s, conn.sockaddr) != 0:
     zmqError()
 
-proc reconnect*(conn: var TConnection, address: string) =
+proc reconnect*(conn: var ZConnection, address: string) =
   if connect(conn.s, address) != 0:
     zmqError()
   conn.sockaddr = address
 
-proc disconnect*(conn: TConnection) =
+proc disconnect*(conn: ZConnection) =
   if disconnect(conn.s, conn.sockaddr) != 0:
     zmqError()
 
-proc unbind*(conn: TConnection) =
+proc unbind*(conn: ZConnection) =
   if unbind(conn.s, conn.sockaddr) != 0:
     zmqError()
 
-proc connect*(address: string, mode: TSocketType = REQ, context: PContext): TConnection =
+proc connect*(address: string, mode: TSocketType = REQ, context: PContext): ZConnection =
   result.c = context
   result.ownctx = false
   result.sockaddr = address
@@ -113,7 +113,7 @@ proc connect*(address: string, mode: TSocketType = REQ, context: PContext): TCon
   if connect(result.s, address) != 0:
     zmqError()
 
-proc connect*(address: string, mode: TSocketType = REQ): TConnection =
+proc connect*(address: string, mode: TSocketType = REQ): ZConnection =
   ## open a new connection and connects
   let ctx = ctx_new()
   if ctx == nil:
@@ -122,7 +122,7 @@ proc connect*(address: string, mode: TSocketType = REQ): TConnection =
   result = connect(address, mode, ctx)
   result.ownctx = true
 
-proc listen*(address: string, mode: TSocketType = REP, context: PContext): TConnection =
+proc listen*(address: string, mode: TSocketType = REP, context: PContext): ZConnection =
   result.c = context
   result.ownctx = false
   result.sockaddr = address
@@ -135,7 +135,7 @@ proc listen*(address: string, mode: TSocketType = REP, context: PContext): TConn
   if bindAddr(result.s, address) != 0:
     zmqError()
 
-proc listen*(address: string, mode: TSocketType = REP): TConnection =
+proc listen*(address: string, mode: TSocketType = REP): ZConnection =
   ## open a new connection and binds on the socket
   let ctx = ctx_new()
   if ctx == nil:
@@ -144,7 +144,7 @@ proc listen*(address: string, mode: TSocketType = REP): TConnection =
   result = listen(address, mode, ctx)
   result.ownctx = true
 
-proc close*(c: var TConnection) =
+proc close*(c: var ZConnection) =
   ## closes the connection.
   # Set linger to 0 to properly drop buffered message otherwise closing socket can block indefinitly
   setsockopt(c, LINGER, 0.cint)
@@ -159,10 +159,10 @@ proc close*(c: var TConnection) =
       zmqError()
 
 # Send / Receive
-# Send with PSocket type
-proc send*(s: PSocket, msg: string, flags: TSendRecvOptions = NOFLAGS) =
+# Send with ZSocket type
+proc send*(s: ZSocket, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
   ## sends a message over the connection.
-  var m: TMsg
+  var m: ZMsg
   if msg_init(m, msg.len) != 0:
     zmqError()
 
@@ -175,10 +175,10 @@ proc send*(s: PSocket, msg: string, flags: TSendRecvOptions = NOFLAGS) =
     zmqError()
   # no close msg after a send
 
-# receive with PSocket type
-proc receive*(s: PSocket, flags: TSendRecvOptions = NOFLAGS): string =
+# receive with ZSocket type
+proc receive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): string =
   ## receives a message from a connection.
-  var m: TMsg
+  var m: ZMsg
   if msg_init(m) != 0:
     zmqError()
 
@@ -192,10 +192,10 @@ proc receive*(s: PSocket, flags: TSendRecvOptions = NOFLAGS): string =
   if msg_close(m) != 0:
     zmqError()
 
-# send & receive with TConnection type
-proc send*(c: TConnection, msg: string, flags: TSendRecvOptions = NOFLAGS) =
+# send & receive with ZConnection type
+proc send*(c: ZConnection, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
   send(c.s, msg, flags)
 
-proc receive*(c: TConnection, flags: TSendRecvOptions = NOFLAGS): string =
+proc receive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): string =
   receive(c.s, flags)
 
