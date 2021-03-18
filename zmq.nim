@@ -32,7 +32,7 @@
 ## .. code-block:: nim
 ##   import zmq
 ##
-##   var requester = zmq.connect("tcp://localhost:5555")
+##   var requester = zmq.connect("tcp://localhost:5555", REQ)
 ##   echo("Connecting...")
 ##   for i in 0..10:
 ##     echo("Sending hello... (" & $i & ")")
@@ -46,7 +46,7 @@
 ## .. code-block:: nim
 ##
 ##   import zmq
-##   var responder = zmq.listen("tcp://*:5555")
+##   var responder = zmq.listen("tcp://*:5555", REP)
 ##   while true:
 ##     var request = receive(responder)
 ##     echo("Received: ", request)
