@@ -10,4 +10,5 @@ jobs:
       - uses: iffy/install-nim@v3
       - run: nimble install -y
       - run: testament r tests/tzmq.nim
-      - run: testament --directory:examples/ --skipFrom:skiptests p "ex*.nim"
+        #- run: testament --directory:examples/ --skipFrom:skiptests p "ex*.nim"
+      - run: testament all
