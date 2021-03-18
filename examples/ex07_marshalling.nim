@@ -11,14 +11,14 @@ proc newPerson(n: string, a: int): Person =
 
 # An example of serialization using marshal module
 proc mainMarshal() =
-  var responder = listen("tcp://127.0.0.1:44444", mode = REP)
+  var responder = listen("tcp://127.0.0.1:5560", mode = REP)
   defer: close(responder)
-  var requester = connect("tcp://127.0.0.1:44444", mode = REQ)
+  var requester = connect("tcp://127.0.0.1:5560", mode = REQ)
   defer: close(requester)
 
   block request:
     let paul = newPerson("Paul", 34)
-    var requester = connect("tcp://127.0.0.1:44444", mode = REQ)
+    var requester = connect("tcp://127.0.0.1:5560", mode = REQ)
     # Serialize Person object using `$$` operator defined in the marshal module
     requester.send($$paul)
 

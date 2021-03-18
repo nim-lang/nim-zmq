@@ -3,7 +3,7 @@ import zmq
 import os
 import system
 
-const address = "tcp://127.0.0.1:44445"
+const address = "tcp://127.0.0.1:5558"
 const max_msg = 10
 
 ## Example of using ZPoller

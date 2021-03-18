@@ -4,7 +4,7 @@ import os
 import system
 import strformat
 
-const address = "tcp://127.0.0.1:44445"
+const address = "tcp://127.0.0.1:5559"
 const max_msg = 10
 
 proc receiveMultipart(socket: ZSocket, flags: ZSendRecvOptions): seq[string] =

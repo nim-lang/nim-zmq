@@ -4,7 +4,7 @@ import zmq
 const max_msg = 12
 const num_thread = 2
 const topics: array[2, string] = ["even", "odd"]
-const address = "tcp://127.0.0.1:44450"
+const address = "tcp://127.0.0.1:5557"
 
 # An example of serialization using SNDMORE
 proc publisher() =
