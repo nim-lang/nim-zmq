@@ -127,7 +127,7 @@ proc bindAddr*(conn: var ZConnection, address: string) =
     zmqError()
   conn.sockaddr = address
 
-proc connect*(address: string, mode: ZSocketType = REQ, context: ZContext): ZConnection =
+proc connect*(address: string, mode: ZSocketType, context: ZContext): ZConnection =
   ## Open a new connection on an external ``ZContext`` and connect the socket
   result.context = context
   result.ownctx = false
@@ -140,7 +140,7 @@ proc connect*(address: string, mode: ZSocketType = REQ, context: ZContext): ZCon
   if connect(result.socket, address) != 0:
     zmqError()
 
-proc connect*(address: string, mode: ZSocketType = REQ): ZConnection =
+proc connect*(address: string, mode: ZSocketType): ZConnection =
   ## Open a new connection on an internal (owned) ``ZContext`` and connects the socket
   runnableExamples:
     var pullcon = connect("tcp://127.0.0.1:34444", pull)
@@ -160,7 +160,7 @@ proc connect*(address: string, mode: ZSocketType = REQ): ZConnection =
   result = connect(address, mode, ctx)
   result.ownctx = true
 
-proc listen*(address: string, mode: ZSocketType = REP, context: ZContext): ZConnection =
+proc listen*(address: string, mode: ZSocketType, context: ZContext): ZConnection =
   ## Open a new connection on an external ``ZContext`` and binds on the socket
   runnableExamples:
     var monoserver = listen("tcp://127.0.0.1:34444", PAIR)
@@ -186,7 +186,7 @@ proc listen*(address: string, mode: ZSocketType = REP, context: ZContext): ZConn
   if bindAddr(result.socket, address) != 0:
     zmqError()
 
-proc listen*(address: string, mode: ZSocketType = REP): ZConnection =
+proc listen*(address: string, mode: ZSocketType): ZConnection =
   ## Open a new connection on an internal (owned) ``ZContext`` and binds the socket
   let ctx = ctx_new()
   if ctx == nil:
