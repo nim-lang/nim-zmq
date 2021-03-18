@@ -1,5 +1,7 @@
 # Nim ZeroMQ wrapper
 
+![example workflow](https://github.com/nim-lang/nim-zmq/actions/workflows/tests.yml/badge.svg)
+
 **Note:** This wrapper was written and tested with ZeroMQ version 4.2.0. Older
 versions may not work.
 
