@@ -1,7 +1,6 @@
 import zmq
 
-var requester = zmq.connect("tcp://localhost:5555")
-echo("Connecting...")
+var requester = zmq.listen("tcp://127.0.0.1:5555", REQ)
 
 for i in 0..10:
   echo("Sending hello... (" & $i & ")")
