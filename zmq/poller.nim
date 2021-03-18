@@ -12,7 +12,7 @@ type
     ## It is mandatory to manage the lifetimes of the polled sockets independently of the ``ZPoller`` - either manually or by using a ``ZConnection``.
     items*: seq[ZPollItem]
 
-proc `[]`*(poller: ZPoller, idx : int): lent ZPollItem =
+proc `[]`*(poller: ZPoller, idx: int): lent ZPollItem =
   ## Access registered element by index
   poller.items[idx]
 
@@ -35,22 +35,22 @@ proc register*(poller: var ZPoller, conn: ZConnection, event: int) =
   ## Register ZConnection
   poller.register(conn.socket, event)
 
-proc initZPoller*(items: openArray[ZConnection], event: cshort) : ZPoller =
+proc initZPoller*(items: openArray[ZConnection], event: cshort): ZPoller =
   ## Init a ZPoller with all items on the same event
   for c in items:
     result.register(c, event)
 
-proc initZPoller*(items: openArray[ZSocket], event: cshort) : ZPoller =
+proc initZPoller*(items: openArray[ZSocket], event: cshort): ZPoller =
   ## Init a ZPoller with all items on the same event
   for s in items:
     result.register(s, event)
 
-proc initZPoller*(items: openArray[tuple[sock: ZSocket, event: cshort]]) : ZPoller =
+proc initZPoller*(items: openArray[tuple[sock: ZSocket, event: cshort]]): ZPoller =
   ## Init a ZPoller with each item its events flags
   for (s, e) in items:
     result.register(s, e)
 
-proc initZPoller*(items: openArray[tuple[con: ZConnection, event: cshort]]) : ZPoller =
+proc initZPoller*(items: openArray[tuple[con: ZConnection, event: cshort]]): ZPoller =
   ## Init a ZPoller with each item its events flags
   for (c, e) in items:
     result.register(c, e)

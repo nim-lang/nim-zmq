@@ -8,11 +8,11 @@ type
   EZmq* = object of IOError ## exception that is raised if something fails
   ZConnection* {.pure, final.} = object
     ## A Zmq connection. Since ``ZContext`` and ``ZSocket`` are pointers, it is highly recommended to **not** copy ``ZConnection``.
-    context*: ZContext                  ## Zmq context. Can be 'owned' by another connection (useful for inproc protocol).
-    socket*: ZSocket                    ## Embedded socket.
-    ownctx: bool                        ## Boolean indicating if the connection owns the Zmq context
-    alive: bool                         ## Boolean indicating if the connections has been closed or not
-    sockaddr: string                    ## Address of the embedded socket
+    context*: ZContext ## Zmq context. Can be 'owned' by another connection (useful for inproc protocol).
+    socket*: ZSocket   ## Embedded socket.
+    ownctx: bool       ## Boolean indicating if the connection owns the Zmq context
+    alive: bool        ## Boolean indicating if the connections has been closed or not
+    sockaddr: string   ## Address of the embedded socket
 
 #[
   Error handler
