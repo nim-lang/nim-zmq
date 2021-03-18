@@ -6,6 +6,10 @@ import bitops
 # ZPoller type
 type
   ZPoller* = object
+    ## Poller type to simplify polling in ZMQ.
+    ##
+    ## While, ``ZPoller`` can access the underlying socket to send / receive message, it **must not close** any socket.
+    ## It is mandatory to manage the lifetimes of the polled sockets independently of the ``ZPoller`` - either manually or by using a ``ZConnection``.
     items*: seq[ZPollItem]
 
 proc `[]`*(poller: ZPoller, idx : int): lent ZPollItem =
@@ -29,7 +33,7 @@ proc register*(poller: var ZPoller, sock: ZSocket, event: int) =
 
 proc register*(poller: var ZPoller, conn: ZConnection, event: int) =
   ## Register ZConnection
-  poller.register(conn.s, event)
+  poller.register(conn.socket, event)
 
 proc initZPoller*(items: seq[ZConnection], event: cshort) : ZPoller =
   ## Init a ZPoller with all items on the same event
