@@ -1,2 +1,3 @@
 switch("threads", "on")
-switch("outdir", "bin")
+when not defined(testing):
+  switch("outdir", "bin")
