@@ -2,14 +2,13 @@ import strutils
 import zmq
 import os
 import system
-import bitops
-import options
 import strformat
 
 const address = "tcp://127.0.0.1:44445"
 const max_msg = 10
 
 proc receiveMultipart(socket: ZSocket, flags: ZSendRecvOptions): seq[string] =
+  # Little trick to receive all multipart message no matter how many parts there is using getsockopt
   var hasMore: int = 1
   while hasMore > 0:
     result.add(socket.receive())
@@ -24,6 +23,8 @@ proc client() =
   d1.send("dummy")
   d2.send("dummy")
 
+  # It is possible to manually register connection (for adding connection after ZPoller creation)
+  # The connections are still managed independently
   var poller: ZPoller
   poller.register(d1, ZMQ_POLLIN)
   poller.register(d2, ZMQ_POLLIN)
