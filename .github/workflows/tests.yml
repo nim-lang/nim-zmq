@@ -1,0 +1,12 @@
+on:
+  pull_request:
+  push:
+
+jobs:
+  default:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: iffy/install-nim@v3
+      - run: nimble install -y
+      - run: testament r tests/tzmq.nim
