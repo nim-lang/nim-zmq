@@ -43,5 +43,6 @@ close(responder)
 
 ### More examples
 
-For more examples showing off many of the functionality and different patterns that ZMQ offers, go look in the ``tests/`` and ``examples/`` folder.
-The examples have plenty of comments to explain a but what's going on.
+For more examples demonstrating many functionalities and patterns that ZMQ offers, see the ``tests/`` and ``examples/`` folder.
+
+The examples are commented to better understand how zmq works.
