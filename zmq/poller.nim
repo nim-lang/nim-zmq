@@ -3,43 +3,67 @@ import connections
 import bitops
 
 # Unofficial easier-for-Nim API
-# Using a poller type
+# ZPoller type
 type
   ZPoller* = object
     items*: seq[ZPollItem]
 
 proc `[]`*(poller: ZPoller, idx : int): lent ZPollItem =
+  ## Access registered element by index
   poller.items[idx]
 
 proc len*(poller: ZPoller): int =
+  ## Return the number of registered ZConnections
   poller.items.len
 
 # Polling
-# High level poll function using array of ZPollItem
 proc poll*(items: openArray[ZPollItem], timeout: int64): int32 =
+  ## High level poll function using array of ZPollItem
   poll(cast[ptr UncheckedArray[ZPollItem]](unsafeAddr items[0]), cint(items.len), clong(timeout))
 
-## Register socket function
 proc register*(poller: var ZPoller, sock: ZSocket, event: int) =
+  ## Register ZSocket function
   poller.items.add(
     ZPollItem(socket: sock, events: event.cshort)
   )
 
-# Register connection function for ease of use
 proc register*(poller: var ZPoller, conn: ZConnection, event: int) =
+  ## Register ZConnection
   poller.register(conn.s, event)
 
-# High level poll function using poller type
+proc initZPoller*(items: seq[ZConnection], event: cshort) : ZPoller =
+  ## Init a ZPoller with all items on the same event
+  for c in items:
+    result.register(c, event)
+
+proc initZPoller*(items: seq[ZSocket], event: cshort) : ZPoller =
+  ## Init a ZPoller with all items on the same event
+  for s in items:
+    result.register(s, event)
+
+proc initZPoller*(items: seq[tuple[sock: ZSocket, event: cshort]]) : ZPoller =
+  ## Init a ZPoller with each item its events flags
+  for (s, e) in items:
+    result.register(s, e)
+
+proc initZPoller*(items: seq[tuple[con: ZConnection, event: cshort]]) : ZPoller =
+  ## Init a ZPoller with each item its events flags
+  for (c, e) in items:
+    result.register(c, e)
+
 proc poll*(poller: ZPoller, timeout: int64): int32 =
+  ## High level poll function
   poll(poller.items, timeout)
 
 proc events*(p: ZPollItem, events: int): bool =
+  ## Evaluate the bitflag revents with events
   if bitand(p.revents, events.cshort) > 0:
     result = true
   else:
     result = false
 
 proc events*(p: ZPollItem): bool =
+  ## Evaluate the bitflag revents with the event flag passed at ``register``
   if bitand(p.revents, p.events) > 0:
     result = true
   else:

@@ -82,25 +82,36 @@ when defined(gcDestructors):
 #[
   Connect / Listen / Close
 ]#
-# Reconnect a previously binded/connected address
 proc reconnect*(conn: ZConnection) =
+  ## Reconnect a previously binded/connected address
   if connect(conn.s, conn.sockaddr) != 0:
     zmqError()
 
 proc reconnect*(conn: var ZConnection, address: string) =
+  ## Reconnect a socket to a new address
   if connect(conn.s, address) != 0:
     zmqError()
   conn.sockaddr = address
 
 proc disconnect*(conn: ZConnection) =
+  ## Disconnect the socket
   if disconnect(conn.s, conn.sockaddr) != 0:
     zmqError()
 
 proc unbind*(conn: ZConnection) =
+  ## Unbind the socket
   if unbind(conn.s, conn.sockaddr) != 0:
     zmqError()
 
+proc bindAddr*(conn: var ZConnection, address: string) =
+  ## Bind the socket to a new address
+  ## The socket must disconnected / unbind beforehand
+  if bindAddr(conn.s, address) != 0:
+    zmqError()
+  conn.sockaddr = address
+
 proc connect*(address: string, mode: ZSocketType = REQ, context: ZContext): ZConnection =
+  ## Open a new connection on an external ``ZContext and connectthe socket
   result.c = context
   result.ownctx = false
   result.sockaddr = address
@@ -114,7 +125,7 @@ proc connect*(address: string, mode: ZSocketType = REQ, context: ZContext): ZCon
     zmqError()
 
 proc connect*(address: string, mode: ZSocketType = REQ): ZConnection =
-  ## open a new connection and connects
+  ## Open a new connection on an internal (owned) ``ZContext`` and connects the socket
   let ctx = ctx_new()
   if ctx == nil:
     zmqError()
@@ -123,6 +134,7 @@ proc connect*(address: string, mode: ZSocketType = REQ): ZConnection =
   result.ownctx = true
 
 proc listen*(address: string, mode: ZSocketType = REP, context: ZContext): ZConnection =
+  ## Open a new connection on an external ``ZContext and binds on the socket
   result.c = context
   result.ownctx = false
   result.sockaddr = address
@@ -136,7 +148,7 @@ proc listen*(address: string, mode: ZSocketType = REP, context: ZContext): ZConn
     zmqError()
 
 proc listen*(address: string, mode: ZSocketType = REP): ZConnection =
-  ## open a new connection and binds on the socket
+  ## Open a new connection on an internal (owned) ``ZContext`` and binds the socket
   let ctx = ctx_new()
   if ctx == nil:
     zmqError()
@@ -145,8 +157,8 @@ proc listen*(address: string, mode: ZSocketType = REP): ZConnection =
   result.ownctx = true
 
 proc close*(c: var ZConnection) =
-  ## closes the connection.
-  # Set linger to 0 to properly drop buffered message otherwise closing socket can block indefinitly
+  ## Closes the ``ZConnection``.
+  ## Set linger to 0 to properly drop buffered message otherwise closing socket can block indefinitly
   setsockopt(c, LINGER, 0.cint)
   if close(c.s) != 0:
     zmqError()
@@ -161,7 +173,7 @@ proc close*(c: var ZConnection) =
 # Send / Receive
 # Send with ZSocket type
 proc send*(s: ZSocket, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
-  ## sends a message over the connection.
+  ## Sends a message over the connection.
   var m: ZMsg
   if msg_init(m, msg.len) != 0:
     zmqError()
@@ -177,7 +189,7 @@ proc send*(s: ZSocket, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
 
 # receive with ZSocket type
 proc receive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): string =
-  ## receives a message from a connection.
+  ## Receives a message from a connection.
   var m: ZMsg
   if msg_init(m) != 0:
     zmqError()
