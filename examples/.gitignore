@@ -1,5 +1,5 @@
 bin/
-ex01_server
+ex01_client_server
 ex02_reqrep
 ex03_sub
 ex04_pubsub
