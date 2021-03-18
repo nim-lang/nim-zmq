@@ -3,7 +3,7 @@ import zmq
 var relay = "tcp://relay-us-west-1.eve-emdr.com:8050"
 
 echo("Connecting ...")
-var connection = connect(relay, mode=SUB)
+var connection = connect(relay, mode = SUB)
 connection.setsockopt(SUBSCRIBE, "")
 
 echo("Receiving ...")
