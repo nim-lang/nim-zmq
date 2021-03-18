@@ -81,6 +81,23 @@ proc pubsub() =
   broadcast.close()
   pub.close()
 
+proc routerdealer() =
+  const sockaddr = "tcp://127.0.0.1:55001"
+  var router = listen(sockaddr, mode = ROUTER)
+  var dealer = connect(sockaddr, mode = DEALER)
+
+  let payload = "payload"
+  # Dealer send a message to router
+  dealer.send(payload)
+  # Remove "envelope" of router / dealer
+  let dealerSocketId = router.receive()
+  let msg = router.receive()
+  assert msg == payload
+  # Reply to the Dealer
+  router.send(dealerSocketId, SNDMORE)
+  router.send(payload)
+  assert dealer.receive() == payload
+
 proc inproc_sharectx() =
   # AFAIK, inproc only works for Linux
   when defined(linux):
@@ -110,6 +127,8 @@ when isMainModule:
     pubsub()
   block inproc:
     inproc_sharectx()
+  block routerdealer:
+    routerdealer()
   block poller:
     discard
 

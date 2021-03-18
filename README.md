@@ -11,7 +11,10 @@ ZeroMQ API Reference can be found here : http://api.zeromq.org/4-2:_start
 $ nimble install zmq
 ```
 
-## Example server
+## Examples
+
+### Example client/server
+#### Server
 ```nim
 import zmq
 
@@ -25,8 +28,7 @@ for i in 0..10:
   echo("Received: ", reply)
 close(requester)
 ```
-
-## Example client
+#### Client
 ```nim
 import zmq
 var responder = zmq.listen("tcp://*:5555")
@@ -39,3 +41,7 @@ while true:
 close(responder)
 ```
 
+### More examples
+
+For more examples showing off many of the functionality and different patterns that ZMQ offers, go look in the ``tests/`` and ``examples/`` folder.
+The examples have plenty of comments to explain a but what's going on.
