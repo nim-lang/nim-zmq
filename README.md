@@ -19,7 +19,7 @@ $ nimble install zmq
 
 #### server
 
-.. code-block::nim
+```nim
   import zmq
 
   var responder = zmq.listen("tcp://127.0.0.1:5555", REP)
@@ -28,10 +28,11 @@ $ nimble install zmq
     echo("Received: ", request)
     send(responder, "World")
   close(responder)
+```
 
 #### client 
 
-.. code-block::nim
+```nim
   import zmq
 
   var requester = zmq.connect("tcp://127.0.0.1:5555", REQ)
@@ -40,6 +41,7 @@ $ nimble install zmq
     var reply = receive(requester)
     echo("Received: ", reply)
   close(requester)
+```
 
 ### Advanced usage
 
