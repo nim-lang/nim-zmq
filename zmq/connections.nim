@@ -5,7 +5,7 @@ import bindings
   Types definition
 ]#
 type
-  EZmq* = object of IOError ## exception that is raised if something fails
+  ZmqError* = object of IOError ## exception that is raised if something fails
   ZConnection* {.pure, final.} = object
     ## A Zmq connection. Since ``ZContext`` and ``ZSocket`` are pointers, it is highly recommended to **not** copy ``ZConnection``.
     context*: ZContext ## Zmq context. Can be 'owned' by another connection (useful for inproc protocol).
@@ -18,8 +18,8 @@ type
   Error handler
 ]#
 proc zmqError*() {.noinline, noreturn.} =
-  ## raises EZmq with error message from `zmq.strerror`.
-  var e: ref EZmq
+  ## raises ZmqError with error message from `zmq.strerror`.
+  var e: ref ZmqError
   new(e)
   e.msg = $strerror(errno())
   raise e
@@ -94,7 +94,7 @@ when defined(gcDestructors):
   proc close*(c: var ZConnection)
   proc `=destroy`(x: var ZConnection) =
     if x.alive:
-      raise newException(EZmq, "Connection destroyed but not closed")
+      raise newException(ZmqError, "Connection destroyed but not closed")
 
 #[
   Connect / Listen / Close
