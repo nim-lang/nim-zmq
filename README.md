@@ -15,35 +15,33 @@ $ nimble install zmq
 
 ## Examples
 
-### Example client/server
-#### Server
-```nim
-import zmq
+### Simple client/server
 
-var requester = zmq.connect("tcp://localhost:5555")
-echo("Connecting...")
+#### server
 
-for i in 0..10:
-  echo("Sending hello... (" & $i & ")")
-  send(requester, "Hello")
-  var reply = receive(requester)
-  echo("Received: ", reply)
-close(requester)
-```
-#### Client
-```nim
-import zmq
-var responder = zmq.listen("tcp://*:5555")
+.. code-block::nim
+  import zmq
 
-while true:
-  var request = receive(responder)
-  echo("Received: ", request)
-  send(responder, "World")
+  var responder = zmq.listen("tcp://127.0.0.1:5555", REP)
+  for i in 0..10:
+    var request = receive(responder)
+    echo("Received: ", request)
+    send(responder, "World")
+  close(responder)
 
-close(responder)
-```
+#### client 
 
-### More examples
+.. code-block::nim
+  import zmq
+
+  var requester = zmq.connect("tcp://127.0.0.1:5555", REQ)
+  for i in 0..10:
+    send(requester, "Hello")
+    var reply = receive(requester)
+    echo("Received: ", reply)
+  close(requester)
+
+### Advanced usage
 
 For more examples demonstrating many functionalities and patterns that ZMQ offers, see the ``tests/`` and ``examples/`` folder.
 
