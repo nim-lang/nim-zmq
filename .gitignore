@@ -1,1 +1,4 @@
-examples/bin
+bin/
+nimcache/
+testresults
+outputGotten.txt

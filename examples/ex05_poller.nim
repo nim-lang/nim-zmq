@@ -2,48 +2,41 @@ import strutils
 import zmq
 import os
 import system
-import bitops
 
-const address = "tcp://127.0.0.1:44445"
+const address = "tcp://127.0.0.1:5558"
 const max_msg = 10
 
-## Example of low level poller
+## Example of using ZPoller
 
 proc client() =
+  # Create connection
   var d1 = connect(address, mode = DEALER)
   var d2 = connect(address, mode = DEALER)
 
-  # Send a dummy message withc each socket to obtain the identity on the ROUTER socket
+  # Send a dummy message with each socket to obtain the identity on the ROUTER socket
+  # This is independent of the ZPoller usage but is necessary for using ROUTER / DEALER pattern in ZMQ
   d1.send("dummy")
   d2.send("dummy")
 
-  var p: Poller
-  p.register(d1, ZMQ_POLLIN)
-  p.register(d2, ZMQ_POLLIN)
+  # Create a poller from the connections
+  # Notice how the connection are managed independtly of the ZPoller
+  let p: ZPoller = initZPoller([d1, d2], ZMQ_POLLIN)
 
   while true:
-    let res: int = poll(p, 1_000)
-    let p1 = p.items[0]
-    let p2 = p.items[1]
-
-    if res > 0:
-      let res1 = bitand(p1.revents, ZMQ_POLLIN.cshort)
-      let res2 = bitand(p2.revents, ZMQ_POLLIN.cshort)
-
-      if res1 > 0:
-        var buf = p1.socket.receive()
+    if poll(p, 1_000) > 0:
+      # Check if the registered events "ZMQ_POLLIN" has occured
+      if events(p[0]):
+        var buf = p[0].socket.receive()
         echo "CLIENT> p1 received ", buf
 
-      if res2 > 0:
-        var buf = p2.socket.receive()
+      # Other events variation with explicit events flag to check
+      if events(p[1], ZMQ_POLLIN):
+        var buf = p[1].socket.receive()
         echo "CLIENT> p2 received ", buf
 
-    elif res == 0:
+    else:
       echo "CLIENT> Timeout"
       break
-
-    else:
-      zmqError()
 
   echo "CLIENT -- END"
   d1.close()

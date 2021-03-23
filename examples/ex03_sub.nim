@@ -1,10 +1,10 @@
-import zlib, zmq
+import zmq
 
 var relay = "tcp://relay-us-west-1.eve-emdr.com:8050"
 
 echo("Connecting ...")
-var connection = connect(relay, mode=SUB)
-discard connection.setsockopt(SUBSCRIBE, "")
+var connection = connect(relay, mode = SUB)
+connection.setsockopt(SUBSCRIBE, "")
 
 echo("Receiving ...")
 for i in 0..10:
