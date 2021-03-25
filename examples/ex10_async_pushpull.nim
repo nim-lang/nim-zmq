@@ -3,7 +3,7 @@ import asyncdispatch
 import zmq
 import zmq_async
 
-const N_TASK = 10
+const N_TASK = 5
 
 proc pusher(nTask: int): Future[void] {.async.} =
   var pusher = listen("tcp://*:5555", PUSH)

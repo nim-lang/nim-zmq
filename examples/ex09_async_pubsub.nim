@@ -2,6 +2,8 @@ import asyncdispatch
 import strformat
 import zmq
 import zmq_async
+
+const N_EVENT = 5
   
 proc subscriber(id: int): Future[void] {.async.} =
   const connStr = "tcp://localhost:5555"
@@ -14,8 +16,9 @@ proc subscriber(id: int): Future[void] {.async.} =
   # no filter
   subscriber.setsockopt(SUBSCRIBE, "")
 
-  while true:
-    # NOTE: subscriber always miss the first messages that the publisher sends
+  # NOTE: subscriber always miss the first messages that the publisher sends
+  # reference: https://zguide.zeromq.org/docs/chapter1/#Getting-the-Message-Out
+  for i in 2 .. N_EVENT:
     var data = await subscriber.receiveAsync()
     echo fmt"subscriber {id}: received ", data
 
@@ -24,9 +27,7 @@ proc publisher(): Future[void] {.async.} =
   var publisher = zmq.listen("tcp://*:5555", PUB)
   defer: publisher.close()
 
-  var i = 0
-  while true:
-    i.inc
+  for i in 1 .. N_EVENT:
     let msg = fmt"msg-{i}"
     echo "publisher: publish ", msg
     publisher.send(msg)
@@ -34,7 +35,9 @@ proc publisher(): Future[void] {.async.} =
 
 when isMainModule:
   asyncCheck publisher()
-  for i in 1..2:
+  for i in 1..3:
     asyncCheck subscriber(i)
-  runForever()
+  
+  while hasPendingOperations():
+    poll()
 
