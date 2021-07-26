@@ -1,5 +1,5 @@
-import marshal
-import zmq
+import std/marshal # Marshall module is used as an example but is actually a very bad way of doing serialization
+import ../zmq
 
 type
   Person = object

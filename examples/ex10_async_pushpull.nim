@@ -1,7 +1,7 @@
-import strformat
-import asyncdispatch
-import zmq
-import zmq_async
+import std/strformat
+import std/asyncdispatch
+
+import ../zmq
 
 const N_TASK = 5
 
@@ -13,9 +13,9 @@ proc pusher(nTask: int): Future[void] {.async.} =
     let task = fmt"task-{i}"
     echo fmt"pusher: pushing {task}"
     # unlilke `pusher.send(task)`
-    # this allow other async tasks to run 
+    # this allow other async tasks to run
     await pusher.sendAsync(task)
-    
+
 proc puller(id: int): Future[void] {.async.} =
   const connStr = "tcp://localhost:5555"
 
@@ -28,7 +28,7 @@ proc puller(id: int): Future[void] {.async.} =
     echo fmt"puller {id}: received {task}"
     await sleepAsync(100)
     echo fmt"puller {id}: finished {task}"
-    
+
 when isMainModule:
   asyncCheck pusher(N_TASK)
   for i in 1..1:
@@ -36,4 +36,4 @@ when isMainModule:
 
   while hasPendingOperations():
     poll()
-  
+

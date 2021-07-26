@@ -1,8 +1,8 @@
-import strutils
-import zmq
-import os
-import system
-import strformat
+import std/strutils
+import std/os
+import std/system
+import std/strformat
+import ../zmq
 
 const address = "tcp://127.0.0.1:5559"
 const max_msg = 10

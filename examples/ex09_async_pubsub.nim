@@ -1,13 +1,12 @@
-import asyncdispatch
-import strformat
-import zmq
-import zmq_async
+import std/asyncdispatch
+import std/strformat
+import ../zmq
 
 const N_EVENT = 5
-  
+
 proc subscriber(id: int): Future[void] {.async.} =
   const connStr = "tcp://localhost:5555"
-  
+
   # subscribe to port 5555
   echo fmt"subscriber {id}: connecting to {connStr}"
   var subscriber = zmq.connect(connStr, SUB)
@@ -37,7 +36,7 @@ when isMainModule:
   asyncCheck publisher()
   for i in 1..3:
     asyncCheck subscriber(i)
-  
+
   while hasPendingOperations():
     poll()
 

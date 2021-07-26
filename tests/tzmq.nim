@@ -1,4 +1,4 @@
-import zmq
+import ../zmq
 import os
 
 proc reqrep() =

@@ -1,5 +1,5 @@
-import os
-import zmq
+import std/os
+import ../zmq
 
 const max_msg = 12
 const num_thread = 2

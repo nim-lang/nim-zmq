@@ -1,6 +1,6 @@
-import strutils
+import std/strutils
 
-import zmq
+import ../zmq
 
 const num_elem = 12
 # An example of serialization using SNDMORE

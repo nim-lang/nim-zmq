@@ -1,5 +1,6 @@
-import asyncdispatch
-import zmq
+import std/asyncdispatch
+import ./connections
+import ./bindings
 
 proc receiveAsync*(conn: ZConnection): Future[string] =
   ## Similar to `receive()`, but `receiveAsync()` allows other async tasks to run.
@@ -10,7 +11,7 @@ proc receiveAsync*(conn: ZConnection): Future[string] =
     result = true
 
     # ignore if already finished
-    if fut.finished: return 
+    if fut.finished: return
 
     try:
       let status = getsockopt[cint](conn, ZSockOptions.EVENTS)
@@ -30,7 +31,7 @@ proc receiveAsync*(conn: ZConnection): Future[string] =
   discard cb(fd)
 
 proc sendAsync*(conn: ZConnection, msg: string, flags: ZSendRecvOptions = DONTWAIT): Future[void] =
-  ## `send()` is blocking for some connection types (e.g. PUSH, DEALER). 
+  ## `send()` is blocking for some connection types (e.g. PUSH, DEALER).
   ## `sendAsync()` allows other async tasks to run in those cases.
   let fut = newFuture[void]("sendAsync")
   result = fut
@@ -42,7 +43,7 @@ proc sendAsync*(conn: ZConnection, msg: string, flags: ZSendRecvOptions = DONTWA
       result = true
 
       # ignore if already finished
-      if fut.finished: return 
+      if fut.finished: return
 
       try:
         let status = getsockopt[cint](conn, ZSockOptions.EVENTS)
@@ -60,6 +61,7 @@ proc sendAsync*(conn: ZConnection, msg: string, flags: ZSendRecvOptions = DONTWA
     let fd = getsockopt[cint](conn, ZSockOptions.FD).AsyncFD
     register(fd)
     discard cb(fd)
+
   else:
     # can send without blocking
     conn.send(msg, flags)

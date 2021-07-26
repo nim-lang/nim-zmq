@@ -1,4 +1,4 @@
-import zmq
+import ../zmq
 
 var relay = "tcp://relay-us-west-1.eve-emdr.com:8050"
 

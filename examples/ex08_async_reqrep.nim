@@ -1,14 +1,13 @@
-import asyncdispatch
-import strformat
-import zmq
-import zmq_async
+import std/asyncdispatch
+import std/strformat
+import ../zmq
 
 const N_REQUESTER = 2
 const N_REQ_PER_REQUESTER = 3
 
 proc requester(id: int): Future[void] {.async.} =
   const connStr = "tcp://localhost:5555"
-  
+
   echo fmt"requester {id}: connecting to {connStr}"
   var requester = connect(connStr, REQ)
   defer: requester.close()
@@ -18,7 +17,7 @@ proc requester(id: int): Future[void] {.async.} =
     let msg = fmt"msg-{id}-{i}"
     echo fmt"requester {id}: sending {msg} to responder"
 
-    # specifies that the operation should be performed in non-blocking mode. 
+    # specifies that the operation should be performed in non-blocking mode.
     # If the message cannot be queued on the socket, send() shall fail with errno set to EAGAIN.
     requester.send(msg)
 
@@ -39,9 +38,9 @@ proc responder(): Future[void] {.async.} =
 
 when isMainModule:
   asyncCheck responder()
-  
+
   for i in 1 .. N_REQUESTER:
     asyncCheck requester(i)
-  
+
   while hasPendingOperations():
     poll()

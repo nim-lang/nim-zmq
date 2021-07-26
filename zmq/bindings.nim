@@ -160,7 +160,7 @@ proc zmq_msg_t_size(dotted_version: string): int =
 type
   ZMsg* {.pure, final.} = object
     priv*: array[zmq_msg_t_size(make_dotted_version(ZMQ_VERSION_MAJOR,
-        ZMQ_VERSION_MINOR, ZMQ_VERSION_PATCH)), cuchar]
+        ZMQ_VERSION_MINOR, ZMQ_VERSION_PATCH)), uint8]
 
   TFreeFn = proc (data, hint: pointer) {.noconv.}
 
