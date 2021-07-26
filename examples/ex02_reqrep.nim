@@ -10,20 +10,21 @@ proc requester() =
   for i, elem in input.mpairs:
     elem = i/10
 
-  echo "sent: ", input
-
-  var requester = listen("tcp://127.0.0.1:5555", mode = REQ)
+  var requester = connect("tcp://127.0.0.1:15555", mode = REQ)
 
   for i, e in input:
     if i < input.len-1:
       requester.send($e, SNDMORE)
     else:
       requester.send($e)
+
+  echo "sent: ", input
+
   close(requester)
 
 # An example receiving message until they are no more
 proc responder(){.thread.} =
-  var responder = connect("tcp://127.0.0.1:5555", mode = REP)
+  var responder = listen("tcp://127.0.0.1:15555", mode = REP)
 
   var data: seq[float]
   # Loop until there is no more message to receive
