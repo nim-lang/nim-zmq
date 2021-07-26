@@ -6,5 +6,8 @@ ex04_pubsub
 ex05_poller
 ex06_pollermultipart
 ex07_marshalling
+ex08_async_reqrep
+ex09_async_pubsub
+ex10_async_pushpull
 nimcache/
 testresults/
