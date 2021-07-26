@@ -12,7 +12,7 @@ proc publisher() =
 
   # PUB / SUB is a slow joiner in ZMQ
   # You need to wait before sending message of those messages will be lost
-  sleep(200)
+  sleep(400)
 
   for i in 0..<max_msg:
     let topic = topics[i mod 2]

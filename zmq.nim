@@ -75,7 +75,7 @@ runnableExamples:
   const N_TASK = 5
 
   proc pusher(nTask: int): Future[void] {.async.} =
-    var pusher = listen("tcp://localhost:15555", PUSH)
+    var pusher = listen("tcp://localhost:15556", PUSH)
     defer: pusher.close()
 
     for i in 1..nTask:
@@ -85,7 +85,7 @@ runnableExamples:
       await pusher.sendAsync(task)
 
   proc puller(id: int): Future[void] {.async.} =
-    const connStr = "tcp://localhost:15555"
+    const connStr = "tcp://localhost:15556"
     var puller = connect(connStr, PULL)
     defer: puller.close()
 

@@ -26,7 +26,7 @@ proc requester(id: int): Future[void] {.async.} =
     echo fmt"requester {id}: received {reply} from responder"
 
 proc responder(): Future[void] {.async.} =
-  # listen on port 5555
+  # listen on port 5570
   var responder = listen("tcp://*:5570", REP)
   defer: responder.close()
 
