@@ -23,10 +23,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-## Nim ZeroMQ wrapper. This file contains the low level C wrappers as well as some higher level constructs.
-## The higher level constructs are easily recognizable because they are the only ones that have documentation.
+## Nim ZeroMQ wrapper. This package contains the low level C wrappers as well as some higher level constructs.
 ##
-## Example
+## The low-level C bindings can be found in `zmq/bindings <./zmq/bindings.html>`_
+##
+## The high-level Connections API can be found in `zmq/connections <./connections.html>`_
+##
+## The high-level Polling API can be found in `zmq/poller <./zmq/poller.html>`_
+##
+## The Async API can be found in `zmq/asynczmq <./zmq/asynczmq.html>`_
+##
 runnableExamples:
   import zmq
   import std/[asyncdispatch, asyncfutures]
@@ -100,9 +106,12 @@ runnableExamples:
 
 import zmq/bindings
 export bindings
+
 import zmq/connections
 export connections
+
 import zmq/poller
 export poller
+
 import zmq/asynczmq
 export asynczmq
