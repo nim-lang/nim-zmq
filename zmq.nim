@@ -27,7 +27,7 @@
 ##
 ## The low-level C bindings can be found in `zmq/bindings <./zmq/bindings.html>`_
 ##
-## The high-level Connections API can be found in `zmq/connections <./connections.html>`_
+## The high-level Connections API can be found in `zmq/connections <./zmq/connections.html>`_
 ##
 ## The high-level Polling API can be found in `zmq/poller <./zmq/poller.html>`_
 ##
