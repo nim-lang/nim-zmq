@@ -1,4 +1,4 @@
-import std/strformat
+import std/[strformat]
 import std/asyncdispatch
 
 import ../zmq
@@ -32,6 +32,7 @@ proc puller(id: int): Future[void] {.async.} =
 when isMainModule:
   echo "ex10_async_pushpull.nim"
   asyncCheck pusher(N_TASK)
+
   for i in 1..1:
     asyncCheck puller(i)
 

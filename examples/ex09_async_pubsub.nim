@@ -5,7 +5,7 @@ import ../zmq
 const N_EVENT = 5
 
 proc subscriber(id: int): Future[void] {.async.} =
-  const connStr = "tcp://localhost:5555"
+  const connStr = "tcp://localhost:5571"
 
   # subscribe to port 5555
   echo fmt"subscriber {id}: connecting to {connStr}"
@@ -23,7 +23,7 @@ proc subscriber(id: int): Future[void] {.async.} =
 
 proc publisher(): Future[void] {.async.} =
   # listen on port 5555
-  var publisher = zmq.listen("tcp://*:5555", PUB)
+  var publisher = zmq.listen("tcp://*:5571", PUB)
   defer: publisher.close()
 
   for i in 1 .. N_EVENT:

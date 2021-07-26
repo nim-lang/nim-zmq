@@ -6,7 +6,7 @@ const N_REQUESTER = 2
 const N_REQ_PER_REQUESTER = 3
 
 proc requester(id: int): Future[void] {.async.} =
-  const connStr = "tcp://localhost:5555"
+  const connStr = "tcp://localhost:5570"
 
   echo fmt"requester {id}: connecting to {connStr}"
   var requester = connect(connStr, REQ)
@@ -27,7 +27,7 @@ proc requester(id: int): Future[void] {.async.} =
 
 proc responder(): Future[void] {.async.} =
   # listen on port 5555
-  var responder = listen("tcp://*:5555", REP)
+  var responder = listen("tcp://*:5570", REP)
   defer: responder.close()
 
   for i in 1 .. N_REQ_PER_REQUESTER * N_REQUESTER:
