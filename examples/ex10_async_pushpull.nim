@@ -6,7 +6,7 @@ import ../zmq
 const N_TASK = 5
 
 proc pusher(nTask: int): Future[void] {.async.} =
-  var pusher = listen("tcp://*:5555", PUSH)
+  var pusher = listen("tcp://*:5571", PUSH)
   defer: pusher.close()
 
   for i in 1..nTask:
@@ -17,7 +17,7 @@ proc pusher(nTask: int): Future[void] {.async.} =
     await pusher.sendAsync(task)
 
 proc puller(id: int): Future[void] {.async.} =
-  const connStr = "tcp://localhost:5555"
+  const connStr = "tcp://localhost:5571"
 
   echo fmt"puller {id}: connecting to {connStr}"
   var puller = connect(connStr, PULL)

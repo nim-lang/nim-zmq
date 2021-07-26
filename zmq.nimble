@@ -8,13 +8,13 @@ license       = "MIT"
 # Dependencies
 requires "nim >= 0.18.0"
 
-task runexamples, "Run all examples":
+task buildexamples, "Compile all examples":
   withDir "examples":
     for fstr in listFiles("."):
       echo fstr
       if fstr.endsWith(".nim") and fstr.startsWith("./ex"):
         echo "running ", fstr
-        selfExec("cpp -r -d:release " & fstr)
+        selfExec("cpp -d:release " & fstr)
 
 task gendoc, "Generate documentation":
   exec("nimble doc --project zmq.nim --out:docs/")

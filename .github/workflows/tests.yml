@@ -14,5 +14,5 @@ jobs:
       - uses: iffy/install-nim@v3
       - run: nimble install -y
       - run: nimble test
-      - run: nimble runexamples
+      - run: nimble buildexamples
       - run: nimble gendoc
