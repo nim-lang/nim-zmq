@@ -33,6 +33,7 @@ proc publisher(): Future[void] {.async.} =
     await sleepAsync(1000)
 
 when isMainModule:
+  echo "ex09_async_pubsub.nim"
   asyncCheck publisher()
   for i in 1..3:
     asyncCheck subscriber(i)

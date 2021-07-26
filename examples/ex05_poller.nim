@@ -42,6 +42,7 @@ proc client() =
   d2.close()
 
 when isMainModule:
+  echo "ex05_poller.nim"
   # Create router connexion
   var router = listen(address, mode = ROUTER)
 

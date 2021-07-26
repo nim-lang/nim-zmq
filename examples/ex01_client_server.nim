@@ -21,6 +21,7 @@ proc client() =
   close(requester)
 
 when isMainModule:
+  echo "ex01_client_server.nim"
   var thr: Thread[void]
   createThread(thr, server)
   client()

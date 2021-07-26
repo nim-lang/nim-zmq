@@ -48,6 +48,7 @@ proc client() =
   echo "CLIENT -- END"
 
 when isMainModule:
+  echo "ex06_pollermultipart.nim"
   # Create router connexion
   var router = listen(address, mode = ROUTER)
 

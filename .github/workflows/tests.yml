@@ -13,6 +13,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: iffy/install-nim@v3
       - run: nimble install -y
-      - run: testament r tests/tzmq.nim
-      - run: testament p "examples/ex*.nim"
-      - run: nimble doc --project zmq.nim --out:docs/
+      - run: nimble test
+      - run: nimble runexamples
+      - run: nimble gendoc

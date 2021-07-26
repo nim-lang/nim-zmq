@@ -30,6 +30,7 @@ proc puller(id: int): Future[void] {.async.} =
     echo fmt"puller {id}: finished {task}"
 
 when isMainModule:
+  echo "ex10_async_pushpull.nim"
   asyncCheck pusher(N_TASK)
   for i in 1..1:
     asyncCheck puller(i)

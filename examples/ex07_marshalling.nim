@@ -32,4 +32,5 @@ proc mainMarshal() =
     echo person
 
 when isMainModule:
+  echo "ex07_marshalling.nim"
   mainMarshal()

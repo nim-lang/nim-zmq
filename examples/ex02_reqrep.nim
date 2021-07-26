@@ -12,10 +12,7 @@ proc requester() =
 
   echo "sent: ", input
 
-  var requester = listen("tcp://127.0.0.1:5556", mode = REQ)
-
-  #var tt : int64 = getsockopt[int64](requester, TYPE)
-  #echo tt.TSocketType
+  var requester = listen("tcp://127.0.0.1:5555", mode = REQ)
 
   for i, e in input:
     if i < input.len-1:
@@ -26,7 +23,7 @@ proc requester() =
 
 # An example receiving message until they are no more
 proc responder(){.thread.} =
-  var responder = connect("tcp://127.0.0.1:5556", mode = REP)
+  var responder = connect("tcp://127.0.0.1:5555", mode = REP)
 
   var data: seq[float]
   # Loop until there is no more message to receive
@@ -41,6 +38,7 @@ proc responder(){.thread.} =
   echo "received: ", data
 
 when isMainModule:
+  echo "ex02_reqrep.nim"
   var thr: Thread[void]
   createThread(thr, responder)
   requester()

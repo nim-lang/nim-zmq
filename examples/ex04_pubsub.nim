@@ -40,6 +40,7 @@ proc subscriber(args: tuple[thrid: int, topic: string]){.thread.} =
 
 
 when isMainModule:
+  echo "ex04_pubsub.nim"
   var thr: array[num_thread, Thread[tuple[thrid: int, topic: string]]]
   for i in 0..<len(thr):
     createThread(thr[i], subscriber, (i, topics[i]))

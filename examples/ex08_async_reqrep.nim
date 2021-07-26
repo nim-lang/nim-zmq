@@ -37,6 +37,7 @@ proc responder(): Future[void] {.async.} =
     responder.send(request)
 
 when isMainModule:
+  echo "ex08_async_reqrep.nim"
   asyncCheck responder()
 
   for i in 1 .. N_REQUESTER:

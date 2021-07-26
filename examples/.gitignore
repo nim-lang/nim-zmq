@@ -2,6 +2,7 @@ bin/
 ex01_client_server
 ex02_reqrep
 ex03_sub
+sub_ex03_externals
 ex04_pubsub
 ex05_poller
 ex06_pollermultipart
