@@ -25,7 +25,6 @@ jobs:
         run: nimble develop -y
       - name: Gendoc
         run: nimble doc --project zmq.nim --out:docs/
-        env:
       - name: Commit files
         run: |
           echo ${{ github.ref }}
