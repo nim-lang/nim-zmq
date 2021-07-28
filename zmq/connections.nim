@@ -1,4 +1,5 @@
-import bindings
+import ./bindings
+
 # Unofficial easier-for-Nim API
 
 #[
@@ -143,15 +144,16 @@ proc connect*(address: string, mode: ZSocketType, context: ZContext): ZConnectio
 proc connect*(address: string, mode: ZSocketType): ZConnection =
   ## Open a new connection on an internal (owned) ``ZContext`` and connects the socket
   runnableExamples:
-    var pullcon = connect("tcp://127.0.0.1:34444", pull)
-    var pushcon = listen("tcp://127.0.0.1:34444", push)
+    import zmq
+    var pull_conn = connect("tcp://127.0.0.1:34444", PULL)
+    var push_conn = listen("tcp://127.0.0.1:34444", PUSH)
 
     let msgpayload = "hello world !"
-    pushcon.send(msgpayload)
-    assert pullcon.receive() == msgpayload
+    push_conn.send(msgpayload)
+    assert pull_conn.receive() == msgpayload
 
-    pushcon.close()
-    pullcon.close()
+    push_conn.close()
+    pull_conn.close()
 
   let ctx = ctx_new()
   if ctx == nil:
@@ -163,6 +165,7 @@ proc connect*(address: string, mode: ZSocketType): ZConnection =
 proc listen*(address: string, mode: ZSocketType, context: ZContext): ZConnection =
   ## Open a new connection on an external ``ZContext`` and binds on the socket
   runnableExamples:
+    import zmq
     var monoserver = listen("tcp://127.0.0.1:34444", PAIR)
     var monoclient = connect("tcp://127.0.0.1:34444", PAIR)
 

@@ -1,8 +1,7 @@
-import strutils
-import zmq
-import os
-import system
-import strformat
+import std/strutils
+import std/strformat
+import std/os
+import ../zmq
 
 const address = "tcp://127.0.0.1:5559"
 const max_msg = 10
@@ -17,7 +16,9 @@ proc receiveMultipart(socket: ZSocket, flags: ZSendRecvOptions): seq[string] =
 
 proc client() =
   var d1 = connect(address, mode = DEALER)
+  defer: d1.close()
   var d2 = connect(address, mode = DEALER)
+  defer: d2.close()
 
   # Send a dummy message withc each socket to obtain the identity on the ROUTER socket
   d1.send("dummy")
@@ -28,6 +29,7 @@ proc client() =
   var poller: ZPoller
   poller.register(d1, ZMQ_POLLIN)
   poller.register(d2, ZMQ_POLLIN)
+
   while true:
     let res = poll(poller, 1_000)
     if res > 0:
@@ -49,6 +51,7 @@ proc client() =
   echo "CLIENT -- END"
 
 when isMainModule:
+  echo "ex06_pollermultipart.nim"
   # Create router connexion
   var router = listen(address, mode = ROUTER)
 

@@ -1,5 +1,5 @@
-import os
-import zmq
+import std/os
+import ../zmq
 
 const max_msg = 12
 const num_thread = 2
@@ -12,7 +12,7 @@ proc publisher() =
 
   # PUB / SUB is a slow joiner in ZMQ
   # You need to wait before sending message of those messages will be lost
-  sleep(200)
+  sleep(400)
 
   for i in 0..<max_msg:
     let topic = topics[i mod 2]
@@ -40,6 +40,7 @@ proc subscriber(args: tuple[thrid: int, topic: string]){.thread.} =
 
 
 when isMainModule:
+  echo "ex04_pubsub.nim"
   var thr: array[num_thread, Thread[tuple[thrid: int, topic: string]]]
   for i in 0..<len(thr):
     createThread(thr[i], subscriber, (i, topics[i]))

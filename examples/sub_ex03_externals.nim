@@ -1,4 +1,5 @@
-import zmq
+import ../zmq
+# Rename file so pattern matching with testament doesn't pick it up
 
 var relay = "tcp://relay-us-west-1.eve-emdr.com:8050"
 

@@ -2,9 +2,13 @@ bin/
 ex01_client_server
 ex02_reqrep
 ex03_sub
+sub_ex03_externals
 ex04_pubsub
 ex05_poller
 ex06_pollermultipart
 ex07_marshalling
+ex08_async_reqrep
+ex09_async_pubsub
+ex10_async_pushpull
 nimcache/
 testresults/

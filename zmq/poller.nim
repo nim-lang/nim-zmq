@@ -1,6 +1,6 @@
-import bindings
-import connections
-import bitops
+import ./bindings
+import ./connections
+import std/bitops
 
 # Unofficial easier-for-Nim API
 # ZPoller type

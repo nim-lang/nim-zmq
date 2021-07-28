@@ -1,7 +1,8 @@
-import zmq
+import ../zmq
 
 proc server() =
   var responder = zmq.listen("tcp://127.0.0.1:5555", REP)
+  defer:responder.close()
   var num_msg = 0
   while num_msg <= 10:
     var request = receive(responder)
@@ -9,18 +10,18 @@ proc server() =
     send(responder, "World")
     inc(num_msg)
 
-  close(responder)
-
 proc client() =
   var requester = zmq.connect("tcp://127.0.0.1:5555", REQ)
+  defer: requester.close()
+
   for i in 0..10:
     echo("Sending hello... (" & $i & ")")
     send(requester, "Hello")
     var reply = receive(requester)
     echo("Received: ", reply)
-  close(requester)
 
 when isMainModule:
+  echo "ex01_client_server.nim"
   var thr: Thread[void]
   createThread(thr, server)
   client()
