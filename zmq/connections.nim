@@ -258,3 +258,10 @@ proc receive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): string =
   ## Receive data over the connection
   receive(c.socket, flags)
 
+proc proxy*(frontend, backend: ZConnection) =
+  discard proxy(frontend.socket, backend.socket, nil)
+  zmqError()
+
+proc proxy*(frontend, backend, capture: ZConnection) =
+  discard proxy(frontend.socket, backend.socket, capture.socket)
+  zmqError()
