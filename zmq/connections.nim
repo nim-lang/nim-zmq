@@ -259,9 +259,15 @@ proc receive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): string =
   receive(c.socket, flags)
 
 proc proxy*(frontend, backend: ZConnection) =
+  ## The proxy connects a frontend socket to a backend socket. Data flows from frontend to backend.
+  ## Depending on the socket types, replies may flow in the opposite direction.
+  ## Before calling proxy(), you must set any socket options, and connect or bind both frontend and backend sockets. The two conventional proxy models are:
+  ## ``proxy()`` runs in the current thread and returns only if/when the current context is closed.
   discard proxy(frontend.socket, backend.socket, nil)
   zmqError()
 
 proc proxy*(frontend, backend, capture: ZConnection) =
+  ## Same as ``proxy(frontend, backend: ZConnection)`` but enable the use of a capture socket.
+  ## The proxy shall send all messages, received on both frontend and backend, to the capture socket. The capture socket should be a ZMQ_PUB, ZMQ_DEALER, ZMQ_PUSH, or ZMQ_PAIR socket.
   discard proxy(frontend.socket, backend.socket, capture.socket)
   zmqError()
