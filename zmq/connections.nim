@@ -38,6 +38,10 @@ proc newZContext*(option: int; optval: int): ZContext =
   if result.ctx_set(option.cint, optval.cint) != 0:
     zmqError()
 
+proc newZContext*(numthreads: int): ZContext =
+  ## Create a new ZContext with a thread pool set to ``numthreads``
+  result = newZContext(ZMQ_IO_THREADS, numthreads)
+
 proc terminate*(ctx: ZContext) =
   ## Terminate the ZContext
   if ctx_term(ctx) != 0:
