@@ -30,7 +30,7 @@ proc zmqError*() {.noinline, noreturn.} =
 ]#
 proc newZContext*(): ZContext =
   ## Create a new ZContext
-  result = newZContext()
+  result = ctx_new()
 
 proc newZContext*(option: int; optval: int): ZContext =
   ## Create a new ZContext and set its options
