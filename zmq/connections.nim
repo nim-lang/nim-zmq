@@ -26,29 +26,47 @@ proc zmqError*() {.noinline, noreturn.} =
   raise e
 
 #[
+# Context related proc
+]#
+proc newZContext*(): ZContext =
+  ## Create a new ZContext
+  result = newZContext()
+
+proc newZContext*(option: int; optval: int): ZContext =
+  ## Create a new ZContext and set its options
+  result = newZContext()
+  if result.ctx_set(option.cint, optval.cint) != 0:
+    zmqError()
+
+proc terminate*(ctx: ZContext) =
+  ## Terminate the ZContext
+  if ctx_term(ctx) != 0:
+    zmqError()
+
+#[
   get/set socket options
   Declare socket options first because it's used in =destroy hooks
 ]#
 # Some option take cint, int64 or uint64
-proc setsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: T) =
+proc setsockopt_impl[T: SomeOrdinal](s: ZSocket; option: ZSockOptions; optval: T) =
   var val: T = optval
   if setsockopt(s, option, addr(val), sizeof(val)) != 0:
     zmqError()
 # Some option take cstring
-proc setsockopt_impl(s: ZSocket, option: ZSockOptions, optval: string) =
+proc setsockopt_impl(s: ZSocket; option: ZSockOptions; optval: string) =
   var val: string = optval
   if setsockopt(s, option, cstring(val), val.len) != 0:
     zmqError()
 
 # some sockopt returns integer values
-proc getsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: var T) =
+proc getsockopt_impl[T: SomeOrdinal](s: ZSocket; option: ZSockOptions; optval: var T) =
   var optval_len: int = sizeof(optval)
 
   if bindings.getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
     zmqError()
 
 # Some sockopt returns a string
-proc getsockopt_impl(s: ZSocket, option: ZSockOptions, optval: var string) =
+proc getsockopt_impl(s: ZSocket; option: ZSockOptions; optval: var string) =
   var optval_len: int = optval.len
 
   if bindings.getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
@@ -57,21 +75,21 @@ proc getsockopt_impl(s: ZSocket, option: ZSockOptions, optval: var string) =
 #[
   Public set/get sockopt function on ZSocket / ZConnection
 ]#
-proc setsockopt*[T: SomeOrdinal|string](s: ZSocket, option: ZSockOptions, optval: T) =
+proc setsockopt*[T: SomeOrdinal|string](s: ZSocket; option: ZSockOptions; optval: T) =
   ## setsockopt on ``ZSocket``
   ##
   ## Careful, the ``sizeof`` of ``optval`` depends on the ``ZSockOptions`` passed.
   ## Check http://api.zeromq.org/4-2:zmq-setsockopt
   setsockopt_impl[T](s, option, optval)
 
-proc setsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions, optval: T) =
+proc setsockopt*[T: SomeOrdinal|string](c: ZConnection; option: ZSockOptions; optval: T) =
   ## setsockopt on ``ZConnection``
   ##
   ## Careful, the ``sizeof`` of ``optval`` depends on the ``ZSockOptions`` passed.
   ## Check http://api.zeromq.org/4-2:zmq-setsockopt
   setsockopt[T](c.socket, option, optval)
 
-proc getsockopt*[T: SomeOrdinal|string](s: ZSocket, option: ZSockOptions): T =
+proc getsockopt*[T: SomeOrdinal|string](s: ZSocket; option: ZSockOptions): T =
   ## getsockopt on ``ZSocket``
   ##
   ## Careful, the ``sizeof`` of ``optval`` depends on the ``ZSockOptions`` passed.
@@ -80,7 +98,7 @@ proc getsockopt*[T: SomeOrdinal|string](s: ZSocket, option: ZSockOptions): T =
   getsockopt_impl(s, option, optval)
   optval
 
-proc getsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions): T =
+proc getsockopt*[T: SomeOrdinal|string](c: ZConnection; option: ZSockOptions): T =
   ## getsockopt on ``ZConnection``
   ##
   ## Careful, the ``sizeof`` of ``optval`` depends on the ``ZSockOptions`` passed.
@@ -105,7 +123,7 @@ proc reconnect*(conn: ZConnection) =
   if connect(conn.socket, conn.sockaddr) != 0:
     zmqError()
 
-proc reconnect*(conn: var ZConnection, address: string) =
+proc reconnect*(conn: var ZConnection; address: string) =
   ## Reconnect a socket to a new address
   if connect(conn.socket, address) != 0:
     zmqError()
@@ -121,14 +139,14 @@ proc unbind*(conn: ZConnection) =
   if unbind(conn.socket, conn.sockaddr) != 0:
     zmqError()
 
-proc bindAddr*(conn: var ZConnection, address: string) =
+proc bindAddr*(conn: var ZConnection; address: string) =
   ## Bind the socket to a new address
   ## The socket must disconnected / unbind beforehand
   if bindAddr(conn.socket, address) != 0:
     zmqError()
   conn.sockaddr = address
 
-proc connect*(address: string, mode: ZSocketType, context: ZContext): ZConnection =
+proc connect*(address: string; mode: ZSocketType; context: ZContext): ZConnection =
   ## Open a new connection on an external ``ZContext`` and connect the socket
   result.context = context
   result.ownctx = false
@@ -141,7 +159,7 @@ proc connect*(address: string, mode: ZSocketType, context: ZContext): ZConnectio
   if connect(result.socket, address) != 0:
     zmqError()
 
-proc connect*(address: string, mode: ZSocketType): ZConnection =
+proc connect*(address: string; mode: ZSocketType): ZConnection =
   ## Open a new connection on an internal (owned) ``ZContext`` and connects the socket
   runnableExamples:
     import zmq
@@ -155,14 +173,14 @@ proc connect*(address: string, mode: ZSocketType): ZConnection =
     push_conn.close()
     pull_conn.close()
 
-  let ctx = ctx_new()
+  let ctx = newZContext()
   if ctx == nil:
     zmqError()
 
   result = connect(address, mode, ctx)
   result.ownctx = true
 
-proc listen*(address: string, mode: ZSocketType, context: ZContext): ZConnection =
+proc listen*(address: string; mode: ZSocketType; context: ZContext): ZConnection =
   ## Open a new connection on an external ``ZContext`` and binds on the socket
   runnableExamples:
     import zmq
@@ -189,9 +207,9 @@ proc listen*(address: string, mode: ZSocketType, context: ZContext): ZConnection
   if bindAddr(result.socket, address) != 0:
     zmqError()
 
-proc listen*(address: string, mode: ZSocketType): ZConnection =
+proc listen*(address: string; mode: ZSocketType): ZConnection =
   ## Open a new connection on an internal (owned) ``ZContext`` and binds the socket
-  let ctx = ctx_new()
+  let ctx = newZContext()
   if ctx == nil:
     zmqError()
 
@@ -212,13 +230,11 @@ proc close*(c: var ZConnection) =
 
   # Do not destroy embedded socket if it does not own it
   if c.ownctx:
-    # ctx_destroy is deprecated for ctx_term
-    if ctx_term(c.context) != 0:
-      zmqError()
+    c.context.terminate()
 
 # Send / Receive
 # Send with ZSocket type
-proc send*(s: ZSocket, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
+proc send*(s: ZSocket; msg: string; flags: ZSendRecvOptions = NOFLAGS) =
   ## Sends a message through the socket.
   var m: ZMsg
   if msg_init(m, msg.len) != 0:
@@ -234,7 +250,7 @@ proc send*(s: ZSocket, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
   # no close msg after a send
 
 # receive with ZSocket type
-proc receive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): string =
+proc receive*(s: ZSocket; flags: ZSendRecvOptions = NOFLAGS): string =
   ## Receives a message from a socket.
   var m: ZMsg
   if msg_init(m) != 0:
@@ -250,11 +266,11 @@ proc receive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): string =
   if msg_close(m) != 0:
     zmqError()
 
-proc send*(c: ZConnection, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
+proc send*(c: ZConnection; msg: string; flags: ZSendRecvOptions = NOFLAGS) =
   ## Sends a message over the connection.
   send(c.socket, msg, flags)
 
-proc receive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): string =
+proc receive*(c: ZConnection; flags: ZSendRecvOptions = NOFLAGS): string =
   ## Receive data over the connection
   receive(c.socket, flags)
 

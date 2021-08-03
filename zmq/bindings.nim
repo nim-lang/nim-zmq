@@ -124,11 +124,11 @@ proc ctx_get*(context: ZContext; option: cint): cint {.cdecl,
 #proc zmq_ctx_destroy*(context: pointer): cint
 
 proc init*(io_threads: cint): ZContext {.cdecl, importc: "zmq_init",
-  dynlib: zmqdll.}
+                                         dynlib: zmqdll, deprecated: "Legacy API. Use ctx_new instead".}
 proc term*(context: ZContext): cint {.cdecl, importc: "zmq_term",
-                                      dynlib: zmqdll.}
+                                      dynlib: zmqdll, deprecated: "Legacy API. Use ctx_term instead".}
 proc ctx_destroy*(context: ZContext): cint {.cdecl, importc: "zmq_ctx_destroy",
-  dynlib: zmqdll.}
+                                             dynlib: zmqdll, deprecated: "Legacy API. Use ctx_term instead".}
 
 
 #****************************************************************************
