@@ -220,14 +220,14 @@ proc listen*(address: string; mode: ZSocketType): ZConnection =
   result = listen(address, mode, ctx)
   result.ownctx = true
 
-proc close*(c: var ZConnection) =
+proc close*(c: var ZConnection; linger: int) =
   ## Closes the ``ZConnection``.
-  ## Set socket linger to 0 to drop buffered message and avoid blocking, then close the socket.
+  ## Set socket linger to ``linger`` to drop buffered message and avoid blocking, then close the socket.
   ##
   ## If the ``ZContext`` is owned by the connection, terminate the context as well.
   ##
   ## With --gc:arc/orc ``close`` must be called before ``ZConnection`` destruction or the``=destroy`` hook.
-  setsockopt(c, LINGER, 0.cint)
+  setsockopt(c, LINGER, linger.cint)
   if close(c.socket) != 0:
     zmqError()
   c.alive = false
@@ -235,6 +235,15 @@ proc close*(c: var ZConnection) =
   # Do not destroy embedded socket if it does not own it
   if c.ownctx:
     c.context.terminate()
+
+proc close*(c: var ZConnection) =
+  ## Closes the ``ZConnection``.
+  ## Set socket linger to 0 to drop buffered message and avoid blocking, then close the socket.
+  ##
+  ## If the ``ZContext`` is owned by the connection, terminate the context as well.
+  ##
+  ## With --gc:arc/orc ``close`` must be called before ``ZConnection`` destruction or the``=destroy`` hook.
+  close(c, 0)
 
 # Send / Receive
 # Send with ZSocket type
