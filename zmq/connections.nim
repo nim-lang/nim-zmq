@@ -305,7 +305,7 @@ proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvaila
     result.msgAvailable = true
     result.msg = newString(msg_size(m))
     if result.msg.len > 0:
-      copyMem(addr(result[0]), msg_data(m), result.msg.len)
+      copyMem(addr(result.msg[0]), msg_data(m), result.msg.len)
     result.moreAvailable = msg_more(m).bool
   else:
     # Either an error or EAGAIN
