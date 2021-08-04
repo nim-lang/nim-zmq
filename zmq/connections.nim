@@ -268,7 +268,7 @@ proc send*(s: ZSocket, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
     zmqError()
   # no close msg after a send
 
-proc sendAll*(s: ZSocket, msg: openArray[string]) =
+proc sendAll*(s: ZSocket, msg: varargs[string]) =
   ## Send msg as a multipart message
   let msglen = msg.len
   if msglen > 0:
@@ -282,7 +282,7 @@ proc send*(c: ZConnection, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
   ## Sends a message over the connection.
   send(c.socket, msg, flags)
 
-proc sendAll*(c: ZConnection, msg: openArray[string]) =
+proc sendAll*(c: ZConnection, msg: varargs[string]) =
   ## Send msg as a multipart message over the connection
   sendAll(c.socket, msg)
 
