@@ -66,6 +66,7 @@ proc version*(major: var cint, minor: var cint, patch: var cint){.cdecl,
 #  of this function is to make the code 100% portable, including where 0MQ
 #  compiled with certain CRT library (on Windows) is linked to an
 #  application that uses different CRT library.
+let ZMQ_EAGAIN* {.importc: "EAGAIN", header: "errno.h".}: cint
 proc errno*(): cint{.cdecl, importc: "zmq_errno", dynlib: zmqdll.}
 
 #  Resolves system errors and 0MQ errors to human-readable string.
@@ -113,9 +114,9 @@ proc ctx_term*(context: ZContext): cint {.cdecl, importc: "zmq_ctx_term",
   dynlib: zmqdll.}
 proc ctx_shutdown*(ctx: ZContext): cint {.cdecl, importc: "zmq_ctx_shutdown",
   dynlib: zmqdll.}
-proc ctx_set*(context: ZContext; option: cint; optval: cint): cint {.cdecl,
+proc ctx_set*(context: ZContext, option: cint, optval: cint): cint {.cdecl,
   importc: "zmq_ctx_set", dynlib: zmqdll.}
-proc ctx_get*(context: ZContext; option: cint): cint {.cdecl,
+proc ctx_get*(context: ZContext, option: cint): cint {.cdecl,
   importc: "zmq_ctx_get", dynlib: zmqdll.}
 
 #  Old (legacy) API
@@ -188,14 +189,14 @@ sanity_check_libzmq()
 
 proc msg_init*(msg: var ZMsg): cint {.cdecl, importc: "zmq_msg_init",
   dynlib: zmqdll.}
-proc msg_init*(msg: var ZMsg; size: int): cint {.cdecl,
+proc msg_init*(msg: var ZMsg, size: int): cint {.cdecl,
   importc: "zmq_msg_init_size", dynlib: zmqdll.}
-proc msg_init*(msg: var ZMsg; data: cstring; size: int;
-                        ffn: TFreeFn; hint: pointer): cint {.cdecl,
+proc msg_init*(msg: var ZMsg, data: cstring, size: int,
+                        ffn: TFreeFn, hint: pointer): cint {.cdecl,
                         importc: "zmq_msg_init_data", dynlib: zmqdll.}
-proc msg_send*(msg: var ZMsg; s: ZSocket; flags: cint): cint {.cdecl,
+proc msg_send*(msg: var ZMsg, s: ZSocket, flags: cint): cint {.cdecl,
   importc: "zmq_msg_send", dynlib: zmqdll.}
-proc msg_recv*(msg: var ZMsg; s: ZSocket; flags: cint): cint {.cdecl,
+proc msg_recv*(msg: var ZMsg, s: ZSocket, flags: cint): cint {.cdecl,
   importc: "zmq_msg_recv", dynlib: zmqdll.}
 proc msg_close*(msg: var ZMsg): cint {.cdecl, importc: "zmq_msg_close",
   dynlib: zmqdll.}
@@ -209,10 +210,10 @@ proc msg_size*(msg: var ZMsg): int {.cdecl, importc: "zmq_msg_size",
   dynlib: zmqdll.}
 proc msg_more*(msg: var ZMsg): cint {.cdecl, importc: "zmq_msg_more",
   dynlib: zmqdll.}
-proc msg_get*(msg: var ZMsg; option: cint): cint {.cdecl,
+proc msg_get*(msg: var ZMsg, option: cint): cint {.cdecl,
     importc: "zmq_msg_get",
   dynlib: zmqdll.}
-proc msg_set*(msg: var ZMsg; option: cint; optval: cint): cint {.cdecl,
+proc msg_set*(msg: var ZMsg, option: cint, optval: cint): cint {.cdecl,
   importc: "zmq_msg_set", dynlib: zmqdll.}
 
 #****************************************************************************
@@ -478,17 +479,17 @@ proc bindAddr*(s: ZSocket, address: cstring): cint{.cdecl, importc: "zmq_bind",
       dynlib: zmqdll.}
 proc connect*(s: ZSocket, address: cstring): cint{.cdecl,
       importc: "zmq_connect", dynlib: zmqdll.}
-proc unbind*(s: ZSocket; address: cstring): cint {.cdecl, importc: "zmq_unbind",
+proc unbind*(s: ZSocket, address: cstring): cint {.cdecl, importc: "zmq_unbind",
       dynlib: zmqdll.}
-proc disconnect*(s: ZSocket; address: cstring): cint {.cdecl,
+proc disconnect*(s: ZSocket, address: cstring): cint {.cdecl,
       importc: "zmq_disconnect", dynlib: zmqdll.}
-proc send*(s: ZSocket; buf: pointer; len: int; flags: cint): cint {.cdecl,
+proc send*(s: ZSocket, buf: pointer, len: int, flags: cint): cint {.cdecl,
       importc: "zmq_send", dynlib: zmqdll.}
-proc send_const*(s: ZSocket; buf: pointer; len: int; flags: cint): cint {.cdecl,
+proc send_const*(s: ZSocket, buf: pointer, len: int, flags: cint): cint {.cdecl,
       importc: "zmq_send_const", dynlib: zmqdll.}
-proc recv*(s: ZSocket; buf: pointer; len: int; flags: cint): cint {.cdecl,
+proc recv*(s: ZSocket, buf: pointer, len: int, flags: cint): cint {.cdecl,
       importc: "zmq_recv", dynlib: zmqdll.}
-proc socket_monitor*(s: ZSocket; address: pointer; events: cint): cint {.cdecl,
+proc socket_monitor*(s: ZSocket, address: pointer, events: cint): cint {.cdecl,
       importc: "zmq_socket_monitor", dynlib: zmqdll.}
 
 proc sendmsg*(s: ZSocket, msg: var ZMsg, flags: cint): cint{.cdecl,
@@ -520,18 +521,18 @@ proc poll*(items: ptr UncheckedArray[ZPollItem], nitems: cint,
   cdecl, importc: "zmq_poll", dynlib: zmqdll.}
 
 #  Built-in message proxy (3-way)
-proc proxy*(frontend: ZSocket; backend: ZSocket; capture: ZSocket): cint {.
+proc proxy*(frontend: ZSocket, backend: ZSocket, capture: ZSocket): cint {.
   cdecl, importc: "zmq_proxy", dynlib: zmqdll.}
-proc proxy_steerable*(frontend: ZSocket; backend: ZSocket; capture: ZSocket;
+proc proxy_steerable*(frontend: ZSocket, backend: ZSocket, capture: ZSocket,
             control: ZSocket): cint {.cdecl, importc: "zmq_proxy_steerable",
     dynlib: zmqdll.}
 
 #  Encode a binary key as printable text using ZMQ RFC 32
-proc z85_encode*(dest: cstring; data: ptr uint8; size: int): cstring {.
+proc z85_encode*(dest: cstring, data: ptr uint8, size: int): cstring {.
   cdecl, importc: "zmq_z85_encode", dynlib: zmqdll.}
 
 #  Encode a binary key from printable text per ZMQ RFC 32
-proc z85_decode*(dest: ptr uint8; string: cstring): ptr uint8 {.
+proc z85_decode*(dest: ptr uint8, string: cstring): ptr uint8 {.
   cdecl, importc: "zmq_z85_decode", dynlib: zmqdll.}
 
 #  Deprecated aliases
@@ -540,5 +541,5 @@ proc z85_decode*(dest: ptr uint8; string: cstring): ptr uint8 {.
 #  ZMQ_FORWARDER* = 2
 #  ZMQ_QUEUE* = 3
 #  Deprecated method
-#proc zmq_device*(type: cint; frontend: pointer; backend: pointer): cint
+#proc zmq_device*(type: cint, frontend: pointer, backend: pointer): cint
 
