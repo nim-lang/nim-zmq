@@ -321,6 +321,19 @@ proc receive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): string =
   ## Return an empty string on EAGAIN
   tryReceive(s, flags).msg
 
+proc receiveAll*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): seq[string] =
+  ## Receive all parts of a message
+  ##
+  ## If EAGAIN occurs without any data being received, it will be an empty seq
+  var expectMessage = true
+  while expectMessage:
+    let (msgAvailable, moreAvailable, msg) = tryReceive(s, flags)
+    if msgAvailable:
+      result.add msg
+      expectMessage = moreAvailable
+    else:
+      expectMessage = false
+
 proc tryReceive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
   ## Receives a message from a connection.
   ##
@@ -337,14 +350,8 @@ proc receiveAll*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): seq[string]
   ## Receive all parts of a message
   ##
   ## If EAGAIN occurs without any data being received, it will be an empty seq
-  var expectMessage = true
-  while expectMessage:
-    let (msgAvailable, moreAvailable, msg) = tryReceive(c, flags)
-    if msgAvailable:
-      result.add msg
-      expectMessage = moreAvailable
-    else:
-      expectMessage = false
+  receiveAll(c.socket, flags)
+
 
 proc proxy*(frontend, backend: ZConnection) =
   ## The proxy connects a frontend socket to a backend socket. Data flows from frontend to backend.
