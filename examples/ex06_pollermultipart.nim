@@ -6,13 +6,6 @@ import ../zmq
 const address = "tcp://127.0.0.1:5559"
 const max_msg = 10
 
-proc receiveMultipart(socket: ZSocket, flags: ZSendRecvOptions): seq[string] =
-  # Little trick to receive all multipart message no matter how many parts there is using getsockopt
-  var hasMore: int = 1
-  while hasMore > 0:
-    result.add(socket.receive())
-    hasMore = getsockopt[int](socket, RCVMORE)
-
 
 proc client() =
   var d1 = connect(address, mode = DEALER)
@@ -35,7 +28,7 @@ proc client() =
     if res > 0:
       for i in 0..<len(poller):
         if events(poller[i]):
-          let buf = receiveMultipart(poller[i].socket, NOFLAGS)
+          let buf = receiveAll(poller[i].socket, NOFLAGS)
           for j, msg in buf.pairs:
             echo &"CLIENT> Socket{i} received \"{msg}\""
         else:

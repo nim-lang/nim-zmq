@@ -1,4 +1,5 @@
 import ./bindings
+import std/strformat
 
 # Unofficial easier-for-Nim API
 
@@ -7,6 +8,9 @@ import ./bindings
 ]#
 type
   ZmqError* = object of IOError ## exception that is raised if something fails
+                                ## errno value code
+    error*: cint
+
   ZConnection* {.pure, final.} = object
     ## A Zmq connection. Since ``ZContext`` and ``ZSocket`` are pointers, it is highly recommended to **not** copy ``ZConnection``.
     context*: ZContext ## Zmq context. Can be 'owned' by another connection (useful for inproc protocol).
@@ -22,8 +26,41 @@ proc zmqError*() {.noinline, noreturn.} =
   ## raises ZmqError with error message from `zmq.strerror`.
   var e: ref ZmqError
   new(e)
-  e.msg = $strerror(errno())
+  e.error = errno()
+  e.msg = &"Error: {e.error}. " & $strerror(e.error)
   raise e
+
+proc zmqErrorExceptEAGAIN() =
+  var e: ref ZmqError
+  new(e)
+  e.error = errno()
+  if e.error == ZMQ_EAGAIN:
+    discard
+  else:
+    e.msg = &"Error: {e.error}. " & $strerror(e.error)
+    raise e
+
+#[
+# Context related proc
+]#
+proc newZContext*(): ZContext =
+  ## Create a new ZContext
+  result = ctx_new()
+
+proc newZContext*(option: int, optval: int): ZContext =
+  ## Create a new ZContext and set its options
+  result = newZContext()
+  if result.ctx_set(option.cint, optval.cint) != 0:
+    zmqError()
+
+proc newZContext*(numthreads: int): ZContext =
+  ## Create a new ZContext with a thread pool set to ``numthreads``
+  result = newZContext(ZMQ_IO_THREADS, numthreads)
+
+proc terminate*(ctx: ZContext) =
+  ## Terminate the ZContext
+  if ctx_term(ctx) != 0:
+    zmqError()
 
 #[
   get/set socket options
@@ -155,7 +192,7 @@ proc connect*(address: string, mode: ZSocketType): ZConnection =
     push_conn.close()
     pull_conn.close()
 
-  let ctx = ctx_new()
+  let ctx = newZContext()
   if ctx == nil:
     zmqError()
 
@@ -191,30 +228,28 @@ proc listen*(address: string, mode: ZSocketType, context: ZContext): ZConnection
 
 proc listen*(address: string, mode: ZSocketType): ZConnection =
   ## Open a new connection on an internal (owned) ``ZContext`` and binds the socket
-  let ctx = ctx_new()
+  let ctx = newZContext()
   if ctx == nil:
     zmqError()
 
   result = listen(address, mode, ctx)
   result.ownctx = true
 
-proc close*(c: var ZConnection) =
+proc close*(c: var ZConnection, linger: int = 0) =
   ## Closes the ``ZConnection``.
-  ## Set socket linger to 0 to drop buffered message and avoid blocking, then close the socket.
+  ## Set socket linger to ``linger`` to drop buffered message and avoid blocking, then close the socket.
   ##
   ## If the ``ZContext`` is owned by the connection, terminate the context as well.
   ##
   ## With --gc:arc/orc ``close`` must be called before ``ZConnection`` destruction or the``=destroy`` hook.
-  setsockopt(c, LINGER, 0.cint)
+  setsockopt(c, LINGER, linger.cint)
   if close(c.socket) != 0:
     zmqError()
   c.alive = false
 
   # Do not destroy embedded socket if it does not own it
   if c.ownctx:
-    # ctx_destroy is deprecated for ctx_term
-    if ctx_term(c.context) != 0:
-      zmqError()
+    c.context.terminate()
 
 # Send / Receive
 # Send with ZSocket type
@@ -233,28 +268,101 @@ proc send*(s: ZSocket, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
     zmqError()
   # no close msg after a send
 
-# receive with ZSocket type
-proc receive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): string =
-  ## Receives a message from a socket.
-  var m: ZMsg
-  if msg_init(m) != 0:
-    zmqError()
-
-  if msg_recv(m, s, flags.cint) == -1:
-    zmqError()
-
-  result = newString(msg_size(m))
-  if result.len > 0:
-    copyMem(addr(result[0]), msg_data(m), result.len)
-
-  if msg_close(m) != 0:
-    zmqError()
+proc sendAll*(s: ZSocket, msg: varargs[string]) =
+  ## Send msg as a multipart message
+  let msglen = msg.len
+  if msglen > 0:
+    var i = 0
+    while i < msglen - 1:
+      s.send(msg[i], SNDMORE)
+      inc(i)
+    s.send(msg[i])
 
 proc send*(c: ZConnection, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
   ## Sends a message over the connection.
   send(c.socket, msg, flags)
 
+proc sendAll*(c: ZConnection, msg: varargs[string]) =
+  ## Send msg as a multipart message over the connection
+  sendAll(c.socket, msg)
+
+# receive with ZSocket type
+proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+  ## Receives a message from a socket.
+  ##
+  ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
+  ##
+  ## Indicate if more parts are needed to be received by ``moreAvailable``
+  result.moreAvailable = false
+  result.msgAvailable = false
+
+  var m: ZMsg
+  if msg_init(m) != 0:
+    zmqError()
+
+  if msg_recv(m, s, flags.cint) != -1:
+    # normal case, proceed
+    result.msgAvailable = true
+    result.msg = newString(msg_size(m))
+    if result.msg.len > 0:
+      copyMem(addr(result.msg[0]), msg_data(m), result.msg.len)
+    result.moreAvailable = msg_more(m).bool
+  else:
+    # Either an error or EAGAIN
+    # EAGAIN does not raise exception
+    zmqErrorExceptEAGAIN()
+
+  if msg_close(m) != 0:
+    zmqError()
+
+proc receive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): string =
+  ## Receive a message on socket.
+  ##
+  ## Return an empty string on EAGAIN
+  tryReceive(s, flags).msg
+
+proc receiveAll*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): seq[string] =
+  ## Receive all parts of a message
+  ##
+  ## If EAGAIN occurs without any data being received, it will be an empty seq
+  var expectMessage = true
+  while expectMessage:
+    let (msgAvailable, moreAvailable, msg) = tryReceive(s, flags)
+    if msgAvailable:
+      result.add msg
+      expectMessage = moreAvailable
+    else:
+      expectMessage = false
+
+proc tryReceive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+  ## Receives a message from a connection.
+  ##
+  ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
+  ##
+  ## Indicate if more parts are needed to be received by ``moreAvailable``
+  tryReceive(c.socket, flags)
+
 proc receive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): string =
   ## Receive data over the connection
   receive(c.socket, flags)
 
+proc receiveAll*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): seq[string] =
+  ## Receive all parts of a message
+  ##
+  ## If EAGAIN occurs without any data being received, it will be an empty seq
+  receiveAll(c.socket, flags)
+
+
+proc proxy*(frontend, backend: ZConnection) =
+  ## The proxy connects a frontend socket to a backend socket. Data flows from frontend to backend.
+  ## Depending on the socket types, replies may flow in the opposite direction.
+  ## Before calling proxy(), you must set any socket options, and connect or bind both frontend and backend sockets. The two conventional proxy models are:
+  ## ``proxy()`` runs in the current thread and returns only if/when the current context is closed.
+  discard proxy(frontend.socket, backend.socket, nil)
+  zmqError()
+
+proc proxy*(frontend, backend, capture: ZConnection) =
+  ## Same as ``proxy(frontend, backend: ZConnection)`` but enable the use of a capture socket.
+  ## The proxy shall send all messages, received on both frontend and backend, to the capture socket. The capture socket should be a ZMQ_PUB, ZMQ_DEALER, ZMQ_PUSH, or ZMQ_PAIR socket.
+  discard proxy(frontend.socket, backend.socket, capture.socket)
+  zmqError()
