@@ -129,7 +129,7 @@ proc getsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions): T
   Destructor
 ]#
 when defined(gcDestructors):
-  proc close*(c: var ZConnection)
+  proc close*(c: var ZConnection, linger: int = 0)
   proc `=destroy`(x: var ZConnection) =
     if x.alive:
       raise newException(ZmqError, "Connection destroyed but not closed")
