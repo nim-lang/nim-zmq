@@ -14,5 +14,6 @@ jobs:
       - uses: iffy/install-nim@v3
       - run: nimble install -y
       - run: nimble test
+      - run: nimble test --gc:arc
       - run: nimble buildexamples
       - run: nimble gendoc
