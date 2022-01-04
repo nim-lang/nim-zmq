@@ -10,7 +10,7 @@ proc requester() =
     elem = i/10
 
   echo "listen"
-  var req_conn = listen("tcp://127.0.0.1:15555", mode = REQ)
+  var req_conn = connect("tcp://127.0.0.1:15555", mode = REQ)
   defer: req_conn.close()
 
   for i, e in input:
@@ -24,7 +24,7 @@ proc requester() =
 # An example receiving message until they are no more
 proc responder() {.gcsafe.} =
   echo "connect"
-  var rep_conn = connect("tcp://127.0.0.1:15555", mode = REP)
+  var rep_conn = listen("tcp://127.0.0.1:15555", mode = REP)
   defer: rep_conn.close()
 
   var data: seq[float]
