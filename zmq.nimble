@@ -14,7 +14,7 @@ task buildexamples, "Compile all examples":
       echo fstr
       if fstr.endsWith(".nim") and fstr.startsWith("./ex"):
         echo "running ", fstr
-        selfExec("cpp -d:release " & fstr)
+        selfExec("cpp --mm:orc -d:release " & fstr)
 
 task gendoc, "Generate documentation":
   exec("nimble doc --project zmq.nim --out:docs/")

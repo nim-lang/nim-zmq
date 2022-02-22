@@ -139,7 +139,7 @@ when defined(gcDestructors):
 ]#
 proc reconnect*(conn: ZConnection) =
   ## Reconnect a previously binded/connected address
-  if connect(conn.socket, conn.sockaddr) != 0:
+  if connect(conn.socket, conn.sockaddr.cstring) != 0:
     zmqError()
 
 proc reconnect*(conn: var ZConnection, address: string) =
@@ -150,12 +150,12 @@ proc reconnect*(conn: var ZConnection, address: string) =
 
 proc disconnect*(conn: ZConnection) =
   ## Disconnect the socket
-  if disconnect(conn.socket, conn.sockaddr) != 0:
+  if disconnect(conn.socket, conn.sockaddr.cstring) != 0:
     zmqError()
 
 proc unbind*(conn: ZConnection) =
   ## Unbind the socket
-  if unbind(conn.socket, conn.sockaddr) != 0:
+  if unbind(conn.socket, conn.sockaddr.cstring) != 0:
     zmqError()
 
 proc bindAddr*(conn: var ZConnection, address: string) =
