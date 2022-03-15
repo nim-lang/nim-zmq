@@ -187,71 +187,52 @@ proc asyncDummy(i: int) {.async.} =
   asyncCheck sleepAsync(2500)
 
 proc asyncpoll() =
-  const zaddr = "tcp://127.0.0.1:15571"
-  var pusher = listen(zaddr, PUSH)
-
-  var puller = connect(zaddr, PULL)
-
-  var poller: AsyncZPoller
-  # Register the callback
-  poller.register(
-    puller,
-    ZMQ_POLLIN,
-    proc(x: ZSocket) =
-    let msg = x.receive()
-    # debugecho "==> Received msg=", msg
-    sleep(300) # Do Stuff
-  )
-
-
-  let N = 10
-  var snd_count = 0
-  # A client send some message
-  for i in 0..<N:
-    if (i mod 2) == 0:
-      # Can periodically send stuff
-      pusher.send($i)
-      inc(snd_count)
-  var
-    i = 0
-    rec_count = 0
-
-  # Another example of async loop using addCallback
-  # while i < N:
-  #   var fut = poller.pollAsync(1000)
-  #   asyncCheck asyncDummy(i)
-  #   fut.addCallback proc(x: Future[bool]) =
-  #     if x.read():
-  #       inc(rec_count)
-  #   # Can do Asyncstuff here
-  #   inc(i)
-
-  while i < N:
-    # I don't recommend a high timeout because it's going to poll for the duration if there is no message in queue
-    var fut = poller.pollAsync(1)
-    # Can do Asyncstuff here
-    asyncCheck asyncDummy(i)
-    fut.addCallback proc(x: Future[int]) =
-      if x.read() > 0:
-        inc(rec_count)
-    # var res = waitFor fut
-    # Can check if polling executed a callback or not
-    # if res:
-    #   inc(rec_count)
-    inc(i)
-
-  # No longer polling but some callback may not have finished
-  # echo "end"
-  while hasPendingOperations():
-    drain()
-
-  pusher.close()
-  puller.close()
   test "asyncZPoller":
+    const zaddr = "tcp://127.0.0.1:15571"
+    var pusher = listen(zaddr, PUSH)
+    var puller = connect(zaddr, PULL)
+    var poller: AsyncZPoller
+    # Register the callback
+    poller.register(
+      puller,
+      ZMQ_POLLIN,
+      proc(x: ZSocket) =
+      let msg = x.receive()
+      # debugecho "==> Received msg=", msg
+      sleep(300) # Do Stuff
+    )
+
+    let N = 10
+    var snd_count = 0
+    # A client send some message
+    for i in 0..<N:
+      if (i mod 2) == 0:
+        # Can periodically send stuff
+        pusher.send($i)
+        inc(snd_count)
+    var
+      i = 0
+      rec_count = 0
+
+    while i < N:
+      # I don't recommend a high timeout because it's going to poll for the duration if there is no message in queue
+      var fut = poller.pollAsync(1)
+      # Can do Asyncstuff here
+      asyncCheck asyncDummy(i)
+      fut.addCallback proc(x: Future[int]) =
+        if x.read() > 0:
+          inc(rec_count)
+      inc(i)
+
+    # No longer polling but some callback may not have finished
+    while hasPendingOperations():
+      drain()
+
+    pusher.close()
+    puller.close()
     check(i == N)
     check(rec_count == (i div 2))
     check(rec_count == snd_count)
-  # echo "Received ", rec_count, " messages"
 
 when isMainModule:
   reqrep()
