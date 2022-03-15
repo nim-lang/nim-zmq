@@ -231,8 +231,8 @@ proc asyncpoll() =
     var fut = poller.pollAsync(1)
     # Can do Asyncstuff here
     asyncCheck asyncDummy(i)
-    fut.addCallback proc(x: Future[bool]) =
-      if x.read():
+    fut.addCallback proc(x: Future[int]) =
+      if x.read() > 0:
         inc(rec_count)
     # var res = waitFor fut
     # Can check if polling executed a callback or not

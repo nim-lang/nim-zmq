@@ -132,7 +132,7 @@ when defined(gcDestructors):
   proc close*(c: var ZConnection, linger: int = 0)
   proc `=destroy`(x: var ZConnection) =
     if x.alive:
-      raise newException(ZmqError, "Connection destroyed but not closed")
+      raise newException(ZmqError, &"Connection from/to {x.sockaddr} was destroyed but not closed.")
 
 #[
   Connect / Listen / Close

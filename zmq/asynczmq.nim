@@ -44,14 +44,13 @@ proc initZPoller*(args: openArray[tuple[item: ZConnection, cb: AsyncZPollCB]], e
   for arg in args:
     result.register(arg.item, event, arg.cb)
 
-proc pollAsync*(poller: AsyncZPoller, timeout: int = 1) : Future[bool] =
-  result = newFuture[bool]("pollAsync")
-  var r = false
+proc pollAsync*(poller: AsyncZPoller, timeout: int = 1) : Future[int] =
+  result = newFuture[int]("pollAsync")
+  var r = poller.zpoll.poll(timeout)
   # ZMQ can't have a timeout smaller than one
-  if poller.zpoll.poll(timeout) > 0:
+  if r > 0:
     for zpoll, cb in poller.items():
       if events(zpoll):
-        r = true
         proc localcb = cb(zpoll.socket)
         callSoon localcb
 
