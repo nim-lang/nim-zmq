@@ -198,8 +198,8 @@ proc asyncpoll() =
       ZMQ_POLLIN,
       proc(x: ZSocket) =
       let msg = x.receive()
-      # debugecho "==> Received msg=", msg
-      sleep(300) # Do Stuff
+        # debugecho "==> Received msg=", msg
+        sleep(300) # Do Stuff
     )
 
     let N = 10
