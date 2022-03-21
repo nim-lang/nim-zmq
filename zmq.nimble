@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.2.1"
+version       = "1.3.0"
 author        = "Andreas Rumpf"
 description   = "ZeroMQ wrapper"
 license       = "MIT"
@@ -14,7 +14,7 @@ task buildexamples, "Compile all examples":
       echo fstr
       if fstr.endsWith(".nim") and fstr.startsWith("./ex"):
         echo "running ", fstr
-        selfExec("cpp -d:release " & fstr)
+        selfExec("cpp --mm:orc -d:release " & fstr)
 
 task gendoc, "Generate documentation":
   exec("nimble doc --project zmq.nim --out:docs/")

@@ -132,14 +132,14 @@ when defined(gcDestructors):
   proc close*(c: var ZConnection, linger: int = 0)
   proc `=destroy`(x: var ZConnection) =
     if x.alive:
-      raise newException(ZmqError, "Connection destroyed but not closed")
+      raise newException(ZmqError, &"Connection from/to {x.sockaddr} was destroyed but not closed.")
 
 #[
   Connect / Listen / Close
 ]#
 proc reconnect*(conn: ZConnection) =
   ## Reconnect a previously binded/connected address
-  if connect(conn.socket, conn.sockaddr) != 0:
+  if connect(conn.socket, conn.sockaddr.cstring) != 0:
     zmqError()
 
 proc reconnect*(conn: var ZConnection, address: string) =
@@ -150,12 +150,12 @@ proc reconnect*(conn: var ZConnection, address: string) =
 
 proc disconnect*(conn: ZConnection) =
   ## Disconnect the socket
-  if disconnect(conn.socket, conn.sockaddr) != 0:
+  if disconnect(conn.socket, conn.sockaddr.cstring) != 0:
     zmqError()
 
 proc unbind*(conn: ZConnection) =
   ## Unbind the socket
-  if unbind(conn.socket, conn.sockaddr) != 0:
+  if unbind(conn.socket, conn.sockaddr.cstring) != 0:
     zmqError()
 
 proc bindAddr*(conn: var ZConnection, address: string) =

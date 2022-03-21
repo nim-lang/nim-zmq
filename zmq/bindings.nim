@@ -172,8 +172,8 @@ proc sanity_check_libzmq(): void =
   version(actual_lib_major, actual_lib_minor, actual_lib_patch)
 
   let
-    expected_lib_version = make_dotted_version(ZMQ_VERSION_MAJOR,
-        ZMQ_VERSION_MINOR, ZMQ_VERSION_PATCH)
+    # expected_lib_version = make_dotted_version(ZMQ_VERSION_MAJOR,
+        # ZMQ_VERSION_MINOR, ZMQ_VERSION_PATCH)
     actual_lib_version = make_dotted_version(actual_lib_major, actual_lib_minor, actual_lib_patch)
 
   # This is possibly over-particular about versioning
@@ -406,7 +406,7 @@ const
   ZMQ_MORE* = 1
   ZMQ_SRCFD* = 2
   ZMQ_SHARED* = 3
-type ZMsgOptions = enum
+type ZMsgOptions* = enum
   MORE = 1
   SRCFD = 2
   SHARED = 3
