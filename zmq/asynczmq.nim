@@ -70,22 +70,24 @@ proc receiveAsync*(conn: ZConnection): Future[string] =
   ## See https://github.com/zeromq/libzmq/issues/2941 and https://github.com/zeromq/pyzmq/issues/1411
   let fut = newFuture[string]("receiveAsync")
   result = fut
+  let sock = conn.socket
 
   proc cb(fd: AsyncFD): bool {.closure, gcsafe.} =
+    # the cb should work on the low level socket and not the ZConnection object
     result = true
 
     # ignore if already finished
     if fut.finished: return
 
     try:
-      let status = getsockopt[cint](conn, ZSockOptions.EVENTS)
+      let status = getsockopt[cint](sock, ZSockOptions.EVENTS)
       if (status and ZMQ_POLLIN) == 0:
         # waiting for messages
         addRead(fd, cb)
       else:
         # ready to read
         unregister(fd)
-        fut.complete conn.receive(DONTWAIT)
+        fut.complete sock.receive(DONTWAIT)
     except:
       unregister(fd)
       fut.fail getCurrentException()
@@ -103,6 +105,7 @@ proc sendAsync*(conn: ZConnection, msg: string, flags: ZSendRecvOptions = DONTWA
   ## See https://github.com/zeromq/libzmq/issues/2941 and https://github.com/zeromq/pyzmq/issues/1411
   let fut = newFuture[void]("sendAsync")
   result = fut
+  let sock = conn.socket
 
   let status = getsockopt[cint](conn, ZSockOptions.EVENTS)
   if (status and ZMQ_POLLOUT) == 0:
@@ -114,12 +117,12 @@ proc sendAsync*(conn: ZConnection, msg: string, flags: ZSendRecvOptions = DONTWA
       if fut.finished: return
 
       try:
-        let status = getsockopt[cint](conn, ZSockOptions.EVENTS)
+        let status = getsockopt[cint](sock, ZSockOptions.EVENTS)
         if (status and ZMQ_POLLOUT) == 0:
           # waiting for messages
           addWrite(fd, cb)
         else:
-          conn.send(msg, flags)
+          sock.send(msg, flags)
           unregister(fd)
           fut.complete()
       except:
