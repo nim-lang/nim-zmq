@@ -1,5 +1,5 @@
 import ./bindings
-import std/strformat
+import std/[strformat]
 
 # Unofficial easier-for-Nim API
 
@@ -129,7 +129,7 @@ proc getsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions): T
   Destructor
 ]#
 when defined(gcDestructors):
-  proc close*(c: var ZConnection, linger: int = 0)
+  proc close*(c: var ZConnection, linger: int = 500)
   proc `=destroy`(x: var ZConnection) =
     if x.alive:
       raise newException(ZmqError, &"Connection from/to {x.sockaddr} was destroyed but not closed.")
@@ -235,7 +235,7 @@ proc listen*(address: string, mode: ZSocketType): ZConnection =
   result = listen(address, mode, ctx)
   result.ownctx = true
 
-proc close*(c: var ZConnection, linger: int = 0) =
+proc close*(c: var ZConnection, linger: int = 500) =
   ## Closes the ``ZConnection``.
   ## Set socket linger to ``linger`` to drop buffered message and avoid blocking, then close the socket.
   ##

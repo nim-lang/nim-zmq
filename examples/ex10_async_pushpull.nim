@@ -6,7 +6,7 @@ import ../zmq
 const N_TASK = 5
 
 proc pusher(nTask: int): Future[void] {.async.} =
-  var pusher = listen("tcp://*:5571", PUSH)
+  var pusher = listen("tcp://127.0.0.1:6309", PUSH)
   defer: pusher.close()
 
   for i in 1..nTask:
@@ -17,7 +17,7 @@ proc pusher(nTask: int): Future[void] {.async.} =
     await pusher.sendAsync(task)
 
 proc puller(id: int): Future[void] {.async.} =
-  const connStr = "tcp://localhost:5571"
+  const connStr = "tcp://localhost:6309"
 
   echo fmt"puller {id}: connecting to {connStr}"
   var puller = connect(connStr, PULL)
@@ -31,11 +31,10 @@ proc puller(id: int): Future[void] {.async.} =
 
 when isMainModule:
   echo "ex10_async_pushpull.nim"
-  asyncCheck pusher(N_TASK)
-
-  for i in 1..1:
-    asyncCheck puller(i)
-
+  var p = pusher(N_TASK)
+  asyncCheck puller(1)
+  waitFor p
+  # Gives time to the asyncdispatch loop to execute
   while hasPendingOperations():
-    poll()
+    drain()
 

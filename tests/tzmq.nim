@@ -234,10 +234,45 @@ proc asyncpoll() =
     check(rec_count == (i div 2))
     check(rec_count == snd_count)
 
+proc async_pub_sub() =
+  const N_MSGS = 10
+
+  proc publisher {.async.} =
+    var publisher = zmq.listen("tcp://127.0.0.1:5571", PUB)
+    defer: publisher.close()
+    sleep(150) # Account for slow joiner pattern
+
+    var n = 0
+    while n < N_MSGS:
+      publisher.send("topic", SNDMORE)
+      publisher.send("test " & $n)
+      await sleepAsync(100)
+      inc n
+
+  proc subscriber : Future[int] {.async.} =
+    var subscriber = zmq.connect("tcp://127.0.0.1:5571", SUB)
+    defer: subscriber.close()
+    sleep(150) # Account for slow joiner pattern
+    subscriber.setsockopt(SUBSCRIBE, "")
+    var count = 0
+    while count < N_MSGS:
+      var msg = await subscriber.receiveAsync()
+      # echo msg
+      inc(count)
+    result = count
+
+  let p = publisher()
+  let s = subscriber()
+  waitFor p
+  let count = waitFor s
+  test "async pub_sub":
+    check count == N_mSGS
+
 when isMainModule:
   reqrep()
   pubsub()
   inproc_sharectx()
   routerdealer()
   pairpair()
+  async_pub_sub()
   asyncpoll()
