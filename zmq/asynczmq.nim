@@ -10,13 +10,8 @@ type
     cb* : seq[AsyncZPollCB]
     zpoll*: ZPoller
 
-iterator items*(poller: AsyncZPoller): tuple[item: ZPollItem, cb: AsyncZPollCB] =
-  var
-    i = 0
-    n = poller.zpoll.len()
-  while i < n:
-    yield(poller.zpoll[i], poller.cb[i])
-    inc(i)
+proc len*(poller: AsyncZPoller): int =
+  result = poller.zpoll.len()
 
 proc `=destroy`*(obj: var AsyncZPoller) =
   if hasPendingOperations():
@@ -51,13 +46,15 @@ proc pollAsync*(poller: AsyncZPoller, timeout: int = 1) : Future[int] =
   var r = poller.zpoll.poll(timeout)
   # ZMQ can't have a timeout smaller than one
   if r > 0:
-    for zpoll, cb in poller.items():
-      if events(zpoll):
-        proc localcb = cb(zpoll.socket)
-        callSoon localcb
+    for i in 0..<poller.len():
+      if events(poller.zpoll[i]):
+        let
+          sock = poller.zpoll[i].socket
+          localcb = poller.cb[i]
+        callSoon proc () = localcb(sock)
   if hasPendingOperations():
     # poll vs drain ?
-    poll(timeout)
+    drain(timeout)
 
   result.complete(r)
 

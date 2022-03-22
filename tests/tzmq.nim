@@ -189,40 +189,66 @@ proc asyncDummy(i: int) {.async.} =
 proc asyncpoll() =
   test "asyncZPoller":
     const zaddr = "tcp://127.0.0.1:15571"
+    const zaddr2 = "tcp://127.0.0.1:15572"
     var pusher = listen(zaddr, PUSH)
     var puller = connect(zaddr, PULL)
+
+    var pusher2 = listen(zaddr2, PUSH)
+    var puller2 = connect(zaddr2, PULL)
     var poller: AsyncZPoller
+
+    var i = 0
     # Register the callback
+    # Check message received are correct (should be even integer in string format)
+    var msglist = @["0", "2", "4", "6", "8"]
+    poller.register(
+      puller2,
+      ZMQ_POLLIN,
+      proc(x: ZSocket) =
+        let msg = x.receive()
+        if msglist.contains(msg):
+          msglist.delete(0)
+          check true
+        else:
+          check false
+    )
+    # Check message received are correct (should be even integer in string format)
+    var msglist2 = @["0", "2", "4", "6", "8"]
     poller.register(
       puller,
       ZMQ_POLLIN,
       proc(x: ZSocket) =
         let msg = x.receive()
-        # debugecho "==> Received msg=", msg
-        sleep(300) # Do Stuff
+        if msglist2.contains(msg):
+          msglist2.delete(0)
+          check true
+        else:
+          check false
     )
 
-    let N = 10
+    let
+      N = 10
+      N_MAX_TIMEOUT = 5
+
     var snd_count = 0
     # A client send some message
     for i in 0..<N:
       if (i mod 2) == 0:
         # Can periodically send stuff
         pusher.send($i)
+        pusher2.send($i)
         inc(snd_count)
-    var
-      i = 0
-      rec_count = 0
 
-    while i < N:
+    # N_MAX_TIMEOUT is the number of time the poller can timeout before exiting the loop
+    while i < N_MAX_TIMEOUT:
+
       # I don't recommend a high timeout because it's going to poll for the duration if there is no message in queue
       var fut = poller.pollAsync(1)
-      # Can do Asyncstuff here
-      asyncCheck asyncDummy(i)
-      fut.addCallback proc(x: Future[int]) =
-        if x.read() > 0:
-          inc(rec_count)
-      inc(i)
+      let r = waitFor fut
+      if r < 0:
+        break # error case
+      elif r == 0:
+        inc(i)
 
     # No longer polling but some callback may not have finished
     while hasPendingOperations():
@@ -230,9 +256,8 @@ proc asyncpoll() =
 
     pusher.close()
     puller.close()
-    check(i == N)
-    check(rec_count == (i div 2))
-    check(rec_count == snd_count)
+    pusher2.close()
+    puller2.close()
 
 proc async_pub_sub() =
   const N_MSGS = 10
