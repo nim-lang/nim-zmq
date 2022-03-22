@@ -201,11 +201,13 @@ proc asyncpoll() =
     # Register the callback
     # Check message received are correct (should be even integer in string format)
     var msglist = @["0", "2", "4", "6", "8"]
+    var msgCount = 0
     poller.register(
       puller2,
       ZMQ_POLLIN,
       proc(x: ZSocket) =
         let msg = x.receive()
+        inc(msgCount)
         if msglist.contains(msg):
           msglist.delete(0)
           check true
@@ -214,11 +216,13 @@ proc asyncpoll() =
     )
     # Check message received are correct (should be even integer in string format)
     var msglist2 = @["0", "2", "4", "6", "8"]
+    var msgCount2 = 0
     poller.register(
       puller,
       ZMQ_POLLIN,
       proc(x: ZSocket) =
         let msg = x.receive()
+        inc(msgCount2)
         if msglist2.contains(msg):
           msglist2.delete(0)
           check true
@@ -230,14 +234,14 @@ proc asyncpoll() =
       N = 10
       N_MAX_TIMEOUT = 5
 
-    var snd_count = 0
+    var sndCount = 0
     # A client send some message
     for i in 0..<N:
       if (i mod 2) == 0:
         # Can periodically send stuff
         pusher.send($i)
         pusher2.send($i)
-        inc(snd_count)
+        inc(sndCount)
 
     # N_MAX_TIMEOUT is the number of time the poller can timeout before exiting the loop
     while i < N_MAX_TIMEOUT:
@@ -253,6 +257,9 @@ proc asyncpoll() =
     # No longer polling but some callback may not have finished
     while hasPendingOperations():
       drain()
+
+    check msgCount == msgCount2
+    check msgCount == sndCount
 
     pusher.close()
     puller.close()
