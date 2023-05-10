@@ -11,13 +11,15 @@ type
                                 ## errno value code
     error*: cint
 
-  ZConnection* {.pure, final.} = object
+  ZConnectionImpl* {.pure, final.} = object
     ## A Zmq connection. Since ``ZContext`` and ``ZSocket`` are pointers, it is highly recommended to **not** copy ``ZConnection``.
     context*: ZContext ## Zmq context. Can be 'owned' by another connection (useful for inproc protocol).
     socket*: ZSocket   ## Embedded socket.
     ownctx: bool       ## Boolean indicating if the connection owns the Zmq context
     alive: bool        ## Boolean indicating if the connections has been closed or not
     sockaddr: string   ## Address of the embedded socket
+
+  ZConnection * = ref ZConnectionImpl
 
 #[
   Error handler
@@ -101,6 +103,10 @@ proc setsockopt*[T: SomeOrdinal|string](s: ZSocket, option: ZSockOptions, optval
   ## Check http://api.zeromq.org/4-2:zmq-setsockopt
   setsockopt_impl[T](s, option, optval)
 
+proc setsockopt[T: SomeOrdinal|string](c: ZConnectionImpl, option: ZSockOptions, optval: T) =
+  ## Internal
+  setsockopt[T](c.socket, option, optval)
+
 proc setsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions, optval: T) =
   ## setsockopt on ``ZConnection``
   ##
@@ -117,6 +123,10 @@ proc getsockopt*[T: SomeOrdinal|string](s: ZSocket, option: ZSockOptions): T =
   getsockopt_impl(s, option, optval)
   optval
 
+proc getsockopt[T: SomeOrdinal|string](c: ZConnectionImpl, option: ZSockOptions): T =
+  ## Internal
+  getsockopt[T](c.socket, option)
+
 proc getsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions): T =
   ## getsockopt on ``ZConnection``
   ##
@@ -129,10 +139,10 @@ proc getsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions): T
   Destructor
 ]#
 when defined(gcDestructors):
-  proc close*(c: var ZConnection, linger: int = 500)
-  proc `=destroy`(x: var ZConnection) =
+  proc close*(c: var ZConnectionImpl, linger: int = 500)
+  proc `=destroy`(x: var ZConnectionImpl) =
     if x.alive:
-      raise newException(ZmqError, &"Connection from/to {x.sockaddr} was destroyed but not closed.")
+      x.close()
 
 #[
   Connect / Listen / Close
@@ -167,6 +177,7 @@ proc bindAddr*(conn: var ZConnection, address: string) =
 
 proc connect*(address: string, mode: ZSocketType, context: ZContext): ZConnection =
   ## Open a new connection on an external ``ZContext`` and connect the socket
+  result = new(ZConnection)
   result.context = context
   result.ownctx = false
   result.sockaddr = address
@@ -214,6 +225,7 @@ proc listen*(address: string, mode: ZSocketType, context: ZContext): ZConnection
     monoclient.close()
     monoserver.close()
 
+  result = new(ZConnection)
   result.context = context
   result.ownctx = false
   result.sockaddr = address
@@ -235,7 +247,7 @@ proc listen*(address: string, mode: ZSocketType): ZConnection =
   result = listen(address, mode, ctx)
   result.ownctx = true
 
-proc close*(c: var ZConnection, linger: int = 500) =
+proc close(c: var ZConnectionImpl, linger: int = 500) =
   ## Closes the ``ZConnection``.
   ## Set socket linger to ``linger`` to drop buffered message and avoid blocking, then close the socket.
   ##
@@ -250,6 +262,9 @@ proc close*(c: var ZConnection, linger: int = 500) =
   # Do not destroy embedded socket if it does not own it
   if c.ownctx:
     c.context.terminate()
+
+proc close*(c: ZConnection, linger: int = 500) =
+  c[].close()
 
 # Send / Receive
 # Send with ZSocket type
