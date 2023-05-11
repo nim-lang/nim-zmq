@@ -5,6 +5,7 @@ import ./poller
 
 type
   AsyncZPollCB* = proc(x: ZSocket) {.gcsafe.}
+
   AsyncZPoller* = object
     ## Experimental type to use zmq.poll() with Nim's async dispatch loop
     cb* : seq[AsyncZPollCB]
@@ -15,7 +16,7 @@ proc len*(poller: AsyncZPoller): int =
 
 proc `=destroy`*(obj: var AsyncZPoller) =
   if hasPendingOperations():
-    raise newException(ZmqError, "AsyncZPoller closed with pending operation")
+    drain(500)
 
 proc register*(poller: var AsyncZPoller, sock: ZSocket, event: int, cb: AsyncZPollCB) =
   ## Register ZSocket function
@@ -40,7 +41,7 @@ proc initZPoller*(args: openArray[tuple[item: ZConnection, cb: AsyncZPollCB]], e
   for arg in args:
     result.register(arg.item, event, arg.cb)
 
-proc pollAsync*(poller: AsyncZPoller, timeout: int = 1) : Future[int] =
+proc pollAsync*(poller: AsyncZPoller, timeout: int = 2) : Future[int] =
   ## Experimental API. Poll all the ZConnection and execute an async CB when ``event`` occurs.
   result = newFuture[int]("pollAsync")
   var r = poller.zpoll.poll(timeout)
@@ -52,6 +53,7 @@ proc pollAsync*(poller: AsyncZPoller, timeout: int = 1) : Future[int] =
           sock = poller.zpoll[i].socket
           localcb = poller.cb[i]
         callSoon proc () = localcb(sock)
+
   if hasPendingOperations():
     # poll vs drain ?
     drain(timeout)
