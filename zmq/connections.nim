@@ -142,6 +142,9 @@ when defined(gcDestructors):
   proc close*(c: var ZConnectionImpl, linger: int = 500)
   proc `=destroy`(x: var ZConnectionImpl) =
     if x.alive:
+      # TODO
+      # Handle exception in =destroy hook or use private close without possible exception ?
+      # How to remove "var T" in =destroy when the ojbect needs to be mutated ?
       x.close()
 
 #[
@@ -302,12 +305,7 @@ proc sendAll*(c: ZConnection, msg: varargs[string]) =
   sendAll(c.socket, msg)
 
 # receive with ZSocket type
-proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
-  ## Receives a message from a socket.
-  ##
-  ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
-  ##
-  ## Indicate if more parts are needed to be received by ``moreAvailable``
+proc receiveImpl(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
   result.moreAvailable = false
   result.msgAvailable = false
 
@@ -321,6 +319,8 @@ proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvaila
     result.msg = newString(msg_size(m))
     if result.msg.len > 0:
       copyMem(addr(result.msg[0]), msg_data(m), result.msg.len)
+
+    # Check if more part follows
     result.moreAvailable = msg_more(m).bool
   else:
     # Either an error or EAGAIN
@@ -330,11 +330,53 @@ proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvaila
   if msg_close(m) != 0:
     zmqError()
 
+proc waitForReceive*(s: ZSocket, timeout: int = -2, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+  ## Set RCVTIMEO for the socket and wait until a message is available.
+  ## This function is blocking.
+  ##
+  ## timeout:
+  ##   -1 means infinite wait
+  ##   positive value is in milliseconds
+  ##   negative value strictly below -1 are ignored and the wait time will default to RCVTIMEO set for the socket (which by default is -1).
+  ##
+  ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
+  ## Indicate if more parts are needed to be received by ``moreAvailable``
+  result.moreAvailable = false
+  result.msgAvailable = false
+
+  let curtimeout : cint = getsockopt[cint](s, RCVTIMEO)
+
+  # If rcvtimeout is set and not timeout argument is passed (or -1), use the existing timeout
+  # Otherwise update the rcvtimeout
+  let shouldUpdateTimeout = (timeout >= -1) and ((curtimeout > 0 and timeout > 0) or (curtimeout < 0))
+
+  if shouldUpdateTimeout:
+    s.setsockopt(RCVTIMEO, timeout.cint)
+
+  result = receiveImpl(s, flags)
+
+  if shouldUpdateTimeout:
+    s.setsockopt(RCVTIMEO, curtimeout.cint)
+
+proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+  ## Receives a message from a socket in a non-blocking way.
+  ##
+  ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
+  ##
+  ## Indicate if more parts are needed to be received by ``moreAvailable``
+  result.moreAvailable = false
+  result.msgAvailable = false
+
+  let status = getsockopt[cint](s, ZSockOptions.EVENTS).int()
+  # Check if socket has an incoming message
+  if (status and ZMQ_POLLIN) != 0:
+    result = receiveImpl(s, flags)
+
 proc receive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): string =
   ## Receive a message on socket.
-  ##
+  #
   ## Return an empty string on EAGAIN
-  tryReceive(s, flags).msg
+  receiveImpl(s, flags).msg
 
 proc receiveAll*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): seq[string] =
   ## Receive all parts of a message
@@ -342,15 +384,28 @@ proc receiveAll*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): seq[string] =
   ## If EAGAIN occurs without any data being received, it will be an empty seq
   var expectMessage = true
   while expectMessage:
-    let (msgAvailable, moreAvailable, msg) = tryReceive(s, flags)
+    let (msgAvailable, moreAvailable, msg) = receiveImpl(s, flags)
     if msgAvailable:
       result.add msg
       expectMessage = moreAvailable
     else:
       expectMessage = false
 
+proc waitForReceive*(c: ZConnection, timeout: int = -1, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+  ## Set RCVTIMEO for the socket and wait until a message is available.
+  ## This function is blocking.
+  ##
+  ## timeout:
+  ##   -1 means infinite wait
+  ##   positive value is in milliseconds
+  ##   negative value strictly below -1 are ignored and the wait time will default to RCVTIMEO set for the socket (which by default is -1).
+  ##
+  ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
+  ## Indicate if more parts are needed to be received by ``moreAvailable``
+  waitForReceive(c.socket, timeout, flags)
+
 proc tryReceive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
-  ## Receives a message from a connection.
+  ## Receives a message from a socket in a non-blocking way.
   ##
   ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
   ##

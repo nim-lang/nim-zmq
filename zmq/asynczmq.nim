@@ -15,6 +15,7 @@ proc len*(poller: AsyncZPoller): int =
   result = poller.zpoll.len()
 
 proc `=destroy`*(obj: var AsyncZPoller) =
+  # TODO Handle exception in =destroy
   if hasPendingOperations():
     drain(500)
 
