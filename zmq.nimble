@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.4.0"
+version       = "1.5.0"
 author        = "Andreas Rumpf"
 description   = "ZeroMQ wrapper"
 license       = "MIT"
