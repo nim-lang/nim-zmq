@@ -16,7 +16,7 @@ type
     context*: ZContext ## Zmq context. Can be 'owned' by another connection (useful for inproc protocol).
     socket*: ZSocket   ## Embedded socket.
     ownctx: bool       ## Boolean indicating if the connection owns the Zmq context
-    alive: bool        ## Boolean indicating if the connections has been closed or not
+    alive*: bool        ## Boolean indicating if the connection has been closed
     sockaddr: string   ## Address of the embedded socket
 
   ZConnection * = ref ZConnectionImpl
@@ -73,6 +73,7 @@ proc setsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: T
   var val: T = optval
   if setsockopt(s, option, addr(val), sizeof(val)) != 0:
     zmqError()
+
 # Some option take cstring
 proc setsockopt_impl(s: ZSocket, option: ZSockOptions, optval: string) =
   var val: string = optval
@@ -139,13 +140,46 @@ proc getsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions): T
   Destructor
 ]#
 when defined(gcDestructors):
-  proc close*(c: var ZConnectionImpl, linger: int = 500)
-  proc `=destroy`(x: var ZConnectionImpl) =
+  proc `=destroy`(x: ZConnectionImpl) =
+    # Handle exception in =destroy hook or use private close without possible exception ?
     if x.alive:
-      # TODO
-      # Handle exception in =destroy hook or use private close without possible exception ?
-      # How to remove "var T" in =destroy when the ojbect needs to be mutated ?
-      x.close()
+      var linger = 500.cint
+      # Use low level primitive to avoid throwing
+      if setsockopt(x.socket, LINGER, addr(linger), sizeof(linger)) != 0:
+        # Handle error in closure ?
+        echo("Error in closing ZMQ-socket")
+
+      if close(x.socket) != 0:
+        # Handle error in closure ?
+        echo("Error in closing ZMQ-socket")
+
+      if x.ownctx:
+        if ctx_term(x.context) != 0:
+          echo("Error in closing ZMQ-context")
+
+  proc `=wasMoved`(x: var ZConnectionImpl) =
+    x.alive = false
+    x.socket = nil
+    x.context = nil
+
+  proc `=sink`*(dest: var ZConnectionImpl, source: ZConnectionImpl) =
+    `=destroy`(dest)
+    wasMoved(dest)
+    dest.context  = source.context
+    dest.socket   = source.socket
+    dest.ownctx   = source.ownctx
+    dest.sockaddr = source.sockaddr
+
+  proc `=copy`*(dest: var ZConnectionImpl, source: ZConnectionImpl) =
+    if dest.socket != source.socket:
+      dest.socket = source.socket
+
+    if dest.sockaddr != source.sockaddr:
+      dest.sockaddr = source.sockaddr
+
+    if dest.context != source.context:
+      dest.context = source.context
+      dest.ownctx = false
 
 #[
   Connect / Listen / Close

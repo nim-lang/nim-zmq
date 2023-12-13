@@ -1,4 +1,4 @@
-import std/[asyncdispatch]
+import std/[asyncdispatch, selectors]
 import ./connections
 import ./bindings
 import ./poller
@@ -14,10 +14,29 @@ type
 proc len*(poller: AsyncZPoller): int =
   result = poller.zpoll.len()
 
-proc `=destroy`*(obj: var AsyncZPoller) =
-  # TODO Handle exception in =destroy
-  if hasPendingOperations():
-    drain(500)
+proc waitAll(obj: AsyncZPoller) {.raises: [].} =
+  # Is there a more elegant to do this ?
+  # We want a helper function that will not raises to avoid excpetion in =destroy hooks
+
+  try:
+
+    while hasPendingOperations():
+      drain(500)
+
+  except ValueError:
+    discard
+
+  except OSError:
+    discard
+
+  except ref IOSelectorsException:
+    discard
+
+  except Exception:
+    discard
+
+proc `=destroy`*(obj: AsyncZPoller) {.raises: [].} =
+  obj.waitAll()
 
 proc register*(poller: var AsyncZPoller, sock: ZSocket, event: int, cb: AsyncZPollCB) =
   ## Register ZSocket function
