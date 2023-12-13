@@ -1,8 +1,9 @@
 import ../zmq
-import std/[asyncdispatch, asyncfutures, unittest]
+import std/[asyncdispatch]
 
 proc asyncpoll() =
-  test "asyncZPoller":
+  # test "asyncZPoller":
+  block:
     const zaddr = "tcp://127.0.0.1:15571"
     const zaddr2 = "tcp://127.0.0.1:15572"
     var pusher = listen(zaddr, PUSH)
@@ -14,7 +15,7 @@ proc asyncpoll() =
 
     var i = 0
     # Register the callback
-    # Check message received are correct (should be even integer in string format)
+    # assert message received are correct (should be even integer in string format)
     var msglist = @["0", "2", "4", "6", "8"]
     var msgCount = 0
     poller.register(
@@ -25,11 +26,11 @@ proc asyncpoll() =
         inc(msgCount)
         if msglist.contains(msg):
           msglist.delete(0)
-          check true
+          assert true
         else:
-          check false
+          assert false
     )
-    # Check message received are correct (should be even integer in string format)
+    # assert message received are correct (should be even integer in string format)
     var msglist2 = @["0", "2", "4", "6", "8"]
     var msgCount2 = 0
     poller.register(
@@ -40,9 +41,9 @@ proc asyncpoll() =
         inc(msgCount2)
         if msglist2.contains(msg):
           msglist2.delete(0)
-          check true
+          assert true
         else:
-          check false
+          assert false
     )
 
     let
@@ -73,8 +74,8 @@ proc asyncpoll() =
     while hasPendingOperations():
       drain()
 
-    check msgCount == msgCount2
-    check msgCount == sndCount
+    assert msgCount == msgCount2
+    assert msgCount == sndCount
 
     pusher.close()
     puller.close()

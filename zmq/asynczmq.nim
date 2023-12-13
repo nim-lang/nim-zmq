@@ -35,8 +35,10 @@ proc waitAll(obj: AsyncZPoller) {.raises: [].} =
   except Exception:
     discard
 
-proc `=destroy`*(obj: AsyncZPoller) {.raises: [].} =
+proc `=destroy`*(obj: AsyncZPoller) =
   obj.waitAll()
+  `=destroy`(obj.cb)
+  `=destroy`(obj.zpoll)
 
 proc register*(poller: var AsyncZPoller, sock: ZSocket, event: int, cb: AsyncZPollCB) =
   ## Register ZSocket function

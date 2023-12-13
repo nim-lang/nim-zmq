@@ -142,7 +142,7 @@ proc getsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions): T
 when defined(gcDestructors):
   proc `=destroy`(x: ZConnectionImpl) =
     # Handle exception in =destroy hook or use private close without possible exception ?
-    if x.alive:
+    if x.alive and not isNil(x.socket):
       var linger = 500.cint
       # Use low level primitive to avoid throwing
       if setsockopt(x.socket, LINGER, addr(linger), sizeof(linger)) != 0:
@@ -153,7 +153,7 @@ when defined(gcDestructors):
         # Handle error in closure ?
         echo("Error in closing ZMQ-socket")
 
-      if x.ownctx:
+      if x.ownctx and not isNil(x.context):
         if ctx_term(x.context) != 0:
           echo("Error in closing ZMQ-context")
 

@@ -5,12 +5,10 @@ proc sockHandler(req, rep: ZConnection, pong: string) =
     req.send(pong)
     let r = rep.receive()
     check r == pong
-    debugEcho "EndCB"
+    # debugEcho "EndCB"
 
 proc testDestroy() =
   const sockaddr = "tcp://127.0.0.1:55001"
-  # var unsafeReqPtr : ptr ZConnection
-  # var unsafeRepPtr : ptr ZConnection
 
   test "Destroy & Copy":
     let
@@ -30,20 +28,15 @@ proc testDestroy() =
       req2.send(ping)
       let r = rep.receive()
       check r == ping
-      debugEcho "end block scope"
+      # debugEcho "end block scope"
 
     rep.send(pong)
     block:
       var req2 = req
       let r = req2.receive()
       check r == pong
-      debugEcho "end test scope"
+      # debugEcho "end test scope"
 
-  # test "ZConnection isNil":
-  # # Won't work
-  #   check unsafeReqPtr[].isNil()
-  #   check unsafeRepPtr[].isNil()
-  #
 when isMainModule:
   testDestroy()
 
