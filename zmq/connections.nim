@@ -16,7 +16,7 @@ type
     context*: ZContext ## Zmq context. Can be 'owned' by another connection (useful for inproc protocol).
     socket*: ZSocket   ## Embedded socket.
     ownctx: bool       ## Boolean indicating if the connection owns the Zmq context
-    alive*: bool        ## Boolean indicating if the connection has been closed
+    alive: bool        ## Boolean indicating if the connection has been closed
     sockaddr: string   ## Address of the embedded socket
 
   ZConnection * = ref ZConnectionImpl
