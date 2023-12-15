@@ -13,11 +13,11 @@ type
 
   ZConnectionImpl* {.pure, final.} = object
     ## A Zmq connection. Since ``ZContext`` and ``ZSocket`` are pointers, it is highly recommended to **not** copy ``ZConnection``.
-    context*: ZContext ## Zmq context. Can be 'owned' by another connection (useful for inproc protocol).
-    socket*: ZSocket   ## Embedded socket.
-    ownctx: bool       ## Boolean indicating if the connection owns the Zmq context
-    alive: bool        ## Boolean indicating if the connection has been closed
-    sockaddr: string   ## Address of the embedded socket
+    context*: ZContext ## Zmq context from C-bindings. 
+    socket*: ZSocket   ## Zmq socket from C-bindings.
+    ownctx: bool       # Boolean indicating if the connection owns the Zmq context
+    alive: bool        # Boolean indicating if the connection has been closed
+    sockaddr: string   # Address of the embedded socket
 
   ZConnection * = ref ZConnectionImpl
 
@@ -213,7 +213,7 @@ proc bindAddr*(conn: var ZConnection, address: string) =
   conn.sockaddr = address
 
 proc connect*(address: string, mode: ZSocketType, context: ZContext): ZConnection =
-  ## Open a new connection on an external ``ZContext`` and connect the socket
+  ## Open a new connection on an external ``ZContext`` and connect the socket. External context are useful for inproc connections.
   result = new(ZConnection)
   result.context = context
   result.ownctx = false
@@ -248,7 +248,7 @@ proc connect*(address: string, mode: ZSocketType): ZConnection =
   result.ownctx = true
 
 proc listen*(address: string, mode: ZSocketType, context: ZContext): ZConnection =
-  ## Open a new connection on an external ``ZContext`` and binds on the socket
+  ## Open a new connection on an external ``ZContext`` and binds on the socket. External context are useful for inproc connections.
   runnableExamples:
     import zmq
     var monoserver = listen("tcp://127.0.0.1:34444", PAIR)
