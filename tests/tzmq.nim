@@ -1,5 +1,5 @@
 import ../zmq
-import std/[unittest, os]
+import std/[unittest, os, times, monotimes]
 import std/[asyncdispatch, asyncfutures]
 
 proc reqrep() =
@@ -88,7 +88,8 @@ proc routerdealer() =
   test "routerdealer":
     const sockaddr = "tcp://127.0.0.1:55001"
     var router = listen(sockaddr, mode = ROUTER)
-    router.setsockopt(RCVTIMEO, 350.cint)
+    router.setsockopt(RCVTIMEO, 500.cint)
+
     defer: router.close()
     var dealer = connect(sockaddr, mode = DEALER)
     defer: dealer.close()
@@ -106,12 +107,23 @@ proc routerdealer() =
     check dealer.receive() == payload
     # Let receive timeout
     block:
+      let start = getMonoTime()
       # On receive return empty message
-      let recv = router.receive()
+      let
+        recv = router.receive()
+        stop = getMonoTime()
+        elapsed = stop - start
+      check (elapsed - initDuration(milliseconds=500)) < initDuration(milliseconds=1)
       check recv == ""
+
     block:
       # On try receive, check flag is flase
-      let recv = router.tryReceive()
+      let
+        start = getMonoTime()
+        recv = router.waitForReceive(350)
+        stop = getMonoTime()
+        elapsed = stop - start
+      check (elapsed - initDuration(milliseconds=350)) < initDuration(milliseconds=1)
       check recv.msgAvailable == false
 
 proc inproc_sharectx() =
@@ -146,31 +158,32 @@ proc pairpair() =
 
     var pairs = @[listen(sockaddr, PAIR), connect(sockaddr, PAIR)]
     pairs[1].setsockopt(RCVTIMEO, 500.cint)
+
     block:
       pairs[0].send(ping, SNDMORE)
       pairs[0].send(ping, SNDMORE)
       pairs[0].send(ping)
 
     block:
-      let content = pairs[1].tryReceive()
+      let content = pairs[1].waitForReceive()
       check content.msgAvailable
       check content.moreAvailable
       check content.msg == ping
 
     block:
-      let content = pairs[1].tryReceive()
+      let content = pairs[1].waitForReceive()
       check content.msgAvailable
       check content.moreAvailable
       check content.msg == ping
 
     block:
-      let content = pairs[1].tryReceive()
+      let content = pairs[1].waitForReceive()
       check content.msgAvailable
       check (not content.moreAvailable)
       check content.msg == ping
 
     block:
-      let content = pairs[1].tryReceive()
+      let content = pairs[1].waitForReceive()
       check (not content.msgAvailable)
 
     block:
@@ -300,6 +313,43 @@ proc async_pub_sub() =
   test "async pub_sub":
     check count == N_mSGS
 
+proc non_blocking_recv() =
+  const sockaddr = "tcp://127.0.0.1:55001"
+  test "non-blocking receive":
+    var router = listen(sockaddr, mode = ROUTER)
+    let res = router.tryReceive()
+    check res == (false, false, "")
+
+    var dealer = connect(sockaddr, mode = DEALER)
+    let payload = "payload"
+    block:
+      # Dealer send a message to router
+      dealer.send(payload)
+
+    block:
+      # Remove "envelope" of router / dealer
+      let dealerSocketId = router.receive()
+      let res = router.waitForReceive(250)
+      check res.msgAvailable
+      check not res.moreAvailable
+      check res.msg == payload
+
+    block:
+      # Remove "envelope" of router / dealer
+      let
+        start = getMonoTime()
+        res = router.waitForReceive(250)
+        stop = getMonoTime()
+        elapsed = stop - start
+      check (elapsed - initDuration(milliseconds=250)) < initDuration(milliseconds=1)
+
+      check not res.msgAvailable
+      check not res.moreAvailable
+      check res.msg == ""
+
+    router.close(250)
+    dealer.close(250)
+
 when isMainModule:
   reqrep()
   pubsub()
@@ -308,3 +358,4 @@ when isMainModule:
   pairpair()
   async_pub_sub()
   asyncpoll()
+  non_blocking_recv()

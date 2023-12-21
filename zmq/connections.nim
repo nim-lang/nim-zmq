@@ -13,11 +13,11 @@ type
 
   ZConnectionImpl* {.pure, final.} = object
     ## A Zmq connection. Since ``ZContext`` and ``ZSocket`` are pointers, it is highly recommended to **not** copy ``ZConnection``.
-    context*: ZContext ## Zmq context. Can be 'owned' by another connection (useful for inproc protocol).
-    socket*: ZSocket   ## Embedded socket.
-    ownctx: bool       ## Boolean indicating if the connection owns the Zmq context
-    alive: bool        ## Boolean indicating if the connections has been closed or not
-    sockaddr: string   ## Address of the embedded socket
+    context*: ZContext ## Zmq context from C-bindings. 
+    socket*: ZSocket   ## Zmq socket from C-bindings.
+    ownctx: bool       # Boolean indicating if the connection owns the Zmq context
+    alive: bool        # Boolean indicating if the connection has been closed
+    sockaddr: string   # Address of the embedded socket
 
   ZConnection * = ref ZConnectionImpl
 
@@ -73,6 +73,7 @@ proc setsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: T
   var val: T = optval
   if setsockopt(s, option, addr(val), sizeof(val)) != 0:
     zmqError()
+
 # Some option take cstring
 proc setsockopt_impl(s: ZSocket, option: ZSockOptions, optval: string) =
   var val: string = optval
@@ -139,10 +140,46 @@ proc getsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions): T
   Destructor
 ]#
 when defined(gcDestructors):
-  proc close*(c: var ZConnectionImpl, linger: int = 500)
-  proc `=destroy`(x: var ZConnectionImpl) =
-    if x.alive:
-      x.close()
+  proc `=destroy`(x: ZConnectionImpl) =
+    # Handle exception in =destroy hook or use private close without possible exception ?
+    if x.alive and not isNil(x.socket):
+      var linger = 500.cint
+      # Use low level primitive to avoid throwing
+      if setsockopt(x.socket, LINGER, addr(linger), sizeof(linger)) != 0:
+        # Handle error in closure ?
+        echo("Error in closing ZMQ-socket")
+
+      if close(x.socket) != 0:
+        # Handle error in closure ?
+        echo("Error in closing ZMQ-socket")
+
+      if x.ownctx and not isNil(x.context):
+        if ctx_term(x.context) != 0:
+          echo("Error in closing ZMQ-context")
+
+  proc `=wasMoved`(x: var ZConnectionImpl) =
+    x.alive = false
+    x.socket = nil
+    x.context = nil
+
+  proc `=sink`*(dest: var ZConnectionImpl, source: ZConnectionImpl) =
+    `=destroy`(dest)
+    wasMoved(dest)
+    dest.context  = source.context
+    dest.socket   = source.socket
+    dest.ownctx   = source.ownctx
+    dest.sockaddr = source.sockaddr
+
+  proc `=copy`*(dest: var ZConnectionImpl, source: ZConnectionImpl) =
+    if dest.socket != source.socket:
+      dest.socket = source.socket
+
+    if dest.sockaddr != source.sockaddr:
+      dest.sockaddr = source.sockaddr
+
+    if dest.context != source.context:
+      dest.context = source.context
+      dest.ownctx = false
 
 #[
   Connect / Listen / Close
@@ -176,7 +213,7 @@ proc bindAddr*(conn: var ZConnection, address: string) =
   conn.sockaddr = address
 
 proc connect*(address: string, mode: ZSocketType, context: ZContext): ZConnection =
-  ## Open a new connection on an external ``ZContext`` and connect the socket
+  ## Open a new connection on an external ``ZContext`` and connect the socket. External context are useful for inproc connections.
   result = new(ZConnection)
   result.context = context
   result.ownctx = false
@@ -211,7 +248,7 @@ proc connect*(address: string, mode: ZSocketType): ZConnection =
   result.ownctx = true
 
 proc listen*(address: string, mode: ZSocketType, context: ZContext): ZConnection =
-  ## Open a new connection on an external ``ZContext`` and binds on the socket
+  ## Open a new connection on an external ``ZContext`` and binds on the socket. External context are useful for inproc connections.
   runnableExamples:
     import zmq
     var monoserver = listen("tcp://127.0.0.1:34444", PAIR)
@@ -302,12 +339,7 @@ proc sendAll*(c: ZConnection, msg: varargs[string]) =
   sendAll(c.socket, msg)
 
 # receive with ZSocket type
-proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
-  ## Receives a message from a socket.
-  ##
-  ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
-  ##
-  ## Indicate if more parts are needed to be received by ``moreAvailable``
+proc receiveImpl(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
   result.moreAvailable = false
   result.msgAvailable = false
 
@@ -321,6 +353,8 @@ proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvaila
     result.msg = newString(msg_size(m))
     if result.msg.len > 0:
       copyMem(addr(result.msg[0]), msg_data(m), result.msg.len)
+
+    # Check if more part follows
     result.moreAvailable = msg_more(m).bool
   else:
     # Either an error or EAGAIN
@@ -330,11 +364,53 @@ proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvaila
   if msg_close(m) != 0:
     zmqError()
 
+proc waitForReceive*(s: ZSocket, timeout: int = -2, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+  ## Set RCVTIMEO for the socket and wait until a message is available.
+  ## This function is blocking.
+  ##
+  ## timeout:
+  ##   -1 means infinite wait
+  ##   positive value is in milliseconds
+  ##   negative value strictly below -1 are ignored and the wait time will default to RCVTIMEO set for the socket (which by default is -1).
+  ##
+  ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
+  ## Indicate if more parts are needed to be received by ``moreAvailable``
+  result.moreAvailable = false
+  result.msgAvailable = false
+
+  let curtimeout : cint = getsockopt[cint](s, RCVTIMEO)
+
+  # If rcvtimeout is set and not timeout argument is passed (or -1), use the existing timeout
+  # Otherwise update the rcvtimeout
+  let shouldUpdateTimeout = (timeout >= -1) and ((curtimeout > 0 and timeout > 0) or (curtimeout < 0))
+
+  if shouldUpdateTimeout:
+    s.setsockopt(RCVTIMEO, timeout.cint)
+
+  result = receiveImpl(s, flags)
+
+  if shouldUpdateTimeout:
+    s.setsockopt(RCVTIMEO, curtimeout.cint)
+
+proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+  ## Receives a message from a socket in a non-blocking way.
+  ##
+  ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
+  ##
+  ## Indicate if more parts are needed to be received by ``moreAvailable``
+  result.moreAvailable = false
+  result.msgAvailable = false
+
+  let status = getsockopt[cint](s, ZSockOptions.EVENTS).int()
+  # Check if socket has an incoming message
+  if (status and ZMQ_POLLIN) != 0:
+    result = receiveImpl(s, flags)
+
 proc receive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): string =
   ## Receive a message on socket.
-  ##
+  #
   ## Return an empty string on EAGAIN
-  tryReceive(s, flags).msg
+  receiveImpl(s, flags).msg
 
 proc receiveAll*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): seq[string] =
   ## Receive all parts of a message
@@ -342,15 +418,28 @@ proc receiveAll*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): seq[string] =
   ## If EAGAIN occurs without any data being received, it will be an empty seq
   var expectMessage = true
   while expectMessage:
-    let (msgAvailable, moreAvailable, msg) = tryReceive(s, flags)
+    let (msgAvailable, moreAvailable, msg) = receiveImpl(s, flags)
     if msgAvailable:
       result.add msg
       expectMessage = moreAvailable
     else:
       expectMessage = false
 
+proc waitForReceive*(c: ZConnection, timeout: int = -1, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+  ## Set RCVTIMEO for the socket and wait until a message is available.
+  ## This function is blocking.
+  ##
+  ## timeout:
+  ##   -1 means infinite wait
+  ##   positive value is in milliseconds
+  ##   negative value strictly below -1 are ignored and the wait time will default to RCVTIMEO set for the socket (which by default is -1).
+  ##
+  ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
+  ## Indicate if more parts are needed to be received by ``moreAvailable``
+  waitForReceive(c.socket, timeout, flags)
+
 proc tryReceive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
-  ## Receives a message from a connection.
+  ## Receives a message from a socket in a non-blocking way.
   ##
   ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
   ##

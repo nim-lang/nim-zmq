@@ -12,6 +12,9 @@ type
     ## It is mandatory to manage the lifetimes of the polled sockets independently of the ``ZPoller`` - either manually or by using a ``ZConnection``.
     items*: seq[ZPollItem]
 
+proc `=destroy`*(poll: Zpoller) =
+  `=destroy`(poll.items)
+
 proc `[]`*(poller: ZPoller, idx: int): lent ZPollItem =
   ## Access registered element by index
   poller.items[idx]
