@@ -12,7 +12,7 @@ jobs:
           ref: "gh-pages"
       - name: "install_nim"
         id: install_nim
-        uses: iffy/install-nim@v3
+        uses: iffy/install-nim@v5
       - name: Set CI config github
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
