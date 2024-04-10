@@ -6,7 +6,7 @@ description   = "ZeroMQ wrapper"
 license       = "MIT"
 
 # Dependencies
-requires "nim >= 1.4.0"
+requires "nim >= 2.0.0"
 
 task buildexamples, "Compile all examples":
   withDir "examples":
