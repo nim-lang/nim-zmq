@@ -1,12 +1,12 @@
 # Package
 
-version       = "1.5.0"
+version       = "1.5.1"
 author        = "Andreas Rumpf"
 description   = "ZeroMQ wrapper"
 license       = "MIT"
 
 # Dependencies
-requires "nim >= 1.4.0"
+requires "nim >= 2.0.0"
 
 task buildexamples, "Compile all examples":
   withDir "examples":
