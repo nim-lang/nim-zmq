@@ -66,7 +66,7 @@ proc initZPoller*(args: openArray[tuple[item: ZConnection, cb: AsyncZPollCB]], e
 proc pollAsync*(poller: AsyncZPoller, timeout: int = 2) : Future[int] =
   ## Experimental API. Poll all the ZConnection and execute an async CB when ``event`` occurs.
   result = newFuture[int]("pollAsync")
-  var r = poller.zpoll.poll(timeout)
+  var r = poller.zpoll.poll(1)
   # ZMQ can't have a timeout smaller than one
   if r > 0:
     for i in 0..<poller.len():
@@ -78,7 +78,7 @@ proc pollAsync*(poller: AsyncZPoller, timeout: int = 2) : Future[int] =
 
   if hasPendingOperations():
     # poll vs drain ?
-    drain(timeout)
+    poll(timeout)
 
   result.complete(r)
 
@@ -158,4 +158,3 @@ proc sendAsync*(conn: ZConnection, msg: string, flags: ZSendRecvOptions = DONTWA
     # can send without blocking
     conn.send(msg, flags)
     fut.complete()
-
