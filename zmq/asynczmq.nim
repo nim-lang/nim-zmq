@@ -82,8 +82,6 @@ proc pollAsync*(poller: AsyncZPoller, timeout: int = 2) : Future[int] =
         let
           sock = poller.zpoll[i].socket
           localcb = poller.cb[i]
-          sock.setsockopt(RCVTIMEO, 1.cint)
-
         callSoon proc () = localcb(sock)
 
   if hasPendingOperations():
