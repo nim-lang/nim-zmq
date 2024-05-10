@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.5.1"
+version       = "1.5.2"
 author        = "Andreas Rumpf"
 description   = "ZeroMQ wrapper"
 license       = "MIT"
@@ -18,4 +18,3 @@ task buildexamples, "Compile all examples":
 
 task gendoc, "Generate documentation":
   exec("nim doc --mm:orc --project --out:docs/ zmq.nim")
-
