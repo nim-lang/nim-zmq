@@ -49,24 +49,11 @@ proc zmqErrorExceptEAGAIN() =
     e.msg = &"Error: {e.error}. " & errmsg
     raise e
 
-# var gDefaultFlag = NOFLAGS
-
-# proc setDontWait() =
-#   gDefaultFlag = DONTWAIT
-
-# proc setNoFlags() =
-#   gDefaultFlag = NOFLAGS
-
 template defaultFlag() : ZSendRecvOptions =
-  when declared(zmqAsyncContext):
-    static: echo "DONTWAIT"
+  when defined(defaultFlagDontWait):
     DONTWAIT
   else:
-    static: echo "NOFLAGS"
     NOFLAGS
-
-  # debugEcho $gDefaultFlag
-  # gDefaultFlag
 
 #[
 # Context related proc
@@ -160,7 +147,6 @@ proc getsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions): T
   ## Careful, the ``sizeof`` of ``optval`` depends on the ``ZSockOptions`` passed.
   ## Check http://api.zeromq.org/4-2:zmq-setsockopt
   getsockopt[T](c.socket, option)
-
 
 #[
   Destructor
