@@ -1,5 +1,5 @@
 import ./bindings
-import std/[strformat]
+import std/[strformat, logging]
 
 # Unofficial easier-for-Nim API
 
@@ -13,7 +13,7 @@ type
 
   ZConnectionImpl* {.pure, final.} = object
     ## A Zmq connection. Since ``ZContext`` and ``ZSocket`` are pointers, it is highly recommended to **not** copy ``ZConnection``.
-    context*: ZContext ## Zmq context from C-bindings. 
+    context*: ZContext ## Zmq context from C-bindings.
     socket*: ZSocket   ## Zmq socket from C-bindings.
     ownctx: bool       # Boolean indicating if the connection owns the Zmq context
     alive: bool        # Boolean indicating if the connection has been closed
@@ -36,11 +36,37 @@ proc zmqErrorExceptEAGAIN() =
   var e: ref ZmqError
   new(e)
   e.error = errno()
+  let errmsg = $strerror(e.error)
   if e.error == ZMQ_EAGAIN:
-    discard
+    when defined(zmqEAGAIN):
+      if logging.getHandlers().len() > 0:
+        warn(errmsg)
+      else:
+        echo(errmsg)
+    else:
+      discard
   else:
-    e.msg = &"Error: {e.error}. " & $strerror(e.error)
+    e.msg = &"Error: {e.error}. " & errmsg
     raise e
+
+# var gDefaultFlag = NOFLAGS
+
+# proc setDontWait() =
+#   gDefaultFlag = DONTWAIT
+
+# proc setNoFlags() =
+#   gDefaultFlag = NOFLAGS
+
+template defaultFlag() : ZSendRecvOptions =
+  when declared(zmqAsyncContext):
+    static: echo "DONTWAIT"
+    DONTWAIT
+  else:
+    static: echo "NOFLAGS"
+    NOFLAGS
+
+  # debugEcho $gDefaultFlag
+  # gDefaultFlag
 
 #[
 # Context related proc
@@ -305,7 +331,7 @@ proc close*(c: ZConnection, linger: int = 500) =
 
 # Send / Receive
 # Send with ZSocket type
-proc send*(s: ZSocket, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
+proc send*(s: ZSocket, msg: string, flags: ZSendRecvOptions = defaultFlag()) =
   ## Sends a message through the socket.
   var m: ZMsg
   if msg_init(m, msg.len) != 0:
@@ -330,7 +356,7 @@ proc sendAll*(s: ZSocket, msg: varargs[string]) =
       inc(i)
     s.send(msg[i])
 
-proc send*(c: ZConnection, msg: string, flags: ZSendRecvOptions = NOFLAGS) =
+proc send*(c: ZConnection, msg: string, flags: ZSendRecvOptions = defaultFlag()) =
   ## Sends a message over the connection.
   send(c.socket, msg, flags)
 
@@ -339,7 +365,7 @@ proc sendAll*(c: ZConnection, msg: varargs[string]) =
   sendAll(c.socket, msg)
 
 # receive with ZSocket type
-proc receiveImpl(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+proc receiveImpl(s: ZSocket, flags: ZSendRecvOptions = defaultFlag()): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
   result.moreAvailable = false
   result.msgAvailable = false
 
@@ -364,7 +390,7 @@ proc receiveImpl(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvaila
   if msg_close(m) != 0:
     zmqError()
 
-proc waitForReceive*(s: ZSocket, timeout: int = -2, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+proc waitForReceive*(s: ZSocket, timeout: int = -2, flags: ZSendRecvOptions = defaultFlag()): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
   ## Set RCVTIMEO for the socket and wait until a message is available.
   ## This function is blocking.
   ##
@@ -392,7 +418,7 @@ proc waitForReceive*(s: ZSocket, timeout: int = -2, flags: ZSendRecvOptions = NO
   if shouldUpdateTimeout:
     s.setsockopt(RCVTIMEO, curtimeout.cint)
 
-proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = defaultFlag()): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
   ## Receives a message from a socket in a non-blocking way.
   ##
   ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
@@ -406,13 +432,13 @@ proc tryReceive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvaila
   if (status and ZMQ_POLLIN) != 0:
     result = receiveImpl(s, flags)
 
-proc receive*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): string =
+proc receive*(s: ZSocket, flags: ZSendRecvOptions = defaultFlag()): string =
   ## Receive a message on socket.
   #
   ## Return an empty string on EAGAIN
   receiveImpl(s, flags).msg
 
-proc receiveAll*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): seq[string] =
+proc receiveAll*(s: ZSocket, flags: ZSendRecvOptions = defaultFlag()): seq[string] =
   ## Receive all parts of a message
   ##
   ## If EAGAIN occurs without any data being received, it will be an empty seq
@@ -425,7 +451,7 @@ proc receiveAll*(s: ZSocket, flags: ZSendRecvOptions = NOFLAGS): seq[string] =
     else:
       expectMessage = false
 
-proc waitForReceive*(c: ZConnection, timeout: int = -1, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+proc waitForReceive*(c: ZConnection, timeout: int = -1, flags: ZSendRecvOptions = defaultFlag()): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
   ## Set RCVTIMEO for the socket and wait until a message is available.
   ## This function is blocking.
   ##
@@ -438,7 +464,7 @@ proc waitForReceive*(c: ZConnection, timeout: int = -1, flags: ZSendRecvOptions 
   ## Indicate if more parts are needed to be received by ``moreAvailable``
   waitForReceive(c.socket, timeout, flags)
 
-proc tryReceive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
+proc tryReceive*(c: ZConnection, flags: ZSendRecvOptions = defaultFlag()): tuple[msgAvailable: bool, moreAvailable: bool, msg: string] =
   ## Receives a message from a socket in a non-blocking way.
   ##
   ## Indicate whether a message was received or EAGAIN occured by ``msgAvailable``
@@ -446,11 +472,11 @@ proc tryReceive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): tuple[msgAv
   ## Indicate if more parts are needed to be received by ``moreAvailable``
   tryReceive(c.socket, flags)
 
-proc receive*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): string =
+proc receive*(c: ZConnection, flags: ZSendRecvOptions = defaultFlag()): string =
   ## Receive data over the connection
   receive(c.socket, flags)
 
-proc receiveAll*(c: ZConnection, flags: ZSendRecvOptions = NOFLAGS): seq[string] =
+proc receiveAll*(c: ZConnection, flags: ZSendRecvOptions = defaultFlag()): seq[string] =
   ## Receive all parts of a message
   ##
   ## If EAGAIN occurs without any data being received, it will be an empty seq

@@ -42,45 +42,53 @@ proc `=destroy`*(obj: AsyncZPoller) =
 
 proc register*(poller: var AsyncZPoller, sock: ZSocket, event: int, cb: AsyncZPollCB) =
   ## Register ZSocket function
+  ## The callback should ideally use non-blocking proc such ``waitForReceive`` or ``tryReceive`` or ``c.receive(DONTWAIT)``
   poller.zpoll.register(sock, event)
   poller.cb.add(cb)
 
 proc register*(poller: var AsyncZPoller, conn: ZConnection, event: int, cb: AsyncZPollCB) =
   ## Register ZConnection
+  ## The callback should ideally use non-blocking proc such ``waitForReceive`` or ``tryReceive`` or ``c.receive(DONTWAIT)``
   poller.register(conn.socket, event, cb)
 
 proc register*(poller: var AsyncZPoller, item: ZPollItem, cb: AsyncZPollCB) =
-  ## Register ZConnection
+  ## Register ZConnection.
+  ## The callback should ideally use non-blocking proc such ``waitForReceive`` or ``tryReceive`` or ``c.receive(DONTWAIT)``
   poller.zpoll.items.add(item)
   poller.cb.add(cb)
 
 proc initZPoller*(poller: sink ZPoller, cb: AsyncZPollCB) : AsyncZPoller =
+  ## The callback should ideally use non-blocking proc such ``waitForReceive`` or ``tryReceive`` or ``c.receive(DONTWAIT)``
   for p in poller.items:
     result.register(p, cb)
 
 proc initZPoller*(args: openArray[tuple[item: ZConnection, cb: AsyncZPollCB]], event: cshort): AsyncZPoller =
   ## Init a ZPoller with all items on the same event
+  ## The callback should ideally use non-blocking proc such ``waitForReceive`` or ``tryReceive`` or ``c.receive(DONTWAIT)``
   for arg in args:
     result.register(arg.item, event, arg.cb)
 
 proc pollAsync*(poller: AsyncZPoller, timeout: int = 2) : Future[int] =
   ## Experimental API. Poll all the ZConnection and execute an async CB when ``event`` occurs.
-  result = newFuture[int]("pollAsync")
-  var r = poller.zpoll.poll(1)
-  # ZMQ can't have a timeout smaller than one
-  if r > 0:
-    for i in 0..<poller.len():
-      if events(poller.zpoll[i]):
-        let
-          sock = poller.zpoll[i].socket
-          localcb = poller.cb[i]
-        callSoon proc () = localcb(sock)
 
-  if hasPendingOperations():
-    # poll vs drain ?
-    poll(timeout)
+  block zmqAsyncContext:
+    var timeout = max(2, timeout)
+    result = newFuture[int]("pollAsync")
+    var r = poller.zpoll.poll(timeout div 2)
+    # ZMQ can't have a timeout smaller than one
+    if r > 0:
+      for i in 0..<poller.len():
+        if events(poller.zpoll[i]):
+          let
+            sock = poller.zpoll[i].socket
+            localcb = poller.cb[i]
+          callSoon proc () = localcb(sock)
 
-  result.complete(r)
+    if hasPendingOperations():
+      # poll vs drain ?
+      drain(timeout div 2)
+
+    result.complete(r)
 
 proc receiveAsync*(conn: ZConnection): Future[string] =
   ## Similar to `receive()`, but `receiveAsync()` allows other async tasks to run.
