@@ -53,7 +53,7 @@ The examples are commented to better understand how zmq works.
 
 ### Log EAGAIN errno
 
-Sometimes EAGAIN error happens in ZMQ context; typically this is a non-ctritical error that can be ignored. Nonetheless, if you desire to logg or display such error you can compile with the flag ``-d:zmqEAGAIN`` and EAGAIN error will be logged using ``std/logging`` or ``echo`` to stdout if no logger handler is defined.
+Sometimes EAGAIN error happens in ZMQ context; typically this is a non-ctritical error that can be ignored. Nonetheless, if you desire to log or display such error, it is possible to enable it using the ``enableLogEagain`` and disable it with ``disableLogEagain``.
 
 ### Setting default flag as DONTWAIT
 

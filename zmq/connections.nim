@@ -32,13 +32,23 @@ proc zmqError*() {.noinline, noreturn.} =
   e.msg = &"Error: {e.error}. " & $strerror(e.error)
   raise e
 
+var shouldLogEagainError = false
+
+proc enableLogEagain*() =
+  ## Enable logging EAGAIN error in ZMQ calls
+  shouldLogEagainError = true
+
+proc disableLogEagain*() =
+  ## Disable logging EAGAIN error in ZMQ calls
+  shouldLogEagainError = false
+
 proc zmqErrorExceptEAGAIN() =
   var e: ref ZmqError
   new(e)
   e.error = errno()
   let errmsg = $strerror(e.error)
   if e.error == ZMQ_EAGAIN:
-    when defined(zmqEAGAIN):
+    if shouldLogEagainError:
       if logging.getHandlers().len() > 0:
         warn(errmsg)
       else:
