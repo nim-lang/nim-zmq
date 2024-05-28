@@ -22,13 +22,18 @@ proc asyncpoll() =
       puller2,
       ZMQ_POLLIN,
       proc(x: ZSocket) =
-        let msg = x.receive()
-        inc(msgCount)
-        if msglist.contains(msg):
-          msglist.delete(0)
-          assert true
-        else:
-          assert false
+        let
+          # Avoid using indefinitly blocking proc in async context
+          res = x.waitForReceive(timeout=10)
+        if res.msgAvailable:
+          let
+            msg = res.msg
+          inc(msgCount)
+          if msglist.contains(msg):
+            msglist.delete(0)
+            assert true
+          else:
+            assert false
     )
     # assert message received are correct (should be even integer in string format)
     var msglist2 = @["0", "2", "4", "6", "8"]
@@ -37,13 +42,18 @@ proc asyncpoll() =
       puller,
       ZMQ_POLLIN,
       proc(x: ZSocket) =
-        let msg = x.receive()
-        inc(msgCount2)
-        if msglist2.contains(msg):
-          msglist2.delete(0)
-          assert true
-        else:
-          assert false
+        let
+          # Avoid using indefinitly blocking proc in async context
+          res = x.waitForReceive(timeout=10)
+        if res.msgAvailable:
+          let
+            msg = res.msg
+          inc(msgCount2)
+          if msglist2.contains(msg):
+            msglist2.delete(0)
+            assert true
+          else:
+            assert false
     )
 
     let

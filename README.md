@@ -31,7 +31,7 @@ $ nimble install zmq
   close(responder)
 ```
 
-#### client 
+#### client
 
 ```nim
   import zmq
@@ -49,3 +49,12 @@ $ nimble install zmq
 For more examples demonstrating many functionalities and patterns that ZMQ offers, see the ``tests/`` and ``examples/`` folder.
 
 The examples are commented to better understand how zmq works.
+
+
+### Log EAGAIN errno
+
+Sometimes EAGAIN error happens in ZMQ context; typically this is a non-ctritical error that can be ignored. Nonetheless, if you desire to log or display such error, it is possible to enable it using the ``enableLogEagain`` and disable it with ``disableLogEagain``.
+
+### Setting default flag as DONTWAIT
+
+The default flag passed to send / receive is NOFLAGS. This can be overriden by defining ``-d:defaultFlagDontWait``
