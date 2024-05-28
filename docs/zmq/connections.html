@@ -12,10 +12,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="../nimdoc.out.css?v=2.0.2">
+<link rel="stylesheet" type="text/css" href="../nimdoc.out.css?v=2.0.4">
 
 <!-- JS -->
-<script type="text/javascript" src="../dochack.js?v=2.0.2"></script>
+<script type="text/javascript" src="../dochack.js?v=2.0.4"></script>
 </head>
 <body>
   <div class="document" id="documentId">
@@ -56,7 +56,7 @@
     <ul class="simple simple-toc-section">
       <li><a class="reference" href="#ZConnection" title="ZConnection = ref ZConnectionImpl">ZConnection</a></li>
 <li><a class="reference" href="#ZConnectionImpl" title="ZConnectionImpl {.pure, final.} = object
-  context*: ZContext         ## Zmq context from C-bindings. 
+  context*: ZContext         ## Zmq context from C-bindings.
   socket*: ZSocket           ## Zmq socket from C-bindings.">ZConnectionImpl</a></li>
 <li><a class="reference" href="#ZmqError" title="ZmqError = object of IOError
   error*: cint">ZmqError</a></li>
@@ -89,8 +89,16 @@
 <li><a class="reference" href="#connect%2Cstring%2CZSocketType%2CZContext" title="connect(address: string; mode: ZSocketType; context: ZContext): ZConnection">connect(address: string; mode: ZSocketType; context: ZContext): ZConnection</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">disableLogEagain
+  <li><a class="reference" href="#disableLogEagain" title="disableLogEagain()">disableLogEagain()</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">disconnect
   <li><a class="reference" href="#disconnect%2CZConnection" title="disconnect(conn: ZConnection)">disconnect(conn: ZConnection)</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">enableLogEagain
+  <li><a class="reference" href="#enableLogEagain" title="enableLogEagain()">enableLogEagain()</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">getsockopt
@@ -115,13 +123,13 @@
 
 </ul>
 <ul class="simple nested-toc-section">receive
-  <li><a class="reference" href="#receive%2CZConnection%2CZSendRecvOptions" title="receive(c: ZConnection; flags: ZSendRecvOptions = NOFLAGS): string">receive(c: ZConnection; flags: ZSendRecvOptions = NOFLAGS): string</a></li>
-<li><a class="reference" href="#receive%2CZSocket%2CZSendRecvOptions" title="receive(s: ZSocket; flags: ZSendRecvOptions = NOFLAGS): string">receive(s: ZSocket; flags: ZSendRecvOptions = NOFLAGS): string</a></li>
+  <li><a class="reference" href="#receive%2CZConnection%2CZSendRecvOptions" title="receive(c: ZConnection; flags: ZSendRecvOptions = defaultFlag()): string">receive(c: ZConnection; flags: ZSendRecvOptions = defaultFlag()): string</a></li>
+<li><a class="reference" href="#receive%2CZSocket%2CZSendRecvOptions" title="receive(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): string">receive(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): string</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">receiveAll
-  <li><a class="reference" href="#receiveAll%2CZConnection%2CZSendRecvOptions" title="receiveAll(c: ZConnection; flags: ZSendRecvOptions = NOFLAGS): seq[string]">receiveAll(c: ZConnection; flags: ZSendRecvOptions = NOFLAGS): seq[string]</a></li>
-<li><a class="reference" href="#receiveAll%2CZSocket%2CZSendRecvOptions" title="receiveAll(s: ZSocket; flags: ZSendRecvOptions = NOFLAGS): seq[string]">receiveAll(s: ZSocket; flags: ZSendRecvOptions = NOFLAGS): seq[string]</a></li>
+  <li><a class="reference" href="#receiveAll%2CZConnection%2CZSendRecvOptions" title="receiveAll(c: ZConnection; flags: ZSendRecvOptions = defaultFlag()): seq[string]">receiveAll(c: ZConnection; flags: ZSendRecvOptions = defaultFlag()): seq[string]</a></li>
+<li><a class="reference" href="#receiveAll%2CZSocket%2CZSendRecvOptions" title="receiveAll(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): seq[string]">receiveAll(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): seq[string]</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">reconnect
@@ -130,8 +138,8 @@
 
 </ul>
 <ul class="simple nested-toc-section">send
-  <li><a class="reference" href="#send%2CZConnection%2Cstring%2CZSendRecvOptions" title="send(c: ZConnection; msg: string; flags: ZSendRecvOptions = NOFLAGS)">send(c: ZConnection; msg: string; flags: ZSendRecvOptions = NOFLAGS)</a></li>
-<li><a class="reference" href="#send%2CZSocket%2Cstring%2CZSendRecvOptions" title="send(s: ZSocket; msg: string; flags: ZSendRecvOptions = NOFLAGS)">send(s: ZSocket; msg: string; flags: ZSendRecvOptions = NOFLAGS)</a></li>
+  <li><a class="reference" href="#send%2CZConnection%2Cstring%2CZSendRecvOptions" title="send(c: ZConnection; msg: string; flags: ZSendRecvOptions = defaultFlag())">send(c: ZConnection; msg: string; flags: ZSendRecvOptions = defaultFlag())</a></li>
+<li><a class="reference" href="#send%2CZSocket%2Cstring%2CZSendRecvOptions" title="send(s: ZSocket; msg: string; flags: ZSendRecvOptions = defaultFlag())">send(s: ZSocket; msg: string; flags: ZSendRecvOptions = defaultFlag())</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">sendAll
@@ -151,11 +159,11 @@
 
 </ul>
 <ul class="simple nested-toc-section">tryReceive
-  <li><a class="reference" href="#tryReceive%2CZConnection%2CZSendRecvOptions" title="tryReceive(c: ZConnection; flags: ZSendRecvOptions = NOFLAGS): tuple[
-    msgAvailable: bool, moreAvailable: bool, msg: string]">tryReceive(c: ZConnection; flags: ZSendRecvOptions = NOFLAGS): tuple[
+  <li><a class="reference" href="#tryReceive%2CZConnection%2CZSendRecvOptions" title="tryReceive(c: ZConnection; flags: ZSendRecvOptions = defaultFlag()): tuple[
+    msgAvailable: bool, moreAvailable: bool, msg: string]">tryReceive(c: ZConnection; flags: ZSendRecvOptions = defaultFlag()): tuple[
     msgAvailable: bool, moreAvailable: bool, msg: string]</a></li>
-<li><a class="reference" href="#tryReceive%2CZSocket%2CZSendRecvOptions" title="tryReceive(s: ZSocket; flags: ZSendRecvOptions = NOFLAGS): tuple[
-    msgAvailable: bool, moreAvailable: bool, msg: string]">tryReceive(s: ZSocket; flags: ZSendRecvOptions = NOFLAGS): tuple[
+<li><a class="reference" href="#tryReceive%2CZSocket%2CZSendRecvOptions" title="tryReceive(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): tuple[
+    msgAvailable: bool, moreAvailable: bool, msg: string]">tryReceive(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): tuple[
     msgAvailable: bool, moreAvailable: bool, msg: string]</a></li>
 
 </ul>
@@ -165,12 +173,14 @@
 </ul>
 <ul class="simple nested-toc-section">waitForReceive
   <li><a class="reference" href="#waitForReceive%2CZConnection%2Cint%2CZSendRecvOptions" title="waitForReceive(c: ZConnection; timeout: int = -1;
-               flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool,
-    moreAvailable: bool, msg: string]">waitForReceive(c: ZConnection; timeout: int = -1;
-               flags: ZSendRecvOptions = NOFLAGS): tuple[msgAvailable: bool,
-    moreAvailable: bool, msg: string]</a></li>
-<li><a class="reference" href="#waitForReceive%2CZSocket%2Cint%2CZSendRecvOptions" title="waitForReceive(s: ZSocket; timeout: int = -2; flags: ZSendRecvOptions = NOFLAGS): tuple[
-    msgAvailable: bool, moreAvailable: bool, msg: string]">waitForReceive(s: ZSocket; timeout: int = -2; flags: ZSendRecvOptions = NOFLAGS): tuple[
+               flags: ZSendRecvOptions = defaultFlag()): tuple[
+    msgAvailable: bool, moreAvailable: bool, msg: string]">waitForReceive(c: ZConnection; timeout: int = -1;
+               flags: ZSendRecvOptions = defaultFlag()): tuple[
+    msgAvailable: bool, moreAvailable: bool, msg: string]</a></li>
+<li><a class="reference" href="#waitForReceive%2CZSocket%2Cint%2CZSendRecvOptions" title="waitForReceive(s: ZSocket; timeout: int = -2;
+               flags: ZSendRecvOptions = defaultFlag()): tuple[
+    msgAvailable: bool, moreAvailable: bool, msg: string]">waitForReceive(s: ZSocket; timeout: int = -2;
+               flags: ZSendRecvOptions = defaultFlag()): tuple[
     msgAvailable: bool, moreAvailable: bool, msg: string]</a></li>
 
 </ul>
@@ -210,7 +220,7 @@
 </div>
 <div id="ZConnectionImpl">
   <dt><pre><a href="connections.html#ZConnectionImpl"><span class="Identifier">ZConnectionImpl</span></a> {.<span class="Identifier">pure</span><span class="Other">,</span> <span class="Identifier">final</span>.} <span class="Other">=</span> <span class="Keyword">object</span>
-  <span class="Identifier">context</span><span class="Operator">*</span><span class="Other">:</span> <a href="bindings.html#ZContext"><span class="Identifier">ZContext</span></a>         <span class="Comment">## Zmq context from C-bindings. </span>
+  <span class="Identifier">context</span><span class="Operator">*</span><span class="Other">:</span> <a href="bindings.html#ZContext"><span class="Identifier">ZContext</span></a>         <span class="Comment">## Zmq context from C-bindings.</span>
   <span class="Identifier">socket</span><span class="Operator">*</span><span class="Other">:</span> <a href="bindings.html#ZSocket"><span class="Identifier">ZSocket</span></a>           <span class="Comment">## Zmq socket from C-bindings.</span>
   </pre></dt>
   <dd>
@@ -315,6 +325,17 @@
 </div>
 
 </div>
+<div id="disableLogEagain-procs-all">
+  <div id="disableLogEagain">
+  <dt><pre><span class="Keyword">proc</span> <a href="#disableLogEagain"><span class="Identifier">disableLogEagain</span></a><span class="Other">(</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Disable logging EAGAIN error in ZMQ calls
+    
+  </dd>
+</div>
+
+</div>
 <div id="disconnect-procs-all">
   <div id="disconnect,ZConnection">
   <dt><pre><span class="Keyword">proc</span> <a href="#disconnect%2CZConnection"><span class="Identifier">disconnect</span></a><span class="Other">(</span><span class="Identifier">conn</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
@@ -322,6 +343,17 @@
   <dd>
     
     Disconnect the socket
+    
+  </dd>
+</div>
+
+</div>
+<div id="enableLogEagain-procs-all">
+  <div id="enableLogEagain">
+  <dt><pre><span class="Keyword">proc</span> <a href="#enableLogEagain"><span class="Identifier">enableLogEagain</span></a><span class="Other">(</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Enable logging EAGAIN error in ZMQ calls
     
   </dd>
 </div>
@@ -435,8 +467,8 @@
 </div>
 <div id="receive-procs-all">
   <div id="receive,ZConnection,ZSendRecvOptions">
-  <dt><pre><span class="Keyword">proc</span> <a href="#receive%2CZConnection%2CZSendRecvOptions"><span class="Identifier">receive</span></a><span class="Other">(</span><span class="Identifier">c</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">NOFLAGS</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#receive%2CZConnection%2CZSendRecvOptions"><span class="Identifier">receive</span></a><span class="Other">(</span><span class="Identifier">c</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">defaultFlag</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Receive data over the connection
@@ -444,8 +476,8 @@
   </dd>
 </div>
 <div id="receive,ZSocket,ZSendRecvOptions">
-  <dt><pre><span class="Keyword">proc</span> <a href="#receive%2CZSocket%2CZSendRecvOptions"><span class="Identifier">receive</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="bindings.html#ZSocket"><span class="Identifier">ZSocket</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">NOFLAGS</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#receive%2CZSocket%2CZSendRecvOptions"><span class="Identifier">receive</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="bindings.html#ZSocket"><span class="Identifier">ZSocket</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">defaultFlag</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Receive a message on socket.
@@ -456,8 +488,9 @@
 </div>
 <div id="receiveAll-procs-all">
   <div id="receiveAll,ZConnection,ZSendRecvOptions">
-  <dt><pre><span class="Keyword">proc</span> <a href="#receiveAll%2CZConnection%2CZSendRecvOptions"><span class="Identifier">receiveAll</span></a><span class="Other">(</span><span class="Identifier">c</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">NOFLAGS</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#receiveAll%2CZConnection%2CZSendRecvOptions"><span class="Identifier">receiveAll</span></a><span class="Other">(</span><span class="Identifier">c</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">defaultFlag</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span>
+    <span class="Identifier">string</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span>
+              <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     <p>Receive all parts of a message</p>
@@ -467,8 +500,8 @@
   </dd>
 </div>
 <div id="receiveAll,ZSocket,ZSendRecvOptions">
-  <dt><pre><span class="Keyword">proc</span> <a href="#receiveAll%2CZSocket%2CZSendRecvOptions"><span class="Identifier">receiveAll</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="bindings.html#ZSocket"><span class="Identifier">ZSocket</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">NOFLAGS</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#receiveAll%2CZSocket%2CZSendRecvOptions"><span class="Identifier">receiveAll</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="bindings.html#ZSocket"><span class="Identifier">ZSocket</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">defaultFlag</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     <p>Receive all parts of a message</p>
@@ -502,7 +535,7 @@
 </div>
 <div id="send-procs-all">
   <div id="send,ZConnection,string,ZSendRecvOptions">
-  <dt><pre><span class="Keyword">proc</span> <a href="#send%2CZConnection%2Cstring%2CZSendRecvOptions"><span class="Identifier">send</span></a><span class="Other">(</span><span class="Identifier">c</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">;</span> <span class="Identifier">msg</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">NOFLAGS</span><span class="Other">)</span> {.
+  <dt><pre><span class="Keyword">proc</span> <a href="#send%2CZConnection%2Cstring%2CZSendRecvOptions"><span class="Identifier">send</span></a><span class="Other">(</span><span class="Identifier">c</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">;</span> <span class="Identifier">msg</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">defaultFlag</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span> {.
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -511,7 +544,7 @@
   </dd>
 </div>
 <div id="send,ZSocket,string,ZSendRecvOptions">
-  <dt><pre><span class="Keyword">proc</span> <a href="#send%2CZSocket%2Cstring%2CZSendRecvOptions"><span class="Identifier">send</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="bindings.html#ZSocket"><span class="Identifier">ZSocket</span></a><span class="Other">;</span> <span class="Identifier">msg</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">NOFLAGS</span><span class="Other">)</span> {.
+  <dt><pre><span class="Keyword">proc</span> <a href="#send%2CZSocket%2Cstring%2CZSendRecvOptions"><span class="Identifier">send</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="bindings.html#ZSocket"><span class="Identifier">ZSocket</span></a><span class="Other">;</span> <span class="Identifier">msg</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">defaultFlag</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span> {.
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -581,9 +614,9 @@
 </div>
 <div id="tryReceive-procs-all">
   <div id="tryReceive,ZConnection,ZSendRecvOptions">
-  <dt><pre><span class="Keyword">proc</span> <a href="#tryReceive%2CZConnection%2CZSendRecvOptions"><span class="Identifier">tryReceive</span></a><span class="Other">(</span><span class="Identifier">c</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">NOFLAGS</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span>
+  <dt><pre><span class="Keyword">proc</span> <a href="#tryReceive%2CZConnection%2CZSendRecvOptions"><span class="Identifier">tryReceive</span></a><span class="Other">(</span><span class="Identifier">c</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">defaultFlag</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span>
     <span class="Identifier">msgAvailable</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">,</span> <span class="Identifier">moreAvailable</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">,</span> <span class="Identifier">msg</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     <p>Receives a message from a socket in a non-blocking way.</p>
@@ -594,9 +627,9 @@
   </dd>
 </div>
 <div id="tryReceive,ZSocket,ZSendRecvOptions">
-  <dt><pre><span class="Keyword">proc</span> <a href="#tryReceive%2CZSocket%2CZSendRecvOptions"><span class="Identifier">tryReceive</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="bindings.html#ZSocket"><span class="Identifier">ZSocket</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">NOFLAGS</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span>
+  <dt><pre><span class="Keyword">proc</span> <a href="#tryReceive%2CZSocket%2CZSendRecvOptions"><span class="Identifier">tryReceive</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="bindings.html#ZSocket"><span class="Identifier">ZSocket</span></a><span class="Other">;</span> <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">defaultFlag</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span>
     <span class="Identifier">msgAvailable</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">,</span> <span class="Identifier">moreAvailable</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">,</span> <span class="Identifier">msg</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     <p>Receives a message from a socket in a non-blocking way.</p>
@@ -623,9 +656,9 @@
 <div id="waitForReceive-procs-all">
   <div id="waitForReceive,ZConnection,int,ZSendRecvOptions">
   <dt><pre><span class="Keyword">proc</span> <a href="#waitForReceive%2CZConnection%2Cint%2CZSendRecvOptions"><span class="Identifier">waitForReceive</span></a><span class="Other">(</span><span class="Identifier">c</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">;</span> <span class="Identifier">timeout</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">-1</span><span class="Other">;</span>
-                    <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">NOFLAGS</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span>
+                    <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">defaultFlag</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span>
     <span class="Identifier">msgAvailable</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">,</span> <span class="Identifier">moreAvailable</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">,</span> <span class="Identifier">msg</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     <p>Set RCVTIMEO for the socket and wait until a message is available. This function is blocking.</p>
@@ -639,9 +672,9 @@
 </div>
 <div id="waitForReceive,ZSocket,int,ZSendRecvOptions">
   <dt><pre><span class="Keyword">proc</span> <a href="#waitForReceive%2CZSocket%2Cint%2CZSendRecvOptions"><span class="Identifier">waitForReceive</span></a><span class="Other">(</span><span class="Identifier">s</span><span class="Other">:</span> <a href="bindings.html#ZSocket"><span class="Identifier">ZSocket</span></a><span class="Other">;</span> <span class="Identifier">timeout</span><span class="Other">:</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">-2</span><span class="Other">;</span>
-                    <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">NOFLAGS</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span>
+                    <span class="Identifier">flags</span><span class="Other">:</span> <a href="bindings.html#ZSendRecvOptions"><span class="Identifier">ZSendRecvOptions</span></a> <span class="Other">=</span> <span class="Identifier">defaultFlag</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span>
     <span class="Identifier">msgAvailable</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">,</span> <span class="Identifier">moreAvailable</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">,</span> <span class="Identifier">msg</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">ZmqError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     <p>Set RCVTIMEO for the socket and wait until a message is available. This function is blocking.</p>
@@ -677,7 +710,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-04-10 15:47:58 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-05-28 19:04:02 UTC</small>
       </div>
     </div>
   </div>
