@@ -93,27 +93,29 @@ proc terminate*(ctx: ZContext) =
 ]#
 
 # Some option take cstring
+proc setsockopt_impl(s: ZSocket, option: ZSockOptions, optval: string) =
+  var val: string = optval
+  if setsockopt(s, option, cstring(val), val.len) != 0:
+    zmqError()
+
 # Some option take cint, int64 or uint64
-proc setsockopt_impl[T: string|SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: T) =
-  when T is string:
-    var val: string = optval
-    if setsockopt(s, option, cstring(val), val.len) != 0:
-      zmqError()
-  elif T is SomeOrdinal:
-    var val: T = optval
-    if setsockopt(s, option, addr(val), sizeof(val)) != 0:
-      zmqError()
+proc setsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: T) =
+  var val: T = optval
+  if setsockopt(s, option, addr(val), sizeof(val)) != 0:
+    zmqError()
 
 # some sockopt returns integer values
-proc getsockopt_impl[T: SomeOrdinal|string](s: ZSocket, option: ZSockOptions, optval: var T) =
-  when T is string:
-    var optval_len: int = optval.len
-    if bindings.getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
-      zmqError()
-  elif T is SomeOrdinal:
-    var optval_len: int = sizeof(optval)
-    if bindings.getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
-      zmqError()
+proc getsockopt_impl(s: ZSocket, option: ZSockOptions, optval: var string) =
+  var optval_len: int = optval.len
+
+  if bindings.getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
+    zmqError()
+
+proc getsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: var T) =
+  var optval_len: int = sizeof(optval)
+
+  if bindings.getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
+    zmqError()
 
 #[
   Public set/get sockopt function on ZSocket / ZConnection
@@ -123,7 +125,7 @@ proc setsockopt*[T: SomeOrdinal|string](s: ZSocket, option: ZSockOptions, optval
   ##
   ## Careful, the ``sizeof`` of ``optval`` depends on the ``ZSockOptions`` passed.
   ## Check http://api.zeromq.org/4-2:zmq-setsockopt
-  setsockopt_impl[T](s, option, optval)
+  setsockopt_impl(s, option, optval)
 
 proc setsockopt[T: SomeOrdinal|string](c: ZConnectionImpl, option: ZSockOptions, optval: T) =
   ## Internal
