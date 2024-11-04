@@ -92,28 +92,27 @@ proc terminate*(ctx: ZContext) =
   Declare socket options first because it's used in =destroy hooks
 ]#
 
-# Some option take cstring
-proc setsockopt_impl(s: ZSocket, option: ZSockOptions, optval: string) =
-  var val: string = optval
-  if setsockopt(s, option, cstring(val), val.len) != 0:
-    zmqError()
-
 # Some option take cint, int64 or uint64
 proc setsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: T) =
   var val: T = optval
   if setsockopt(s, option, addr(val), sizeof(val)) != 0:
     zmqError()
 
-# some sockopt returns integer values
+# Some option take cstring
+proc setsockopt_impl(s: ZSocket, option: ZSockOptions, optval: string) =
+  var val: string = optval
+  if setsockopt(s, option, cstring(val), val.len) != 0:
+    zmqError()
+
+# Some sockopt returns a string
 proc getsockopt_impl(s: ZSocket, option: ZSockOptions, optval: var string) =
   var optval_len: int = optval.len
-
   if bindings.getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
     zmqError()
 
+# some sockopt returns integer values
 proc getsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: var T) =
   var optval_len: int = sizeof(optval)
-
   if bindings.getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
     zmqError()
 
