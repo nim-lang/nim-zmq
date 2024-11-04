@@ -91,31 +91,29 @@ proc terminate*(ctx: ZContext) =
   get/set socket options
   Declare socket options first because it's used in =destroy hooks
 ]#
-# Some option take cint, int64 or uint64
-proc setsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: T) =
-  var val: T = optval
-  if setsockopt(s, option, addr(val), sizeof(val)) != 0:
-    zmqError()
 
 # Some option take cstring
-proc setsockopt_impl(s: ZSocket, option: ZSockOptions, optval: string) =
-  var val: string = optval
-  if setsockopt(s, option, cstring(val), val.len) != 0:
-    zmqError()
+# Some option take cint, int64 or uint64
+proc setsockopt_impl[T: string|SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: T) =
+  when T is string:
+    var val: string = optval
+    if setsockopt(s, option, cstring(val), val.len) != 0:
+      zmqError()
+  elif T is SomeOrdinal:
+    var val: T = optval
+    if setsockopt(s, option, addr(val), sizeof(val)) != 0:
+      zmqError()
 
 # some sockopt returns integer values
-proc getsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: var T) =
-  var optval_len: int = sizeof(optval)
-
-  if bindings.getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
-    zmqError()
-
-# Some sockopt returns a string
-proc getsockopt_impl(s: ZSocket, option: ZSockOptions, optval: var string) =
-  var optval_len: int = optval.len
-
-  if bindings.getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
-    zmqError()
+proc getsockopt_impl[T: SomeOrdinal|string](s: ZSocket, option: ZSockOptions, optval: var T) =
+  when T is string:
+    var optval_len: int = optval.len
+    if bindings.getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
+      zmqError()
+  elif T is SomeOrdinal:
+    var optval_len: int = sizeof(optval)
+    if bindings.getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
+      zmqError()
 
 #[
   Public set/get sockopt function on ZSocket / ZConnection
@@ -323,7 +321,7 @@ proc close(c: var ZConnectionImpl, linger: int = 500) =
     c.context.terminate()
 
 proc close*(c: ZConnection, linger: int = 500) =
-  c[].close(linger)
+  close(c[], linger)
 
 # Send / Receive
 # Send with ZSocket type
