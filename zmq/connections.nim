@@ -104,17 +104,18 @@ proc setsockopt_impl(s: ZSocket, option: ZSockOptions, optval: string) =
   if setsockopt(s, option, cstring(val), val.len) != 0:
     zmqError()
 
+# some sockopt returns integer values
+proc getsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: var T) =
+  var optval_len: int = sizeof(optval)
+  if bindings.getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
+    zmqError()
+
 # Some sockopt returns a string
 proc getsockopt_impl(s: ZSocket, option: ZSockOptions, optval: var string) =
   var optval_len: int = optval.len
   if bindings.getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
     zmqError()
 
-# some sockopt returns integer values
-proc getsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: var T) =
-  var optval_len: int = sizeof(optval)
-  if bindings.getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
-    zmqError()
 
 #[
   Public set/get sockopt function on ZSocket / ZConnection
