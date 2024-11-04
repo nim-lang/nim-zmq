@@ -11,5 +11,5 @@ nim	initZPoller	zmq/asynczmq.html#initZPoller,openArray[tuple[ZConnection,AsyncZ
 nim	pollAsync	zmq/asynczmq.html#pollAsync,AsyncZPoller,int	proc pollAsync(poller: AsyncZPoller; timeout: int = 2): Future[int]		71
 nim	receiveAsync	zmq/asynczmq.html#receiveAsync,ZConnection	proc receiveAsync(conn: ZConnection): Future[string]		93
 nim	sendAsync	zmq/asynczmq.html#sendAsync,ZConnection,string,ZSendRecvOptions	proc sendAsync(conn: ZConnection; msg: string; flags: ZSendRecvOptions = DONTWAIT): Future[\n    void]		128
-nimgrp	register	zmq/asynczmq.html#register-procs-all	proc		43
 nimgrp	initzpoller	zmq/asynczmq.html#initZPoller-procs-all	proc		60
+nimgrp	register	zmq/asynczmq.html#register-procs-all	proc		43

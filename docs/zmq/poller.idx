@@ -13,7 +13,7 @@ nim	initZPoller	zmq/poller.html#initZPoller,openArray[tuple[ZConnection,cshort]]
 nim	poll	zmq/poller.html#poll,ZPoller,int64	proc poll(poller: ZPoller; timeout: int64): int32		61
 nim	events	zmq/poller.html#events,ZPollItem,int	proc events(p: ZPollItem; events: int): bool		65
 nim	events	zmq/poller.html#events,ZPollItem	proc events(p: ZPollItem): bool		72
-nimgrp	register	zmq/poller.html#register-procs-all	proc		31
 nimgrp	initzpoller	zmq/poller.html#initZPoller-procs-all	proc		41
-nimgrp	poll	zmq/poller.html#poll-procs-all	proc		27
 nimgrp	events	zmq/poller.html#events-procs-all	proc		65
+nimgrp	register	zmq/poller.html#register-procs-all	proc		31
+nimgrp	poll	zmq/poller.html#poll-procs-all	proc		27

@@ -39,16 +39,16 @@ nim	receive	zmq/connections.html#receive,ZConnection,ZSendRecvOptions	proc recei
 nim	receiveAll	zmq/connections.html#receiveAll,ZConnection,ZSendRecvOptions	proc receiveAll(c: ZConnection; flags: ZSendRecvOptions = defaultFlag()): seq[string]		475
 nim	proxy	zmq/connections.html#proxy,ZConnection,ZConnection	proc proxy(frontend, backend: ZConnection)		482
 nim	proxy	zmq/connections.html#proxy,ZConnection,ZConnection,ZConnection	proc proxy(frontend, backend, capture: ZConnection)		490
-nimgrp	tryreceive	zmq/connections.html#tryReceive-procs-all	proc		417
 nimgrp	getsockopt	zmq/connections.html#getsockopt-procs-all	proc		141
-nimgrp	newzcontext	zmq/connections.html#newZContext-procs-all	proc		71
+nimgrp	proxy	zmq/connections.html#proxy-procs-all	proc		482
+nimgrp	connect	zmq/connections.html#connect-procs-all	proc		237
 nimgrp	reconnect	zmq/connections.html#reconnect-procs-all	proc		209
 nimgrp	setsockopt	zmq/connections.html#setsockopt-procs-all	proc		123
-nimgrp	connect	zmq/connections.html#connect-procs-all	proc		237
-nimgrp	waitforreceive	zmq/connections.html#waitForReceive-procs-all	proc		389
-nimgrp	listen	zmq/connections.html#listen-procs-all	proc		272
-nimgrp	proxy	zmq/connections.html#proxy-procs-all	proc		482
-nimgrp	sendall	zmq/connections.html#sendAll-procs-all	proc		345
-nimgrp	receive	zmq/connections.html#receive-procs-all	proc		431
-nimgrp	receiveall	zmq/connections.html#receiveAll-procs-all	proc		437
+nimgrp	tryreceive	zmq/connections.html#tryReceive-procs-all	proc		417
 nimgrp	send	zmq/connections.html#send-procs-all	proc		330
+nimgrp	sendall	zmq/connections.html#sendAll-procs-all	proc		345
+nimgrp	newzcontext	zmq/connections.html#newZContext-procs-all	proc		71
+nimgrp	listen	zmq/connections.html#listen-procs-all	proc		272
+nimgrp	waitforreceive	zmq/connections.html#waitForReceive-procs-all	proc		389
+nimgrp	receiveall	zmq/connections.html#receiveAll-procs-all	proc		437
+nimgrp	receive	zmq/connections.html#receive-procs-all	proc		431
