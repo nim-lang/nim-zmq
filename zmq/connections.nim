@@ -323,7 +323,7 @@ proc close(c: var ZConnectionImpl, linger: int = 500) =
     c.context.terminate()
 
 proc close*(c: ZConnection, linger: int = 500) =
-  c[].close()
+  c[].close(linger)
 
 # Send / Receive
 # Send with ZSocket type
