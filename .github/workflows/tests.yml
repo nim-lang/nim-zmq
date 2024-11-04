@@ -7,11 +7,27 @@ on:
       - master
 
 jobs:
-  default:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        nim:
+          - '2.0.x'
+          - 'stable'
+          - devel
+        os:
+          - ubuntu-latest
+
+    name: '${{ matrix.nim }} (${{ matrix.os }})'
     steps:
       - uses: actions/checkout@v4
-      - uses: iffy/install-nim@v5
+      - name: Setup nim
+        uses: jiro4989/setup-nim-action@v2
+        with:
+          use-nightlies: true
+          nim-version: ${{ matrix.nim }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - run: nimble install -y
       - run: nimble test
       - run: nimble test --gc:arc
