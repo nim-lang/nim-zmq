@@ -91,6 +91,7 @@ proc terminate*(ctx: ZContext) =
   get/set socket options
   Declare socket options first because it's used in =destroy hooks
 ]#
+
 # Some option take cint, int64 or uint64
 proc setsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: T) =
   var val: T = optval
@@ -106,16 +107,15 @@ proc setsockopt_impl(s: ZSocket, option: ZSockOptions, optval: string) =
 # some sockopt returns integer values
 proc getsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: var T) =
   var optval_len: int = sizeof(optval)
-
   if bindings.getsockopt(s, option, addr(optval), addr(optval_len)) != 0:
     zmqError()
 
 # Some sockopt returns a string
 proc getsockopt_impl(s: ZSocket, option: ZSockOptions, optval: var string) =
   var optval_len: int = optval.len
-
   if bindings.getsockopt(s, option, cstring(optval), addr(optval_len)) != 0:
     zmqError()
+
 
 #[
   Public set/get sockopt function on ZSocket / ZConnection
@@ -125,7 +125,7 @@ proc setsockopt*[T: SomeOrdinal|string](s: ZSocket, option: ZSockOptions, optval
   ##
   ## Careful, the ``sizeof`` of ``optval`` depends on the ``ZSockOptions`` passed.
   ## Check http://api.zeromq.org/4-2:zmq-setsockopt
-  setsockopt_impl[T](s, option, optval)
+  setsockopt_impl(s, option, optval)
 
 proc setsockopt[T: SomeOrdinal|string](c: ZConnectionImpl, option: ZSockOptions, optval: T) =
   ## Internal
@@ -323,7 +323,7 @@ proc close(c: var ZConnectionImpl, linger: int = 500) =
     c.context.terminate()
 
 proc close*(c: ZConnection, linger: int = 500) =
-  c[].close()
+  close(c[], linger)
 
 # Send / Receive
 # Send with ZSocket type
