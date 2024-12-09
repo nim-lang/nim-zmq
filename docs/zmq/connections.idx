@@ -1,0 +1,54 @@
+nimTitle	connections	zmq/connections.html	module zmq/connections		0
+nim	ZmqError	zmq/connections.html#ZmqError	object ZmqError		10
+nim	ZConnectionImpl	zmq/connections.html#ZConnectionImpl	object ZConnectionImpl		14
+nim	ZConnection	zmq/connections.html#ZConnection	type ZConnection		22
+nim	zmqError	zmq/connections.html#zmqError_2	proc zmqError()		27
+nim	enableLogEagain	zmq/connections.html#enableLogEagain	proc enableLogEagain()		37
+nim	disableLogEagain	zmq/connections.html#disableLogEagain	proc disableLogEagain()		41
+nim	newZContext	zmq/connections.html#newZContext	proc newZContext(): ZContext		71
+nim	newZContext	zmq/connections.html#newZContext,int,int	proc newZContext(option: int; optval: int): ZContext		75
+nim	newZContext	zmq/connections.html#newZContext,int	proc newZContext(numthreads: int): ZContext		81
+nim	terminate	zmq/connections.html#terminate,ZContext	proc terminate(ctx: ZContext)		85
+nim	setsockopt	zmq/connections.html#setsockopt,ZSocket,ZSockOptions,T	proc setsockopt[T: SomeOrdinal | string](s: ZSocket; option: ZSockOptions; optval: T)		123
+nim	setsockopt	zmq/connections.html#setsockopt,ZConnection,ZSockOptions,T	proc setsockopt[T: SomeOrdinal | string](c: ZConnection; option: ZSockOptions;\n                                    optval: T)		134
+nim	getsockopt	zmq/connections.html#getsockopt,ZSocket,ZSockOptions	proc getsockopt[T: SomeOrdinal | string](s: ZSocket; option: ZSockOptions): T		141
+nim	getsockopt	zmq/connections.html#getsockopt,ZConnection,ZSockOptions	proc getsockopt[T: SomeOrdinal | string](c: ZConnection; option: ZSockOptions): T		154
+nim	`=sink`	zmq/connections.html#=sink,ZConnectionImpl,ZConnectionImpl	proc `=sink`(dest: var ZConnectionImpl; source: ZConnectionImpl)		187
+nim	`=copy`	zmq/connections.html#=copy,ZConnectionImpl,ZConnectionImpl	proc `=copy`(dest: var ZConnectionImpl; source: ZConnectionImpl)		195
+nim	reconnect	zmq/connections.html#reconnect,ZConnection	proc reconnect(conn: ZConnection)		209
+nim	reconnect	zmq/connections.html#reconnect,ZConnection,string	proc reconnect(conn: var ZConnection; address: string)		214
+nim	disconnect	zmq/connections.html#disconnect,ZConnection	proc disconnect(conn: ZConnection)		220
+nim	unbind	zmq/connections.html#unbind,ZConnection	proc unbind(conn: ZConnection)		225
+nim	bindAddr	zmq/connections.html#bindAddr,ZConnection,string	proc bindAddr(conn: var ZConnection; address: string)		230
+nim	connect	zmq/connections.html#connect,string,ZSocketType,ZContext	proc connect(address: string; mode: ZSocketType; context: ZContext): ZConnection		237
+nim	connect	zmq/connections.html#connect,string,ZSocketType	proc connect(address: string; mode: ZSocketType): ZConnection		251
+nim	listen	zmq/connections.html#listen,string,ZSocketType,ZContext	proc listen(address: string; mode: ZSocketType; context: ZContext): ZConnection		272
+nim	listen	zmq/connections.html#listen,string,ZSocketType	proc listen(address: string; mode: ZSocketType): ZConnection		300
+nim	close	zmq/connections.html#close,ZConnection,int	proc close(c: ZConnection; linger: int = 500)		325
+nim	send	zmq/connections.html#send,ZSocket,string,ZSendRecvOptions	proc send(s: ZSocket; msg: string; flags: ZSendRecvOptions = defaultFlag())		330
+nim	sendAll	zmq/connections.html#sendAll,ZSocket,varargs[string]	proc sendAll(s: ZSocket; msg: varargs[string])		345
+nim	send	zmq/connections.html#send,ZConnection,string,ZSendRecvOptions	proc send(c: ZConnection; msg: string; flags: ZSendRecvOptions = defaultFlag())		355
+nim	sendAll	zmq/connections.html#sendAll,ZConnection,varargs[string]	proc sendAll(c: ZConnection; msg: varargs[string])		359
+nim	waitForReceive	zmq/connections.html#waitForReceive,ZSocket,int,ZSendRecvOptions	proc waitForReceive(s: ZSocket; timeout: int = -2;\n               flags: ZSendRecvOptions = defaultFlag()): tuple[\n    msgAvailable: bool, moreAvailable: bool, msg: string]		389
+nim	tryReceive	zmq/connections.html#tryReceive,ZSocket,ZSendRecvOptions	proc tryReceive(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): tuple[\n    msgAvailable: bool, moreAvailable: bool, msg: string]		417
+nim	receive	zmq/connections.html#receive,ZSocket,ZSendRecvOptions	proc receive(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): string		431
+nim	receiveAll	zmq/connections.html#receiveAll,ZSocket,ZSendRecvOptions	proc receiveAll(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): seq[string]		437
+nim	waitForReceive	zmq/connections.html#waitForReceive,ZConnection,int,ZSendRecvOptions	proc waitForReceive(c: ZConnection; timeout: int = -1;\n               flags: ZSendRecvOptions = defaultFlag()): tuple[\n    msgAvailable: bool, moreAvailable: bool, msg: string]		450
+nim	tryReceive	zmq/connections.html#tryReceive,ZConnection,ZSendRecvOptions	proc tryReceive(c: ZConnection; flags: ZSendRecvOptions = defaultFlag()): tuple[\n    msgAvailable: bool, moreAvailable: bool, msg: string]		463
+nim	receive	zmq/connections.html#receive,ZConnection,ZSendRecvOptions	proc receive(c: ZConnection; flags: ZSendRecvOptions = defaultFlag()): string		471
+nim	receiveAll	zmq/connections.html#receiveAll,ZConnection,ZSendRecvOptions	proc receiveAll(c: ZConnection; flags: ZSendRecvOptions = defaultFlag()): seq[string]		475
+nim	proxy	zmq/connections.html#proxy,ZConnection,ZConnection	proc proxy(frontend, backend: ZConnection)		482
+nim	proxy	zmq/connections.html#proxy,ZConnection,ZConnection,ZConnection	proc proxy(frontend, backend, capture: ZConnection)		490
+nimgrp	getsockopt	zmq/connections.html#getsockopt-procs-all	proc		141
+nimgrp	proxy	zmq/connections.html#proxy-procs-all	proc		482
+nimgrp	connect	zmq/connections.html#connect-procs-all	proc		237
+nimgrp	reconnect	zmq/connections.html#reconnect-procs-all	proc		209
+nimgrp	setsockopt	zmq/connections.html#setsockopt-procs-all	proc		123
+nimgrp	tryreceive	zmq/connections.html#tryReceive-procs-all	proc		417
+nimgrp	send	zmq/connections.html#send-procs-all	proc		330
+nimgrp	sendall	zmq/connections.html#sendAll-procs-all	proc		345
+nimgrp	newzcontext	zmq/connections.html#newZContext-procs-all	proc		71
+nimgrp	listen	zmq/connections.html#listen-procs-all	proc		272
+nimgrp	waitforreceive	zmq/connections.html#waitForReceive-procs-all	proc		389
+nimgrp	receiveall	zmq/connections.html#receiveAll-procs-all	proc		437
+nimgrp	receive	zmq/connections.html#receive-procs-all	proc		431

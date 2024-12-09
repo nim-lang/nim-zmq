@@ -1,0 +1,301 @@
+nimTitle	bindings	zmq/bindings.html	module zmq/bindings		0
+nim	zmqdll	zmq/bindings.html#zmqdll	const zmqdll		9
+nim	ZMQ_VERSION_MAJOR	zmq/bindings.html#ZMQ_VERSION_MAJOR	const ZMQ_VERSION_MAJOR		13
+nim	ZMQ_VERSION_MINOR	zmq/bindings.html#ZMQ_VERSION_MINOR	const ZMQ_VERSION_MINOR		14
+nim	ZMQ_VERSION_PATCH	zmq/bindings.html#ZMQ_VERSION_PATCH	const ZMQ_VERSION_PATCH		15
+nim	ZMQ_MAKE_VERSION	zmq/bindings.html#ZMQ_MAKE_VERSION.t,untyped,untyped,untyped	template ZMQ_MAKE_VERSION(major, minor, patch: untyped): untyped		17
+nim	ZMQ_VERSION	zmq/bindings.html#ZMQ_VERSION	const ZMQ_VERSION		21
+nim	ENOTSUP	zmq/bindings.html#ENOTSUP	const ENOTSUP		34
+nim	EPROTONOSUPPORT	zmq/bindings.html#EPROTONOSUPPORT	const EPROTONOSUPPORT		35
+nim	ENOBUFS	zmq/bindings.html#ENOBUFS	const ENOBUFS		36
+nim	ENETDOWN	zmq/bindings.html#ENETDOWN	const ENETDOWN		37
+nim	EADDRINUSE	zmq/bindings.html#EADDRINUSE	const EADDRINUSE		38
+nim	EADDRNOTAVAIL	zmq/bindings.html#EADDRNOTAVAIL	const EADDRNOTAVAIL		39
+nim	ECONNREFUSED	zmq/bindings.html#ECONNREFUSED	const ECONNREFUSED		40
+nim	EINPROGRESS	zmq/bindings.html#EINPROGRESS	const EINPROGRESS		41
+nim	ENOTSOCK	zmq/bindings.html#ENOTSOCK	const ENOTSOCK		42
+nim	EMSGSIZE	zmq/bindings.html#EMSGSIZE	const EMSGSIZE		43
+nim	EAFNOSUPPORT	zmq/bindings.html#EAFNOSUPPORT	const EAFNOSUPPORT		44
+nim	ENETUNREACH	zmq/bindings.html#ENETUNREACH	const ENETUNREACH		45
+nim	ECONNABORTED	zmq/bindings.html#ECONNABORTED	const ECONNABORTED		46
+nim	ECONNRESET	zmq/bindings.html#ECONNRESET	const ECONNRESET		47
+nim	ENOTCONN	zmq/bindings.html#ENOTCONN	const ENOTCONN		48
+nim	ETIMEDOUT	zmq/bindings.html#ETIMEDOUT	const ETIMEDOUT		49
+nim	EHOSTUNREACH	zmq/bindings.html#EHOSTUNREACH	const EHOSTUNREACH		50
+nim	ENETRESET	zmq/bindings.html#ENETRESET	const ENETRESET		51
+nim	EFSM	zmq/bindings.html#EFSM	const EFSM		55
+nim	ENOCOMPATPROTO	zmq/bindings.html#ENOCOMPATPROTO	const ENOCOMPATPROTO		56
+nim	ETERM	zmq/bindings.html#ETERM	const ETERM		57
+nim	EMTHREAD	zmq/bindings.html#EMTHREAD	const EMTHREAD		58
+nim	version	zmq/bindings.html#version,cint,cint,cint	proc version(major: var cint; minor: var cint; patch: var cint)		61
+nim	ZMQ_EAGAIN	zmq/bindings.html#ZMQ_EAGAIN	let ZMQ_EAGAIN		68
+nim	errno	zmq/bindings.html#errno	proc errno(): cint		69
+nim	strerror	zmq/bindings.html#strerror,cint	proc strerror(errnum: cint): cstring		72
+nim	ZSocket	zmq/bindings.html#ZSocket	type ZSocket		78
+nim	ZContext	zmq/bindings.html#ZContext	type ZContext		87
+nim	ZMQ_IO_THREADS	zmq/bindings.html#ZMQ_IO_THREADS	const ZMQ_IO_THREADS		89
+nim	ZMQ_MAX_SOCKETS	zmq/bindings.html#ZMQ_MAX_SOCKETS	const ZMQ_MAX_SOCKETS		90
+nim	ZMQ_SOCKET_LIMIT	zmq/bindings.html#ZMQ_SOCKET_LIMIT	const ZMQ_SOCKET_LIMIT		91
+nim	ZMQ_THREAD_PRIORITY	zmq/bindings.html#ZMQ_THREAD_PRIORITY	const ZMQ_THREAD_PRIORITY		92
+nim	ZMQ_THREAD_SCHED_POLICY	zmq/bindings.html#ZMQ_THREAD_SCHED_POLICY	const ZMQ_THREAD_SCHED_POLICY		93
+nim	IO_THREADS	zmq/bindings.html#IO_THREADS	ZContextOptions.IO_THREADS		96
+nim	MAX_SOCKETS	zmq/bindings.html#MAX_SOCKETS	ZContextOptions.MAX_SOCKETS		96
+nim	ZMQ_IPV6	zmq/bindings.html#ZMQ_IPV6	ZContextOptions.ZMQ_IPV6		96
+nim	ZContextOptions	zmq/bindings.html#ZContextOptions	enum ZContextOptions		96
+nim	ZMQ_IO_THREADS_DFLT	zmq/bindings.html#ZMQ_IO_THREADS_DFLT	const ZMQ_IO_THREADS_DFLT		105
+nim	ZMQ_MAX_SOCKETS_DFLT	zmq/bindings.html#ZMQ_MAX_SOCKETS_DFLT	const ZMQ_MAX_SOCKETS_DFLT		106
+nim	ZMQ_THREAD_PRIORITY_DFLT	zmq/bindings.html#ZMQ_THREAD_PRIORITY_DFLT	const ZMQ_THREAD_PRIORITY_DFLT		107
+nim	ZMQ_THREAD_SCHED_POLICY_DFLT	zmq/bindings.html#ZMQ_THREAD_SCHED_POLICY_DFLT	const ZMQ_THREAD_SCHED_POLICY_DFLT		108
+nim	ctx_new	zmq/bindings.html#ctx_new	proc ctx_new(): ZContext		111
+nim	ctx_term	zmq/bindings.html#ctx_term,ZContext	proc ctx_term(context: ZContext): cint		112
+nim	ctx_shutdown	zmq/bindings.html#ctx_shutdown,ZContext	proc ctx_shutdown(ctx: ZContext): cint		114
+nim	ctx_set	zmq/bindings.html#ctx_set,ZContext,cint,cint	proc ctx_set(context: ZContext; option: cint; optval: cint): cint		116
+nim	ctx_get	zmq/bindings.html#ctx_get,ZContext,cint	proc ctx_get(context: ZContext; option: cint): cint		118
+nim	init	zmq/bindings.html#init,cint	proc init(io_threads: cint): ZContext		126
+nim	term	zmq/bindings.html#term,ZContext	proc term(context: ZContext): cint		128
+nim	ctx_destroy	zmq/bindings.html#ctx_destroy,ZContext	proc ctx_destroy(context: ZContext): cint		130
+nim	ZMsg	zmq/bindings.html#ZMsg	object ZMsg		161
+nim	msg_init	zmq/bindings.html#msg_init,ZMsg	proc msg_init(msg: var ZMsg): cint		189
+nim	msg_init	zmq/bindings.html#msg_init,ZMsg,int	proc msg_init(msg: var ZMsg; size: int): cint		191
+nim	msg_init	zmq/bindings.html#msg_init,ZMsg,cstring,int,TFreeFn,pointer	proc msg_init(msg: var ZMsg; data: cstring; size: int; ffn: TFreeFn; hint: pointer): cint		193
+nim	msg_send	zmq/bindings.html#msg_send,ZMsg,ZSocket,cint	proc msg_send(msg: var ZMsg; s: ZSocket; flags: cint): cint		196
+nim	msg_recv	zmq/bindings.html#msg_recv,ZMsg,ZSocket,cint	proc msg_recv(msg: var ZMsg; s: ZSocket; flags: cint): cint		198
+nim	msg_close	zmq/bindings.html#msg_close,ZMsg	proc msg_close(msg: var ZMsg): cint		200
+nim	msg_move	zmq/bindings.html#msg_move,ZMsg,ZMsg	proc msg_move(dest, src: var ZMsg): cint		202
+nim	msg_copy	zmq/bindings.html#msg_copy,ZMsg,ZMsg	proc msg_copy(dest, src: var ZMsg): cint		204
+nim	msg_data	zmq/bindings.html#msg_data,ZMsg	proc msg_data(msg: var ZMsg): pointer		206
+nim	msg_size	zmq/bindings.html#msg_size,ZMsg	proc msg_size(msg: var ZMsg): int		208
+nim	msg_more	zmq/bindings.html#msg_more,ZMsg	proc msg_more(msg: var ZMsg): cint		210
+nim	msg_get	zmq/bindings.html#msg_get,ZMsg,cint	proc msg_get(msg: var ZMsg; option: cint): cint		212
+nim	msg_set	zmq/bindings.html#msg_set,ZMsg,cint,cint	proc msg_set(msg: var ZMsg; option: cint; optval: cint): cint		215
+nim	ZMQ_PAIR	zmq/bindings.html#ZMQ_PAIR	const ZMQ_PAIR		223
+nim	ZMQ_PUB	zmq/bindings.html#ZMQ_PUB	const ZMQ_PUB		224
+nim	ZMQ_SUB	zmq/bindings.html#ZMQ_SUB	const ZMQ_SUB		225
+nim	ZMQ_REQ	zmq/bindings.html#ZMQ_REQ	const ZMQ_REQ		226
+nim	ZMQ_REP	zmq/bindings.html#ZMQ_REP	const ZMQ_REP		227
+nim	ZMQ_DEALER	zmq/bindings.html#ZMQ_DEALER	const ZMQ_DEALER		228
+nim	ZMQ_ROUTER	zmq/bindings.html#ZMQ_ROUTER	const ZMQ_ROUTER		229
+nim	ZMQ_PULL	zmq/bindings.html#ZMQ_PULL	const ZMQ_PULL		230
+nim	ZMQ_PUSH	zmq/bindings.html#ZMQ_PUSH	const ZMQ_PUSH		231
+nim	ZMQ_XPUB	zmq/bindings.html#ZMQ_XPUB	const ZMQ_XPUB		232
+nim	ZMQ_XSUB	zmq/bindings.html#ZMQ_XSUB	const ZMQ_XSUB		233
+nim	ZMQ_STREAM	zmq/bindings.html#ZMQ_STREAM	const ZMQ_STREAM		234
+nim	ZMQ_SERVER	zmq/bindings.html#ZMQ_SERVER	const ZMQ_SERVER		235
+nim	ZMQ_CLIENT	zmq/bindings.html#ZMQ_CLIENT	const ZMQ_CLIENT		236
+nim	PAIR	zmq/bindings.html#PAIR	ZSocketType.PAIR		239
+nim	PUB	zmq/bindings.html#PUB	ZSocketType.PUB		239
+nim	SUB	zmq/bindings.html#SUB	ZSocketType.SUB		239
+nim	REQ	zmq/bindings.html#REQ	ZSocketType.REQ		239
+nim	REP	zmq/bindings.html#REP	ZSocketType.REP		239
+nim	DEALER	zmq/bindings.html#DEALER	ZSocketType.DEALER		239
+nim	ROUTER	zmq/bindings.html#ROUTER	ZSocketType.ROUTER		239
+nim	PULL	zmq/bindings.html#PULL	ZSocketType.PULL		239
+nim	PUSH	zmq/bindings.html#PUSH	ZSocketType.PUSH		239
+nim	XPUB	zmq/bindings.html#XPUB	ZSocketType.XPUB		239
+nim	XSUB	zmq/bindings.html#XSUB	ZSocketType.XSUB		239
+nim	STREAM	zmq/bindings.html#STREAM	ZSocketType.STREAM		239
+nim	SERVER	zmq/bindings.html#SERVER	ZSocketType.SERVER		239
+nim	CLIENT	zmq/bindings.html#CLIENT	ZSocketType.CLIENT		239
+nim	ZSocketType	zmq/bindings.html#ZSocketType	enum ZSocketType		239
+nim	ZMQ_XREQ	zmq/bindings.html#ZMQ_XREQ	const ZMQ_XREQ		257
+nim	ZMQ_XREP	zmq/bindings.html#ZMQ_XREP	const ZMQ_XREP		258
+nim	ZMQ_AFFINITY	zmq/bindings.html#ZMQ_AFFINITY	const ZMQ_AFFINITY		261
+nim	ZMQ_IDENTITY	zmq/bindings.html#ZMQ_IDENTITY	const ZMQ_IDENTITY		262
+nim	ZMQ_SUBSCRIBE	zmq/bindings.html#ZMQ_SUBSCRIBE	const ZMQ_SUBSCRIBE		263
+nim	ZMQ_UNSUBSCRIBE	zmq/bindings.html#ZMQ_UNSUBSCRIBE	const ZMQ_UNSUBSCRIBE		264
+nim	ZMQ_RATE	zmq/bindings.html#ZMQ_RATE	const ZMQ_RATE		265
+nim	ZMQ_RECOVERY_IVL	zmq/bindings.html#ZMQ_RECOVERY_IVL	const ZMQ_RECOVERY_IVL		266
+nim	ZMQ_SNDBUF	zmq/bindings.html#ZMQ_SNDBUF	const ZMQ_SNDBUF		267
+nim	ZMQ_RCVBUF	zmq/bindings.html#ZMQ_RCVBUF	const ZMQ_RCVBUF		268
+nim	ZMQ_RCVMORE	zmq/bindings.html#ZMQ_RCVMORE	const ZMQ_RCVMORE		269
+nim	ZMQ_FD	zmq/bindings.html#ZMQ_FD	const ZMQ_FD		270
+nim	ZMQ_EVENTS	zmq/bindings.html#ZMQ_EVENTS	const ZMQ_EVENTS		271
+nim	ZMQ_TYPE	zmq/bindings.html#ZMQ_TYPE	const ZMQ_TYPE		272
+nim	ZMQ_LINGER	zmq/bindings.html#ZMQ_LINGER	const ZMQ_LINGER		273
+nim	ZMQ_RECONNECT_IVL	zmq/bindings.html#ZMQ_RECONNECT_IVL	const ZMQ_RECONNECT_IVL		274
+nim	ZMQ_BACKLOG	zmq/bindings.html#ZMQ_BACKLOG	const ZMQ_BACKLOG		275
+nim	ZMQ_RECONNECT_IVL_MAX	zmq/bindings.html#ZMQ_RECONNECT_IVL_MAX	const ZMQ_RECONNECT_IVL_MAX		276
+nim	ZMQ_MAXMSGSIZE	zmq/bindings.html#ZMQ_MAXMSGSIZE	const ZMQ_MAXMSGSIZE		277
+nim	ZMQ_SNDHWM	zmq/bindings.html#ZMQ_SNDHWM	const ZMQ_SNDHWM		278
+nim	ZMQ_RCVHWM	zmq/bindings.html#ZMQ_RCVHWM	const ZMQ_RCVHWM		279
+nim	ZMQ_MULTICAST_HOPS	zmq/bindings.html#ZMQ_MULTICAST_HOPS	const ZMQ_MULTICAST_HOPS		280
+nim	ZMQ_RCVTIMEO	zmq/bindings.html#ZMQ_RCVTIMEO	const ZMQ_RCVTIMEO		281
+nim	ZMQ_SNDTIMEO	zmq/bindings.html#ZMQ_SNDTIMEO	const ZMQ_SNDTIMEO		282
+nim	ZMQ_LAST_ENDPOINT	zmq/bindings.html#ZMQ_LAST_ENDPOINT	const ZMQ_LAST_ENDPOINT		283
+nim	ZMQ_ROUTER_MANDATORY	zmq/bindings.html#ZMQ_ROUTER_MANDATORY	const ZMQ_ROUTER_MANDATORY		284
+nim	ZMQ_TCP_KEEPALIVE	zmq/bindings.html#ZMQ_TCP_KEEPALIVE	const ZMQ_TCP_KEEPALIVE		285
+nim	ZMQ_TCP_KEEPALIVE_CNT	zmq/bindings.html#ZMQ_TCP_KEEPALIVE_CNT	const ZMQ_TCP_KEEPALIVE_CNT		286
+nim	ZMQ_TCP_KEEPALIVE_IDLE	zmq/bindings.html#ZMQ_TCP_KEEPALIVE_IDLE	const ZMQ_TCP_KEEPALIVE_IDLE		287
+nim	ZMQ_TCP_KEEPALIVE_INTVL	zmq/bindings.html#ZMQ_TCP_KEEPALIVE_INTVL	const ZMQ_TCP_KEEPALIVE_INTVL		288
+nim	ZMQ_IMMEDIATE	zmq/bindings.html#ZMQ_IMMEDIATE	const ZMQ_IMMEDIATE		290
+nim	ZMQ_XPUB_VERBOSE	zmq/bindings.html#ZMQ_XPUB_VERBOSE	const ZMQ_XPUB_VERBOSE		291
+nim	ZMQ_ROUTER_RAW	zmq/bindings.html#ZMQ_ROUTER_RAW	const ZMQ_ROUTER_RAW		292
+nim	ZMQ_MECHANISM	zmq/bindings.html#ZMQ_MECHANISM	const ZMQ_MECHANISM		294
+nim	ZMQ_PLAIN_SERVER	zmq/bindings.html#ZMQ_PLAIN_SERVER	const ZMQ_PLAIN_SERVER		295
+nim	ZMQ_PLAIN_USERNAME	zmq/bindings.html#ZMQ_PLAIN_USERNAME	const ZMQ_PLAIN_USERNAME		296
+nim	ZMQ_PLAIN_PASSWORD	zmq/bindings.html#ZMQ_PLAIN_PASSWORD	const ZMQ_PLAIN_PASSWORD		297
+nim	ZMQ_CURVE_SERVER	zmq/bindings.html#ZMQ_CURVE_SERVER	const ZMQ_CURVE_SERVER		298
+nim	ZMQ_CURVE_PUBLICKEY	zmq/bindings.html#ZMQ_CURVE_PUBLICKEY	const ZMQ_CURVE_PUBLICKEY		299
+nim	ZMQ_CURVE_SECRETKEY	zmq/bindings.html#ZMQ_CURVE_SECRETKEY	const ZMQ_CURVE_SECRETKEY		300
+nim	ZMQ_CURVE_SERVERKEY	zmq/bindings.html#ZMQ_CURVE_SERVERKEY	const ZMQ_CURVE_SERVERKEY		301
+nim	ZMQ_PROBE_ROUTER	zmq/bindings.html#ZMQ_PROBE_ROUTER	const ZMQ_PROBE_ROUTER		302
+nim	ZMQ_REQ_CORRELATE	zmq/bindings.html#ZMQ_REQ_CORRELATE	const ZMQ_REQ_CORRELATE		303
+nim	ZMQ_REQ_RELAXED	zmq/bindings.html#ZMQ_REQ_RELAXED	const ZMQ_REQ_RELAXED		304
+nim	ZMQ_CONFLATE	zmq/bindings.html#ZMQ_CONFLATE	const ZMQ_CONFLATE		305
+nim	ZMQ_ZAP_DOMAIN	zmq/bindings.html#ZMQ_ZAP_DOMAIN	const ZMQ_ZAP_DOMAIN		306
+nim	ZMQ_ROUTER_HANDOVER	zmq/bindings.html#ZMQ_ROUTER_HANDOVER	const ZMQ_ROUTER_HANDOVER		307
+nim	ZMQ_TOS	zmq/bindings.html#ZMQ_TOS	const ZMQ_TOS		308
+nim	ZMQ_CONNECT_RID	zmq/bindings.html#ZMQ_CONNECT_RID	const ZMQ_CONNECT_RID		312
+nim	ZMQ_GSSAPI_SERVER	zmq/bindings.html#ZMQ_GSSAPI_SERVER	const ZMQ_GSSAPI_SERVER		313
+nim	ZMQ_GSSAPI_PRINCIPAL	zmq/bindings.html#ZMQ_GSSAPI_PRINCIPAL	const ZMQ_GSSAPI_PRINCIPAL		314
+nim	ZMQ_GSSAPI_SERVICE_PRINCIPAL	zmq/bindings.html#ZMQ_GSSAPI_SERVICE_PRINCIPAL	const ZMQ_GSSAPI_SERVICE_PRINCIPAL		315
+nim	ZMQ_GSSAPI_PLAINTEXT	zmq/bindings.html#ZMQ_GSSAPI_PLAINTEXT	const ZMQ_GSSAPI_PLAINTEXT		316
+nim	ZMQ_HANDSHAKE_IVL	zmq/bindings.html#ZMQ_HANDSHAKE_IVL	const ZMQ_HANDSHAKE_IVL		317
+nim	ZMQ_SOCKS_PROXY	zmq/bindings.html#ZMQ_SOCKS_PROXY	const ZMQ_SOCKS_PROXY		318
+nim	ZMQ_XPUB_NODROP	zmq/bindings.html#ZMQ_XPUB_NODROP	const ZMQ_XPUB_NODROP		319
+nim	ZMQ_BLOCKY	zmq/bindings.html#ZMQ_BLOCKY	const ZMQ_BLOCKY		320
+nim	ZMQ_XPUB_MANUAL	zmq/bindings.html#ZMQ_XPUB_MANUAL	const ZMQ_XPUB_MANUAL		321
+nim	ZMQ_XPUB_WELCOME_MSG	zmq/bindings.html#ZMQ_XPUB_WELCOME_MSG	const ZMQ_XPUB_WELCOME_MSG		322
+nim	ZMQ_STREAM_NOTIFY	zmq/bindings.html#ZMQ_STREAM_NOTIFY	const ZMQ_STREAM_NOTIFY		323
+nim	ZMQ_INVERT_MATCHING	zmq/bindings.html#ZMQ_INVERT_MATCHING	const ZMQ_INVERT_MATCHING		324
+nim	ZMQ_HEARTBEAT_IVL	zmq/bindings.html#ZMQ_HEARTBEAT_IVL	const ZMQ_HEARTBEAT_IVL		325
+nim	ZMQ_HEARTBEAT_TTL	zmq/bindings.html#ZMQ_HEARTBEAT_TTL	const ZMQ_HEARTBEAT_TTL		326
+nim	ZMQ_HEARTBEAT_TIMEOUT	zmq/bindings.html#ZMQ_HEARTBEAT_TIMEOUT	const ZMQ_HEARTBEAT_TIMEOUT		327
+nim	ZMQ_XPUB_VERBOSE_UNSUBSCRIBE	zmq/bindings.html#ZMQ_XPUB_VERBOSE_UNSUBSCRIBE	const ZMQ_XPUB_VERBOSE_UNSUBSCRIBE		328
+nim	ZMQ_CONNECT_TIMEOUT	zmq/bindings.html#ZMQ_CONNECT_TIMEOUT	const ZMQ_CONNECT_TIMEOUT		329
+nim	ZMQ_TCP_RETRANSMIT_TIMEOUT	zmq/bindings.html#ZMQ_TCP_RETRANSMIT_TIMEOUT	const ZMQ_TCP_RETRANSMIT_TIMEOUT		330
+nim	ZMQ_THREAD_SAFE	zmq/bindings.html#ZMQ_THREAD_SAFE	const ZMQ_THREAD_SAFE		331
+nim	AFFINITY	zmq/bindings.html#AFFINITY	ZSockOptions.AFFINITY		333
+nim	IDENTITY	zmq/bindings.html#IDENTITY	ZSockOptions.IDENTITY		333
+nim	SUBSCRIBE	zmq/bindings.html#SUBSCRIBE	ZSockOptions.SUBSCRIBE		333
+nim	UNSUBSCRIBE	zmq/bindings.html#UNSUBSCRIBE	ZSockOptions.UNSUBSCRIBE		333
+nim	RATE	zmq/bindings.html#RATE	ZSockOptions.RATE		333
+nim	RECOVERY_IVL	zmq/bindings.html#RECOVERY_IVL	ZSockOptions.RECOVERY_IVL		333
+nim	SNDBUF	zmq/bindings.html#SNDBUF	ZSockOptions.SNDBUF		333
+nim	RCVBUF	zmq/bindings.html#RCVBUF	ZSockOptions.RCVBUF		333
+nim	RCVMORE	zmq/bindings.html#RCVMORE	ZSockOptions.RCVMORE		333
+nim	FD	zmq/bindings.html#FD	ZSockOptions.FD		333
+nim	EVENTS	zmq/bindings.html#EVENTS	ZSockOptions.EVENTS		333
+nim	TYPE	zmq/bindings.html#TYPE	ZSockOptions.TYPE		333
+nim	LINGER	zmq/bindings.html#LINGER	ZSockOptions.LINGER		333
+nim	RECONNECT_IVL	zmq/bindings.html#RECONNECT_IVL	ZSockOptions.RECONNECT_IVL		333
+nim	BACKLOG	zmq/bindings.html#BACKLOG	ZSockOptions.BACKLOG		333
+nim	RECONNECT_IVL_MAX	zmq/bindings.html#RECONNECT_IVL_MAX	ZSockOptions.RECONNECT_IVL_MAX		333
+nim	MAXMSGSIZE	zmq/bindings.html#MAXMSGSIZE	ZSockOptions.MAXMSGSIZE		333
+nim	SNDHWM	zmq/bindings.html#SNDHWM	ZSockOptions.SNDHWM		333
+nim	RCVHWM	zmq/bindings.html#RCVHWM	ZSockOptions.RCVHWM		333
+nim	MULTICAST_HOPS	zmq/bindings.html#MULTICAST_HOPS	ZSockOptions.MULTICAST_HOPS		333
+nim	RCVTIMEO	zmq/bindings.html#RCVTIMEO	ZSockOptions.RCVTIMEO		333
+nim	SNDTIMEO	zmq/bindings.html#SNDTIMEO	ZSockOptions.SNDTIMEO		333
+nim	LAST_ENDPOINT	zmq/bindings.html#LAST_ENDPOINT	ZSockOptions.LAST_ENDPOINT		333
+nim	ROUTER_MANDATORY	zmq/bindings.html#ROUTER_MANDATORY	ZSockOptions.ROUTER_MANDATORY		333
+nim	TCP_KEEPALIVE	zmq/bindings.html#TCP_KEEPALIVE	ZSockOptions.TCP_KEEPALIVE		333
+nim	TCP_KEEPALIVE_CNT	zmq/bindings.html#TCP_KEEPALIVE_CNT	ZSockOptions.TCP_KEEPALIVE_CNT		333
+nim	TCP_KEEPALIVE_IDLE	zmq/bindings.html#TCP_KEEPALIVE_IDLE	ZSockOptions.TCP_KEEPALIVE_IDLE		333
+nim	TCP_KEEPALIVE_INTVL	zmq/bindings.html#TCP_KEEPALIVE_INTVL	ZSockOptions.TCP_KEEPALIVE_INTVL		333
+nim	TCP_ACCEPT_FILTER	zmq/bindings.html#TCP_ACCEPT_FILTER	ZSockOptions.TCP_ACCEPT_FILTER		333
+nim	IMMEDIATE	zmq/bindings.html#IMMEDIATE	ZSockOptions.IMMEDIATE		333
+nim	XPUB_VERBOSE	zmq/bindings.html#XPUB_VERBOSE	ZSockOptions.XPUB_VERBOSE		333
+nim	ROUTER_RAW	zmq/bindings.html#ROUTER_RAW	ZSockOptions.ROUTER_RAW		333
+nim	IPV6	zmq/bindings.html#IPV6	ZSockOptions.IPV6		333
+nim	MECHANISM	zmq/bindings.html#MECHANISM	ZSockOptions.MECHANISM		333
+nim	PLAIN_SERVER	zmq/bindings.html#PLAIN_SERVER	ZSockOptions.PLAIN_SERVER		333
+nim	PLAIN_USERNAME	zmq/bindings.html#PLAIN_USERNAME	ZSockOptions.PLAIN_USERNAME		333
+nim	PLAIN_PASSWORD	zmq/bindings.html#PLAIN_PASSWORD	ZSockOptions.PLAIN_PASSWORD		333
+nim	CURVE_SERVER	zmq/bindings.html#CURVE_SERVER	ZSockOptions.CURVE_SERVER		333
+nim	CURVE_PUBLICKEY	zmq/bindings.html#CURVE_PUBLICKEY	ZSockOptions.CURVE_PUBLICKEY		333
+nim	CURVE_SECRETKEY	zmq/bindings.html#CURVE_SECRETKEY	ZSockOptions.CURVE_SECRETKEY		333
+nim	CURVE_SERVERKEY	zmq/bindings.html#CURVE_SERVERKEY	ZSockOptions.CURVE_SERVERKEY		333
+nim	PROBE_ROUTER	zmq/bindings.html#PROBE_ROUTER	ZSockOptions.PROBE_ROUTER		333
+nim	REQ_CORRELATE	zmq/bindings.html#REQ_CORRELATE	ZSockOptions.REQ_CORRELATE		333
+nim	REQ_RELAXED	zmq/bindings.html#REQ_RELAXED	ZSockOptions.REQ_RELAXED		333
+nim	CONFLATE	zmq/bindings.html#CONFLATE	ZSockOptions.CONFLATE		333
+nim	ZAP_DOMAIN	zmq/bindings.html#ZAP_DOMAIN	ZSockOptions.ZAP_DOMAIN		333
+nim	ROUTER_HANDOVER	zmq/bindings.html#ROUTER_HANDOVER	ZSockOptions.ROUTER_HANDOVER		333
+nim	TOS	zmq/bindings.html#TOS	ZSockOptions.TOS		333
+nim	CONNECT_RID	zmq/bindings.html#CONNECT_RID	ZSockOptions.CONNECT_RID		333
+nim	GSSAPI_SERVER	zmq/bindings.html#GSSAPI_SERVER	ZSockOptions.GSSAPI_SERVER		333
+nim	GSSAPI_PRINCIPAL	zmq/bindings.html#GSSAPI_PRINCIPAL	ZSockOptions.GSSAPI_PRINCIPAL		333
+nim	GSSAPI_SERVICE_PRINCIPAL	zmq/bindings.html#GSSAPI_SERVICE_PRINCIPAL	ZSockOptions.GSSAPI_SERVICE_PRINCIPAL		333
+nim	GSSAPI_PLAINTEXT	zmq/bindings.html#GSSAPI_PLAINTEXT	ZSockOptions.GSSAPI_PLAINTEXT		333
+nim	HANDSHAKE_IVL	zmq/bindings.html#HANDSHAKE_IVL	ZSockOptions.HANDSHAKE_IVL		333
+nim	SOCKS_PROXY	zmq/bindings.html#SOCKS_PROXY	ZSockOptions.SOCKS_PROXY		333
+nim	XPUB_NODROP	zmq/bindings.html#XPUB_NODROP	ZSockOptions.XPUB_NODROP		333
+nim	BLOCKY	zmq/bindings.html#BLOCKY	ZSockOptions.BLOCKY		333
+nim	XPUB_MANUAL	zmq/bindings.html#XPUB_MANUAL	ZSockOptions.XPUB_MANUAL		333
+nim	XPUB_WELCOME_MSG	zmq/bindings.html#XPUB_WELCOME_MSG	ZSockOptions.XPUB_WELCOME_MSG		333
+nim	STREAM_NOTIFY	zmq/bindings.html#STREAM_NOTIFY	ZSockOptions.STREAM_NOTIFY		333
+nim	INVERT_MATCHING	zmq/bindings.html#INVERT_MATCHING	ZSockOptions.INVERT_MATCHING		333
+nim	HEARTBEAT_IVL	zmq/bindings.html#HEARTBEAT_IVL	ZSockOptions.HEARTBEAT_IVL		333
+nim	HEARTBEAT_TTL	zmq/bindings.html#HEARTBEAT_TTL	ZSockOptions.HEARTBEAT_TTL		333
+nim	HEARTBEAT_TIMEOUT	zmq/bindings.html#HEARTBEAT_TIMEOUT	ZSockOptions.HEARTBEAT_TIMEOUT		333
+nim	XPUB_VERBOSE_UNSUBSCRIBE	zmq/bindings.html#XPUB_VERBOSE_UNSUBSCRIBE	ZSockOptions.XPUB_VERBOSE_UNSUBSCRIBE		333
+nim	CONNECT_TIMEOUT	zmq/bindings.html#CONNECT_TIMEOUT	ZSockOptions.CONNECT_TIMEOUT		333
+nim	TCP_RETRANSMIT_TIMEOUT	zmq/bindings.html#TCP_RETRANSMIT_TIMEOUT	ZSockOptions.TCP_RETRANSMIT_TIMEOUT		333
+nim	THREAD_SAFE	zmq/bindings.html#THREAD_SAFE	ZSockOptions.THREAD_SAFE		333
+nim	ZSockOptions	zmq/bindings.html#ZSockOptions	enum ZSockOptions		333
+nim	ZMQ_MORE	zmq/bindings.html#ZMQ_MORE	const ZMQ_MORE		405
+nim	ZMQ_SRCFD	zmq/bindings.html#ZMQ_SRCFD	const ZMQ_SRCFD		406
+nim	ZMQ_SHARED	zmq/bindings.html#ZMQ_SHARED	const ZMQ_SHARED		407
+nim	MORE	zmq/bindings.html#MORE	ZMsgOptions.MORE		408
+nim	SRCFD	zmq/bindings.html#SRCFD	ZMsgOptions.SRCFD		408
+nim	SHARED	zmq/bindings.html#SHARED	ZMsgOptions.SHARED		408
+nim	ZMsgOptions	zmq/bindings.html#ZMsgOptions	enum ZMsgOptions		408
+nim	ZMQ_DONTWAIT	zmq/bindings.html#ZMQ_DONTWAIT	const ZMQ_DONTWAIT		416
+nim	ZMQ_SNDMORE	zmq/bindings.html#ZMQ_SNDMORE	const ZMQ_SNDMORE		417
+nim	NOFLAGS	zmq/bindings.html#NOFLAGS	ZSendRecvOptions.NOFLAGS		418
+nim	DONTWAIT	zmq/bindings.html#DONTWAIT	ZSendRecvOptions.DONTWAIT		418
+nim	SNDMORE	zmq/bindings.html#SNDMORE	ZSendRecvOptions.SNDMORE		418
+nim	ZSendRecvOptions	zmq/bindings.html#ZSendRecvOptions	enum ZSendRecvOptions		418
+nim	ZMQ_NULL	zmq/bindings.html#ZMQ_NULL	const ZMQ_NULL		425
+nim	ZMQ_PLAIN	zmq/bindings.html#ZMQ_PLAIN	const ZMQ_PLAIN		426
+nim	ZMQ_CURVE	zmq/bindings.html#ZMQ_CURVE	const ZMQ_CURVE		427
+nim	ZMQ_GSSAPI	zmq/bindings.html#ZMQ_GSSAPI	const ZMQ_GSSAPI		428
+nim	ZMQ_IPV4ONLY	zmq/bindings.html#ZMQ_IPV4ONLY	const ZMQ_IPV4ONLY		431
+nim	ZMQ_TCP_ACCEPT_FILTER	zmq/bindings.html#ZMQ_TCP_ACCEPT_FILTER	const ZMQ_TCP_ACCEPT_FILTER		432
+nim	ZMQ_IPC_FILTER_PID	zmq/bindings.html#ZMQ_IPC_FILTER_PID	const ZMQ_IPC_FILTER_PID		433
+nim	ZMQ_IPC_FILTER_UID	zmq/bindings.html#ZMQ_IPC_FILTER_UID	const ZMQ_IPC_FILTER_UID		434
+nim	ZMQ_IPC_FILTER_GID	zmq/bindings.html#ZMQ_IPC_FILTER_GID	const ZMQ_IPC_FILTER_GID		435
+nim	ZMQ_DELAY_ATTACH_ON_CONNECT	zmq/bindings.html#ZMQ_DELAY_ATTACH_ON_CONNECT	const ZMQ_DELAY_ATTACH_ON_CONNECT		436
+nim	ZMQ_NOBLOCK	zmq/bindings.html#ZMQ_NOBLOCK	const ZMQ_NOBLOCK		437
+nim	ZMQ_FAIL_UNROUTABLE	zmq/bindings.html#ZMQ_FAIL_UNROUTABLE	const ZMQ_FAIL_UNROUTABLE		438
+nim	ZMQ_ROUTER_BEHAVIOR	zmq/bindings.html#ZMQ_ROUTER_BEHAVIOR	const ZMQ_ROUTER_BEHAVIOR		439
+nim	ZMQ_EVENT_CONNECTED	zmq/bindings.html#ZMQ_EVENT_CONNECTED	const ZMQ_EVENT_CONNECTED		446
+nim	ZMQ_EVENT_CONNECT_DELAYED	zmq/bindings.html#ZMQ_EVENT_CONNECT_DELAYED	const ZMQ_EVENT_CONNECT_DELAYED		447
+nim	ZMQ_EVENT_CONNECT_RETRIED	zmq/bindings.html#ZMQ_EVENT_CONNECT_RETRIED	const ZMQ_EVENT_CONNECT_RETRIED		448
+nim	ZMQ_EVENT_LISTENING	zmq/bindings.html#ZMQ_EVENT_LISTENING	const ZMQ_EVENT_LISTENING		449
+nim	ZMQ_EVENT_BIND_FAILED	zmq/bindings.html#ZMQ_EVENT_BIND_FAILED	const ZMQ_EVENT_BIND_FAILED		450
+nim	ZMQ_EVENT_ACCEPTED	zmq/bindings.html#ZMQ_EVENT_ACCEPTED	const ZMQ_EVENT_ACCEPTED		451
+nim	ZMQ_EVENT_ACCEPT_FAILED	zmq/bindings.html#ZMQ_EVENT_ACCEPT_FAILED	const ZMQ_EVENT_ACCEPT_FAILED		452
+nim	ZMQ_EVENT_CLOSED	zmq/bindings.html#ZMQ_EVENT_CLOSED	const ZMQ_EVENT_CLOSED		453
+nim	ZMQ_EVENT_CLOSE_FAILED	zmq/bindings.html#ZMQ_EVENT_CLOSE_FAILED	const ZMQ_EVENT_CLOSE_FAILED		454
+nim	ZMQ_EVENT_DISCONNECTED	zmq/bindings.html#ZMQ_EVENT_DISCONNECTED	const ZMQ_EVENT_DISCONNECTED		455
+nim	ZMQ_EVENT_MONITOR_STOPPED	zmq/bindings.html#ZMQ_EVENT_MONITOR_STOPPED	const ZMQ_EVENT_MONITOR_STOPPED		456
+nim	ZMQ_EVENT_ALL	zmq/bindings.html#ZMQ_EVENT_ALL	const ZMQ_EVENT_ALL		457
+nim	zmq_event_t	zmq/bindings.html#zmq_event_t	object zmq_event_t		464
+nim	socket	zmq/bindings.html#socket,ZContext,cint	proc socket(context: ZContext; theType: cint): ZSocket		468
+nim	close	zmq/bindings.html#close,ZSocket	proc close(s: ZSocket): cint		470
+nim	setsockopt	zmq/bindings.html#setsockopt,ZSocket,ZSockOptions,pointer,int	proc setsockopt(s: ZSocket; option: ZSockOptions; optval: pointer; optvallen: int): cint		471
+nim	getsockopt	zmq/bindings.html#getsockopt,ZSocket,ZSockOptions,pointer,ptr.int	proc getsockopt(s: ZSocket; option: ZSockOptions; optval: pointer; optvallen: ptr int): cint		474
+nim	bindAddr	zmq/bindings.html#bindAddr,ZSocket,cstring	proc bindAddr(s: ZSocket; address: cstring): cint		477
+nim	connect	zmq/bindings.html#connect,ZSocket,cstring	proc connect(s: ZSocket; address: cstring): cint		479
+nim	unbind	zmq/bindings.html#unbind,ZSocket,cstring	proc unbind(s: ZSocket; address: cstring): cint		481
+nim	disconnect	zmq/bindings.html#disconnect,ZSocket,cstring	proc disconnect(s: ZSocket; address: cstring): cint		483
+nim	send	zmq/bindings.html#send,ZSocket,pointer,int,cint	proc send(s: ZSocket; buf: pointer; len: int; flags: cint): cint		485
+nim	send_const	zmq/bindings.html#send_const,ZSocket,pointer,int,cint	proc send_const(s: ZSocket; buf: pointer; len: int; flags: cint): cint		487
+nim	recv	zmq/bindings.html#recv,ZSocket,pointer,int,cint	proc recv(s: ZSocket; buf: pointer; len: int; flags: cint): cint		489
+nim	socket_monitor	zmq/bindings.html#socket_monitor,ZSocket,pointer,cint	proc socket_monitor(s: ZSocket; address: pointer; events: cint): cint		491
+nim	sendmsg	zmq/bindings.html#sendmsg,ZSocket,ZMsg,cint	proc sendmsg(s: ZSocket; msg: var ZMsg; flags: cint): cint		494
+nim	recvmsg	zmq/bindings.html#recvmsg,ZSocket,ZMsg,cint	proc recvmsg(s: ZSocket; msg: var ZMsg; flags: cint): cint		496
+nim	ZMQ_POLLIN	zmq/bindings.html#ZMQ_POLLIN	const ZMQ_POLLIN		504
+nim	ZMQ_POLLOUT	zmq/bindings.html#ZMQ_POLLOUT	const ZMQ_POLLOUT		505
+nim	ZMQ_POLLERR	zmq/bindings.html#ZMQ_POLLERR	const ZMQ_POLLERR		506
+nim	ZMQ_POLLPRI	zmq/bindings.html#ZMQ_POLLPRI	const ZMQ_POLLPRI		507
+nim	ZPollItem	zmq/bindings.html#ZPollItem	object ZPollItem		509
+nim	ZMQ_POLLITEMS_DFLT	zmq/bindings.html#ZMQ_POLLITEMS_DFLT	const ZMQ_POLLITEMS_DFLT		516
+nim	poll	zmq/bindings.html#poll,ptr.UncheckedArray[ZPollItem],cint,clong	proc poll(items: ptr UncheckedArray[ZPollItem]; nitems: cint; timeout: clong): cint		518
+nim	proxy	zmq/bindings.html#proxy,ZSocket,ZSocket,ZSocket	proc proxy(frontend: ZSocket; backend: ZSocket; capture: ZSocket): cint		523
+nim	proxy_steerable	zmq/bindings.html#proxy_steerable,ZSocket,ZSocket,ZSocket,ZSocket	proc proxy_steerable(frontend: ZSocket; backend: ZSocket; capture: ZSocket;\n                control: ZSocket): cint		525
+nim	z85_encode	zmq/bindings.html#z85_encode,cstring,ptr.uint8,int	proc z85_encode(dest: cstring; data: ptr uint8; size: int): cstring		530
+nim	z85_decode	zmq/bindings.html#z85_decode,ptr.uint8,cstring	proc z85_decode(dest: ptr uint8; string: cstring): ptr uint8		534
+nimgrp	msginit	zmq/bindings.html#msg_init-procs-all	proc		189
