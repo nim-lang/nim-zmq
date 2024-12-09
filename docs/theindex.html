@@ -538,6 +538,10 @@
           <li><a class="reference external"
           data-doc-search-tag="connections: proc receiveAll(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): seq[string]" href="zmq/connections.html#receiveAll%2CZSocket%2CZSendRecvOptions">connections: proc receiveAll(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): seq[string]</a></li>
           </ul></dd>
+<dt><a name="receiveAllAsync" href="#receiveAllAsync"><span>receiveAllAsync:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="asynczmq: proc receiveAllAsync(conn: ZConnection): Future[seq[string]]" href="zmq/asynczmq.html#receiveAllAsync%2CZConnection">asynczmq: proc receiveAllAsync(conn: ZConnection): Future[seq[string]]</a></li>
+          </ul></dd>
 <dt><a name="receiveAsync" href="#receiveAsync"><span>receiveAsync:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="asynczmq: proc receiveAsync(conn: ZConnection): Future[string]" href="zmq/asynczmq.html#receiveAsync%2CZConnection">asynczmq: proc receiveAsync(conn: ZConnection): Future[string]</a></li>
@@ -761,6 +765,12 @@
           data-doc-search-tag="connections: proc tryReceive(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): tuple[
     msgAvailable: bool, moreAvailable: bool, msg: string]" href="zmq/connections.html#tryReceive%2CZSocket%2CZSendRecvOptions">connections: proc tryReceive(s: ZSocket; flags: ZSendRecvOptions = defaultFlag()): tuple[
     msgAvailable: bool, moreAvailable: bool, msg: string]</a></li>
+          </ul></dd>
+<dt><a name="tryReceiveAsync" href="#tryReceiveAsync"><span>tryReceiveAsync:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="asynczmq: proc tryReceiveAsync(conn: ZConnection): Future[
+    tuple[msgAvailable: bool, moreAvailable: bool, msg: string]]" href="zmq/asynczmq.html#tryReceiveAsync%2CZConnection">asynczmq: proc tryReceiveAsync(conn: ZConnection): Future[
+    tuple[msgAvailable: bool, moreAvailable: bool, msg: string]]</a></li>
           </ul></dd>
 <dt><a name="TYPE" href="#TYPE"><span>TYPE:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -1434,7 +1444,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-11-04 16:53:24 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-12-09 08:56:38 UTC</small>
       </div>
     </div>
   </div>

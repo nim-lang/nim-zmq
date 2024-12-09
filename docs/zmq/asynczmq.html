@@ -89,6 +89,10 @@
   <li><a class="reference" href="#pollAsync%2CAsyncZPoller%2Cint" title="pollAsync(poller: AsyncZPoller; timeout: int = 2): Future[int]">pollAsync(poller: AsyncZPoller; timeout: int = 2): Future[int]</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">receiveAllAsync
+  <li><a class="reference" href="#receiveAllAsync%2CZConnection" title="receiveAllAsync(conn: ZConnection): Future[seq[string]]">receiveAllAsync(conn: ZConnection): Future[seq[string]]</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">receiveAsync
   <li><a class="reference" href="#receiveAsync%2CZConnection" title="receiveAsync(conn: ZConnection): Future[string]">receiveAsync(conn: ZConnection): Future[string]</a></li>
 
@@ -105,6 +109,12 @@
   <li><a class="reference" href="#sendAsync%2CZConnection%2Cstring%2CZSendRecvOptions" title="sendAsync(conn: ZConnection; msg: string; flags: ZSendRecvOptions = DONTWAIT): Future[
     void]">sendAsync(conn: ZConnection; msg: string; flags: ZSendRecvOptions = DONTWAIT): Future[
     void]</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">tryReceiveAsync
+  <li><a class="reference" href="#tryReceiveAsync%2CZConnection" title="tryReceiveAsync(conn: ZConnection): Future[
+    tuple[msgAvailable: bool, moreAvailable: bool, msg: string]]">tryReceiveAsync(conn: ZConnection): Future[
+    tuple[msgAvailable: bool, moreAvailable: bool, msg: string]]</a></li>
 
 </ul>
 
@@ -211,6 +221,19 @@
 </div>
 
 </div>
+<div id="receiveAllAsync-procs-all">
+  <div id="receiveAllAsync,ZConnection">
+  <dt><pre><span class="Keyword">proc</span> <a href="#receiveAllAsync%2CZConnection"><span class="Identifier">receiveAllAsync</span></a><span class="Other">(</span><span class="Identifier">conn</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">stackTrace</span><span class="Other">:</span> <span class="DecNumber">false</span><span class="Other">,</span> <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    async version for <tt class="docutils literal"><span class="pre"><span class="Identifier">receiveAll</span><span class="Punctuation">(</span><span class="Punctuation">)</span></span></tt>
+    
+  </dd>
+</div>
+
+</div>
 <div id="receiveAsync-procs-all">
   <div id="receiveAsync,ZConnection">
   <dt><pre><span class="Keyword">proc</span> <a href="#receiveAsync%2CZConnection"><span class="Identifier">receiveAsync</span></a><span class="Other">(</span><span class="Identifier">conn</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Future</span><span class="Other">[</span><span class="Identifier">string</span><span class="Other">]</span> {.
@@ -273,6 +296,20 @@
 </div>
 
 </div>
+<div id="tryReceiveAsync-procs-all">
+  <div id="tryReceiveAsync,ZConnection">
+  <dt><pre><span class="Keyword">proc</span> <a href="#tryReceiveAsync%2CZConnection"><span class="Identifier">tryReceiveAsync</span></a><span class="Other">(</span><span class="Identifier">conn</span><span class="Other">:</span> <a href="connections.html#ZConnection"><span class="Identifier">ZConnection</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">Future</span><span class="Other">[</span>
+    <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">msgAvailable</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">,</span> <span class="Identifier">moreAvailable</span><span class="Other">:</span> <span class="Identifier">bool</span><span class="Other">,</span> <span class="Identifier">msg</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">]</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ZmqError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Async version of <tt class="docutils literal"><span class="pre"><span class="Identifier">tryReceive</span><span class="Punctuation">(</span><span class="Punctuation">)</span></span></tt>
+    
+  </dd>
+</div>
+
+</div>
 
   </dl>
 </div>
@@ -283,7 +320,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2024-11-04 16:53:22 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2024-12-09 08:56:36 UTC</small>
       </div>
     </div>
   </div>
