@@ -159,6 +159,48 @@ proc getsockopt*[T: SomeOrdinal|string](c: ZConnection, option: ZSockOptions): T
   getsockopt[T](c.socket, option)
 
 #[
+  CURVE security
+  CURVE options (CURVE_SERVER/_PUBLICKEY/_SECRETKEY/_SERVERKEY) must be set on the socket before it
+  connects or binds - see the `configure` callback overloads of `connect`_ and `listen`_ below.
+]#
+proc hasCurve*(): bool =
+  ## True if the linked libzmq was built with CURVE security support (i.e. with libsodium).
+  ## ``connect``/``listen`` with ``setCurveClient``/``setCurveServer`` raise ``ZmqError`` otherwise.
+  has("curve") == 1
+
+proc curveKeypair*(): tuple[publicKey, secretKey: string] =
+  ## Generates a new CURVE keypair, Z85-encoded (40 printable characters each) - wraps
+  ## ``zmq_curve_keypair``. Requires ``hasCurve()``.
+  runnableExamples:
+    import zmq
+    doAssert hasCurve(), "this libzmq was not built with CURVE (libsodium) support"
+    let (publicKey, secretKey) = curveKeypair()
+    doAssert publicKey.len == 40 and secretKey.len == 40
+  var pub = newString(41)
+  var sec = newString(41)
+  if curve_keypair(cstring(pub), cstring(sec)) != 0:
+    zmqError()
+  result.publicKey = $cstring(pub)
+  result.secretKey = $cstring(sec)
+
+proc setCurveServer*(s: ZSocket, secretKey: string) =
+  ## Configures ``s`` as a CURVE server. Call from the ``configure`` callback of `listen`_, so it
+  ## runs before the socket binds - CURVE options are rejected once the socket is bound/connected.
+  s.setsockopt(CURVE_SECRETKEY, secretKey)
+  # NB for anyone touching this: `setsockopt`'s generic infers `T` from the literal, and a bare `1`
+  # is Nim's `int` (8 bytes on 64-bit) - zmq_setsockopt requires exactly `sizeof(int)` (4 bytes) for
+  # int-valued options like CURVE_SERVER and rejects anything else with EINVAL. `1.cint` is required.
+  s.setsockopt(CURVE_SERVER, 1.cint)
+
+proc setCurveClient*(s: ZSocket, serverPublicKey, publicKey, secretKey: string) =
+  ## Configures ``s`` as a CURVE client authenticating to a server with public key
+  ## ``serverPublicKey``. Call from the ``configure`` callback of `connect`_, so it runs before the
+  ## socket connects - CURVE options are rejected once the socket is bound/connected.
+  s.setsockopt(CURVE_SERVERKEY, serverPublicKey)
+  s.setsockopt(CURVE_PUBLICKEY, publicKey)
+  s.setsockopt(CURVE_SECRETKEY, secretKey)
+
+#[
   Destructor
 ]#
 when defined(gcDestructors):
@@ -269,6 +311,46 @@ proc connect*(address: string, mode: ZSocketType): ZConnection =
   result = connect(address, mode, ctx)
   result.ownctx = true
 
+proc connect*(address: string, mode: ZSocketType, context: ZContext,
+              configure: proc (s: ZSocket) {.closure.}): ZConnection =
+  ## Like `connect(address, mode, context) <#connect,string,ZSocketType,ZContext>`_, but calls
+  ## `configure` on the newly created socket *before* connecting. Needed for socket options that
+  ## must be set pre-connect, most notably CURVE security - see `setCurveClient`_.
+  runnableExamples:
+    import zmq
+    let (serverPub, serverSec) = curveKeypair()
+    let (clientPub, clientSec) = curveKeypair()
+    var server = listen("tcp://127.0.0.1:34555", REP) do (s: ZSocket) -> void:
+      s.setCurveServer(serverSec)
+    var client = connect("tcp://127.0.0.1:34555", REQ) do (s: ZSocket) -> void:
+      s.setCurveClient(serverPub, clientPub, clientSec)
+    client.send("hello, encrypted")
+    assert server.receive() == "hello, encrypted"
+    client.close()
+    server.close()
+  result = new(ZConnection)
+  result.context = context
+  result.ownctx = false
+  result.sockaddr = address
+  result.alive = true
+  result.socket = socket(result.context, cint(mode))
+  if result.socket == nil:
+    zmqError()
+  configure(result.socket)
+  if connect(result.socket, address) != 0:
+    zmqError()
+
+proc connect*(address: string, mode: ZSocketType,
+              configure: proc (s: ZSocket) {.closure.}): ZConnection =
+  ## Like `connect(address, mode) <#connect,string,ZSocketType>`_ (internal, owned ``ZContext``),
+  ## but calls `configure` on the socket before connecting.
+  let ctx = newZContext()
+  if ctx == nil:
+    zmqError()
+
+  result = connect(address, mode, ctx, configure)
+  result.ownctx = true
+
 proc listen*(address: string, mode: ZSocketType, context: ZContext): ZConnection =
   ## Open a new connection on an external ``ZContext`` and binds on the socket. External context are useful for inproc connections.
   runnableExamples:
@@ -304,6 +386,34 @@ proc listen*(address: string, mode: ZSocketType): ZConnection =
     zmqError()
 
   result = listen(address, mode, ctx)
+  result.ownctx = true
+
+proc listen*(address: string, mode: ZSocketType, context: ZContext,
+             configure: proc (s: ZSocket) {.closure.}): ZConnection =
+  ## Like `listen(address, mode, context) <#listen,string,ZSocketType,ZContext>`_, but calls
+  ## `configure` on the newly created socket *before* binding. Needed for socket options that
+  ## must be set pre-bind, most notably CURVE security - see `setCurveServer`_.
+  result = new(ZConnection)
+  result.context = context
+  result.ownctx = false
+  result.sockaddr = address
+  result.alive = true
+  result.socket = socket(result.context, cint(mode))
+  if result.socket == nil:
+    zmqError()
+  configure(result.socket)
+  if bindAddr(result.socket, address) != 0:
+    zmqError()
+
+proc listen*(address: string, mode: ZSocketType,
+             configure: proc (s: ZSocket) {.closure.}): ZConnection =
+  ## Like `listen(address, mode) <#listen,string,ZSocketType>`_ (internal, owned ``ZContext``),
+  ## but calls `configure` on the socket before binding.
+  let ctx = newZContext()
+  if ctx == nil:
+    zmqError()
+
+  result = listen(address, mode, ctx, configure)
   result.ownctx = true
 
 proc close(c: var ZConnectionImpl, linger: int = 500) =

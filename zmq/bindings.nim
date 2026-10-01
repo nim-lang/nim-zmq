@@ -534,6 +534,18 @@ proc z85_encode*(dest: cstring, data: ptr uint8, size: int): cstring {.
 proc z85_decode*(dest: ptr uint8, string: cstring): ptr uint8 {.
   cdecl, importc: "zmq_z85_decode", dynlib: zmqdll.}
 
+#  Generate a new CURVE keypair, Z85-encoded (CURVE security, needs libsodium)
+proc curve_keypair*(z85_public_key, z85_secret_key: cstring): cint {.
+  cdecl, importc: "zmq_curve_keypair", dynlib: zmqdll.}
+
+#  Derive the public key from a secret key, Z85-encoded (CURVE security, needs libsodium)
+proc curve_public*(z85_public_key, z85_secret_key: cstring): cint {.
+  cdecl, importc: "zmq_curve_public", dynlib: zmqdll.}
+
+#  Query a runtime capability, e.g. has("curve"), has("ipc") - returns 0/1
+proc has*(capability: cstring): cint {.
+  cdecl, importc: "zmq_has", dynlib: zmqdll.}
+
 #  Deprecated aliases
 #const
 #  ZMQ_STREAMER* = 1
