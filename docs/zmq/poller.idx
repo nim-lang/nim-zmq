@@ -1,0 +1,19 @@
+nimTitle	poller	zmq/poller.html	module zmq/poller		0
+nim	ZPoller	zmq/poller.html#ZPoller	object ZPoller		8
+nim	`=destroy`	zmq/poller.html#=destroy,ZPoller	proc `=destroy`(poll: ZPoller)		15
+nim	`[]`	zmq/poller.html#[],ZPoller,int	proc `[]`(poller: ZPoller; idx: int): lent ZPollItem		18
+nim	len	zmq/poller.html#len,ZPoller	proc len(poller: ZPoller): int		22
+nim	poll	zmq/poller.html#poll,openArray[ZPollItem],int64	proc poll(items: openArray[ZPollItem]; timeout: int64): int32		27
+nim	register	zmq/poller.html#register,ZPoller,ZSocket,int	proc register(poller: var ZPoller; sock: ZSocket; event: int)		31
+nim	register	zmq/poller.html#register,ZPoller,ZConnection,int	proc register(poller: var ZPoller; conn: ZConnection; event: int)		37
+nim	initZPoller	zmq/poller.html#initZPoller,openArray[ZConnection],cshort	proc initZPoller(items: openArray[ZConnection]; event: cshort): ZPoller		41
+nim	initZPoller	zmq/poller.html#initZPoller,openArray[ZSocket],cshort	proc initZPoller(items: openArray[ZSocket]; event: cshort): ZPoller		46
+nim	initZPoller	zmq/poller.html#initZPoller,openArray[tuple[ZSocket,cshort]]	proc initZPoller(items: openArray[tuple[sock: ZSocket, event: cshort]]): ZPoller		51
+nim	initZPoller	zmq/poller.html#initZPoller,openArray[tuple[ZConnection,cshort]]	proc initZPoller(items: openArray[tuple[con: ZConnection, event: cshort]]): ZPoller		56
+nim	poll	zmq/poller.html#poll,ZPoller,int64	proc poll(poller: ZPoller; timeout: int64): int32		61
+nim	events	zmq/poller.html#events,ZPollItem,int	proc events(p: ZPollItem; events: int): bool		65
+nim	events	zmq/poller.html#events,ZPollItem	proc events(p: ZPollItem): bool		72
+nimgrp	initzpoller	zmq/poller.html#initZPoller-procs-all	proc		41
+nimgrp	events	zmq/poller.html#events-procs-all	proc		65
+nimgrp	register	zmq/poller.html#register-procs-all	proc		31
+nimgrp	poll	zmq/poller.html#poll-procs-all	proc		27

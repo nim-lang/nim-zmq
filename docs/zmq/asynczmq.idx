@@ -1,0 +1,17 @@
+nimTitle	asynczmq	zmq/asynczmq.html	module zmq/asynczmq		0
+nim	AsyncZPollCB	zmq/asynczmq.html#AsyncZPollCB	type AsyncZPollCB		7
+nim	AsyncZPoller	zmq/asynczmq.html#AsyncZPoller	object AsyncZPoller		9
+nim	len	zmq/asynczmq.html#len,AsyncZPoller	proc len(poller: AsyncZPoller): int		14
+nim	`=destroy`	zmq/asynczmq.html#=destroy,AsyncZPoller	proc `=destroy`(obj: AsyncZPoller)		38
+nim	register	zmq/asynczmq.html#register,AsyncZPoller,ZSocket,int,AsyncZPollCB	proc register(poller: var AsyncZPoller; sock: ZSocket; event: int; cb: AsyncZPollCB)		43
+nim	register	zmq/asynczmq.html#register,AsyncZPoller,ZConnection,int,AsyncZPollCB	proc register(poller: var AsyncZPoller; conn: ZConnection; event: int;\n         cb: AsyncZPollCB)		49
+nim	register	zmq/asynczmq.html#register,AsyncZPoller,ZPollItem,AsyncZPollCB	proc register(poller: var AsyncZPoller; item: ZPollItem; cb: AsyncZPollCB)		54
+nim	initZPoller	zmq/asynczmq.html#initZPoller,sinkZPoller,AsyncZPollCB	proc initZPoller(poller: sink ZPoller; cb: AsyncZPollCB): AsyncZPoller		60
+nim	initZPoller	zmq/asynczmq.html#initZPoller,openArray[tuple[ZConnection,AsyncZPollCB]],cshort	proc initZPoller(args: openArray[tuple[item: ZConnection, cb: AsyncZPollCB]];\n            event: cshort): AsyncZPoller		65
+nim	pollAsync	zmq/asynczmq.html#pollAsync,AsyncZPoller,int	proc pollAsync(poller: AsyncZPoller; timeout: int = 2): Future[int]		71
+nim	receiveAsync	zmq/asynczmq.html#receiveAsync,ZConnection	proc receiveAsync(conn: ZConnection): Future[string]		114
+nim	tryReceiveAsync	zmq/asynczmq.html#tryReceiveAsync,ZConnection	proc tryReceiveAsync(conn: ZConnection): Future[\n    tuple[msgAvailable: bool, moreAvailable: bool, msg: string]]		128
+nim	receiveAllAsync	zmq/asynczmq.html#receiveAllAsync,ZConnection	proc receiveAllAsync(conn: ZConnection): Future[seq[string]]		137
+nim	sendAsync	zmq/asynczmq.html#sendAsync,ZConnection,string,ZSendRecvOptions	proc sendAsync(conn: ZConnection; msg: string; flags: ZSendRecvOptions = DONTWAIT): Future[\n    void]		148
+nimgrp	initzpoller	zmq/asynczmq.html#initZPoller-procs-all	proc		60
+nimgrp	register	zmq/asynczmq.html#register-procs-all	proc		43
