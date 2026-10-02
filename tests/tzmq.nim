@@ -354,6 +354,41 @@ proc non_blocking_recv() =
     router.close(250)
     dealer.close(250)
 
+proc sockopt_widths() =
+  test "setsockopt takes the width from the option, not from the Nim literal":
+    var c = connect("tcp://127.0.0.1:55020", REQ)
+    defer: c.close()
+    # C-int options given a bare (8-byte) Nim int literal used to fail with EINVAL
+    c.setsockopt(REQ_RELAXED, 1)
+    c.setsockopt(REQ_CORRELATE, 1)
+    c.setsockopt(RCVTIMEO, 123)
+    c.setsockopt(LINGER, 0)
+    c.setsockopt(IMMEDIATE, true)
+    check c.getsockopt[:cint](RCVTIMEO) == 123
+    check c.getsockopt[:cint](LINGER) == 0
+    check c.getsockopt[:cint](IMMEDIATE) == 1
+    # the two options that are not C int
+    c.setsockopt(MAXMSGSIZE, 4096)
+    check c.getsockopt[:int64](MAXMSGSIZE) == 4096
+    c.setsockopt(AFFINITY, 3)
+    check c.getsockopt[:uint64](AFFINITY) == 3
+    # explicit widths keep working
+    c.setsockopt(SNDTIMEO, 77.cint)
+    check c.getsockopt[:cint](SNDTIMEO) == 77
+
+proc req_relaxed_after_timeout() =
+  test "a REQ with REQ_RELAXED can send again after a receive timed out":
+    var req = connect("tcp://127.0.0.1:55021", REQ)   # nobody listens: the reply never comes
+    defer: req.close()
+    req.setsockopt(RCVTIMEO, 50)
+    req.send("one")
+    check req.receive() == ""                          # EAGAIN, REQ now waits for a reply
+    expect ZmqError:
+      req.send("two")                                  # strict REQ: EFSM
+    req.setsockopt(REQ_RELAXED, 1)
+    req.setsockopt(REQ_CORRELATE, 1)
+    req.send("three")                                  # relaxed: allowed
+
 when isMainModule:
   reqrep()
   pubsub()
@@ -363,3 +398,5 @@ when isMainModule:
   async_pub_sub()
   asyncpoll()
   non_blocking_recv()
+  sockopt_widths()
+  req_relaxed_after_timeout()

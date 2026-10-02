@@ -94,9 +94,18 @@ proc terminate*(ctx: ZContext) =
 
 # Some option take cint, int64 or uint64
 proc setsockopt_impl[T: SomeOrdinal](s: ZSocket, option: ZSockOptions, optval: T) =
-  var val: T = optval
-  if setsockopt(s, option, addr(val), sizeof(val)) != 0:
-    zmqError()
+  # libzmq reads a fixed number of bytes decided by the *option*, not by the caller's Nim type:
+  # ZMQ_AFFINITY is uint64, ZMQ_MAXMSGSIZE is int64 and every other integer/boolean option is a C int.
+  # Taking the width from `T` meant a bare literal - Nim's 8-byte `int` - was rejected with EINVAL for
+  # all the C-int options, e.g. `setsockopt(REQ_RELAXED, 1)` or `setsockopt(CURVE_SERVER, 1)`.
+  template call(v: untyped) =
+    var val = v
+    if setsockopt(s, option, addr(val), sizeof(val)) != 0:
+      zmqError()
+  case option
+  of AFFINITY: call(uint64(optval))
+  of MAXMSGSIZE: call(int64(optval))
+  else: call(cint(optval))
 
 # Some option take cstring
 proc setsockopt_impl(s: ZSocket, option: ZSockOptions, optval: string) =
