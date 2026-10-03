@@ -188,6 +188,10 @@ when defined(gcDestructors):
         if ctx_term(x.context) != 0:
           echo("Error in closing ZMQ-context")
 
+    # A custom `=destroy` replaces the compiler-generated one, which is what destroys the object's fields. Without
+    # this line the `sockaddr` string of every connection ever made leaks (about 30 bytes each).
+    `=destroy`(x.sockaddr)
+
   proc `=wasMoved`(x: var ZConnectionImpl) =
     x.alive = false
     x.socket = nil
