@@ -2,3 +2,6 @@ bin/
 nimcache/
 testresults
 outputGotten.txt
+nimble.develop
+nimble.paths
+nimbledeps
