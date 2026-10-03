@@ -23,6 +23,39 @@ proc reqrep() =
       let r = req.receive()
       check r == pong
 
+proc curve() =
+  test "curve":
+    if not hasCurve():
+      skip()
+      return
+    const sockaddr = "tcp://127.0.0.1:55009"
+    let (serverPub, serverSec) = curveKeypair()
+    let (clientPub, clientSec) = curveKeypair()
+    let (roguePub, rogueSec) = curveKeypair()
+
+    var server = listen(sockaddr, REP) do (s: ZSocket) -> void:
+      s.setCurveServer(serverSec)
+    defer: server.close()
+    var client = connect(sockaddr, REQ) do (s: ZSocket) -> void:
+      s.setCurveClient(serverPub, clientPub, clientSec)
+    defer: client.close()
+
+    client.send("hello, encrypted")
+    check server.receive() == "hello, encrypted"
+
+    # a client that does not know the server's real public key must not get a reply
+    var badAddr = "tcp://127.0.0.1:55010"
+    var badServer = listen(badAddr, REP) do (s: ZSocket) -> void:
+      s.setCurveServer(serverSec)
+    defer: badServer.close()
+    var badClient = connect(badAddr, REQ) do (s: ZSocket) -> void:
+      s.setCurveClient(roguePub, clientPub, clientSec)  # wrong server key
+    defer: badClient.close()
+    badClient.setsockopt(RCVTIMEO, 300.cint)
+    badClient.send("should not be decrypted")
+    let (msgAvailable, _, _) = badClient.waitForReceive(300)
+    check not msgAvailable
+
 proc pubsub() =
   test "pubsub":
     const sockaddr = "tcp://127.0.0.1:55001"
@@ -391,6 +424,7 @@ proc req_relaxed_after_timeout() =
 
 when isMainModule:
   reqrep()
+  curve()
   pubsub()
   inproc_sharectx()
   routerdealer()
